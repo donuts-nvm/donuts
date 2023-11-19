@@ -1,3 +1,18 @@
+# The Sniper Multi-Core Simulator
+
+This is an updated fork of the multicore sniper simulator (available at
+https://github.com/snipersim/snipersim). This source code is being
+developed by Kleber Kruger at the State University of Campinas, Brazil
+and Federal University of Mato Grosso do Sul. This version fixes some
+bugs and implements new features, such as support for:
+
+    - Write-Buffer
+    - Non-Volatile Memory (NVM)
+
+* Below is README file information from the original project.
+
+--- (https://github.com/snipersim/snipersim):
+
 This is the source code for the Sniper multicore simulator developed
 by the Performance Lab research group at Ghent University, Belgium.
 Please refer to the NOTICE file in the top level directory for

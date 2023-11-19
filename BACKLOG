@@ -1,0 +1,4 @@
+☑ Add README, NOTES and BACKLOG files, and set compiler to an updated C++ version
+☐ Fix writethrough lock bug on L2 caches onwards
+☐ Implement support for write-buffers
+☐ Implement NVM support
