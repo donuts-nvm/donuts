@@ -1,0 +1,19 @@
+services:
+  snipersim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - UID=${UID}
+        - USER=${USER}
+    image: ubuntu-sniper
+    ports:
+      - "2222:22"
+    user: "${UID}:${GID:-100}"
+    volumes:
+      - "${HOME}:${HOME}"
+    command: ["sh", "-c", "sudo service ssh start && tail -f /dev/null"]
+
+secrets:
+  user_ssh_key:
+    file: ~/.ssh/id_ed25519
