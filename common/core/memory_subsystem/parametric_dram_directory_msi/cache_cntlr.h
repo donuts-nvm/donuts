@@ -190,17 +190,21 @@ namespace ParametricDramDirectoryMSI
             , m_evicting_address(0)
             , m_evicting_buf(NULL)
             , m_atds()
+            , m_log_blocksize(0)
+            , m_num_sets(0)
             , m_prefetch_list()
             , m_prefetch_next(SubsecondTime::Zero())
          {}
          ~CacheMasterCntlr();
 
          friend class CacheCntlr;
+         friend class CacheCntlrWrBuff; // Added by Kleber Kruger
+         friend class WriteBufferCntlr; // Added by Kleber Kruger
    };
 
    class CacheCntlr : ::CacheCntlr
    {
-      private:
+      protected: // Modified by Kleber Kruger (old value: private)
          // Data Members
          MemComponent::component_t m_mem_component;
          MemoryManager* m_memory_manager;
@@ -304,6 +308,10 @@ namespace ParametricDramDirectoryMSI
          SharedCacheBlockInfo* insertCacheBlock(IntPtr address, CacheState::cstate_t cstate, Byte* data_buf, core_id_t requester, ShmemPerfModel::Thread_t thread_num);
          std::pair<SubsecondTime, bool> updateCacheBlock(IntPtr address, CacheState::cstate_t cstate, Transition::reason_t reason, Byte* out_buf, ShmemPerfModel::Thread_t thread_num);
          void writeCacheBlock(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num);
+         // Added by Kleber Kruger (a wrapper to instruction: "m_next_cache_cntlr->writeCacheBlock")
+         virtual void writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num);
+         // Added by Kleber Kruger (to flush cache-block to DRAM in LLC writethrough models)
+         SubsecondTime sendDataToDram(IntPtr address);
 
          // Handle Request from previous level cache
          HitWhere::where_t processShmemReqFromPrevCache(CacheCntlr* requester, Core::mem_op_t mem_op_type, IntPtr address, bool modeled, bool count, Prefetch::prefetch_type_t isPrefetch, SubsecondTime t_issue, bool have_write_lock);
@@ -406,6 +414,21 @@ namespace ParametricDramDirectoryMSI
          void enable() { m_master->m_cache->enable(); }
          void disable() { m_master->m_cache->disable(); }
 
+         // Added by Kleber Kruger
+         static CacheCntlr *create(MemComponent::component_t mem_component,
+                                   const String& name,
+                                   core_id_t core_id,
+                                   MemoryManager *memory_manager,
+                                   AddressHomeLookup *tag_directory_home_lookup,
+                                   Semaphore *user_thread_sem,
+                                   Semaphore *network_thread_sem,
+                                   UInt32 cache_block_size,
+                                   CacheParameters &cache_params,
+                                   ShmemPerfModel *shmem_perf_model,
+                                   bool is_last_level_cache);
+
+         friend class WriteBufferCntlr;   // Added by Kleber Kruger
+         friend class CacheCntlrWrBuff;   // Added by Kleber Kruger
          friend class CacheCntlrList;
          friend class MemoryManager;
    };

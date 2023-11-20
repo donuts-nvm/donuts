@@ -8,6 +8,8 @@
 #include "hooks_manager.h"
 #include "cache_atd.h"
 #include "shmem_perf.h"
+#include "cache_cntlr.h"
+#include "cache_cntlr_wb.h"      // Added by Kleber Kruger
 
 #include <cstring>
 
@@ -1306,7 +1308,8 @@ CacheCntlr::accessCache(
          if (m_cache_writethrough) {
             LOG_ASSERT_ERROR(m_next_cache_cntlr, "Writethrough enabled on last-level cache !?");
 MYLOG("writethrough start");
-            m_next_cache_cntlr->writeCacheBlock(ca_address, offset, data_buf, data_length, ShmemPerfModel::_USER_THREAD);
+            // Modified by Kleber Kruger (m_next_cache_cntlr->writeCacheBlock() -> writeCacheBlockAtNextLevel())
+            writeCacheBlockAtNextLevel(ca_address, offset, data_buf, data_length, ShmemPerfModel::_USER_THREAD);
 MYLOG("writethrough done");
          }
          break;
@@ -1478,7 +1481,10 @@ MYLOG("evicting @%lx", evict_address);
          } else {
             /* Send dirty block to next level cache. Probably we have an evict/victim buffer to do that when we're idle, so ignore timing */
             if (evict_block_info.getCState() == CacheState::MODIFIED)
-               m_next_cache_cntlr->writeCacheBlock(evict_address, 0, evict_buf, getCacheBlockSize(), thread_num);
+            {
+               // Modified by Kleber Kruger (m_next_cache_cntlr->writeCacheBlock() -> writeCacheBlockAtNextLevel())
+               writeCacheBlockAtNextLevel(evict_address, 0, evict_buf, getCacheBlockSize(), thread_num);
+            }
          }
          m_next_cache_cntlr->notifyPrevLevelEvict(m_core_id_master, m_mem_component, evict_address);
       }
@@ -1635,7 +1641,8 @@ CacheCntlr::updateCacheBlock(IntPtr address, CacheState::cstate_t new_cstate, Tr
             /* write straight into the next level cache */
             Byte data_buf[getCacheBlockSize()];
             retrieveCacheBlock(address, data_buf, thread_num, false);
-            m_next_cache_cntlr->writeCacheBlock(address, 0, data_buf, getCacheBlockSize(), thread_num);
+            // Modified by Kleber Kruger (m_next_cache_cntlr->writeCacheBlock() -> writeCacheBlockAtNextLevel())
+            writeCacheBlockAtNextLevel(address, 0, data_buf, getCacheBlockSize(), thread_num);
             is_writeback = true;
             sibling_hit = true;
 
@@ -1739,11 +1746,59 @@ assert(data_length==getCacheBlockSize());
       #ifdef PRIVATE_L2_OPTIMIZATION
       acquireStackLock(address, true);
       #endif
-      m_next_cache_cntlr->writeCacheBlock(address, offset, data_buf, data_length, thread_num);
+      // Modified by Kleber Kruger (m_next_cache_cntlr->writeCacheBlock() -> writeCacheBlockAtNextLevel())
+      writeCacheBlockAtNextLevel(address, offset, data_buf, data_length, thread_num);
       #ifdef PRIVATE_L2_OPTIMIZATION
       releaseStackLock(address, true);
       #endif
    }
+}
+
+/**
+ * Wrapper to instruction "m_next_cache_cntlr->writeCacheBlock()".
+ * This wrapper function allows it to extend the implementation to a new model based on write-buffer.
+ * Added by Kleber Kruger
+ *
+ * @param address
+ * @param offset
+ * @param data_buf
+ * @param data_length
+ * @param thread_num
+ */
+void
+CacheCntlr::writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num)
+{
+   if (!isLastLevel())
+      m_next_cache_cntlr->writeCacheBlock(address, offset, data_buf, data_length, thread_num);
+   else
+   {  // Writing via a write buffer is unnecessary because the DRAM writing model already implements a queue model.
+      SubsecondTime latency = sendDataToDram(address);
+      getMemoryManager()->incrElapsedTime(latency, ShmemPerfModel::_USER_THREAD);
+   }
+}
+
+/**
+ * Send the modified cache-block to DRAM in case of LLC writethrough.
+ * Added by Kleber Kruger
+ * TODO: Check this implementation because it don't update directory states.
+ *
+ * @param address
+ * @param data_buf
+ *
+ * @return sending latency to DRAM
+ */
+SubsecondTime
+CacheCntlr::sendDataToDram(IntPtr address)
+{
+   ScopedLock sl(getLock());
+
+   Byte data_buf[getCacheBlockSize()];
+   SubsecondTime t_issue = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+   SubsecondTime latency;
+   HitWhere::where_t hit_where;
+
+   boost::tie(latency, hit_where) = getMemoryManager()->getDramCntlr()->putDataToDram(address, m_core_id_master, data_buf, t_issue);
+   return latency;
 }
 
 bool
@@ -2306,6 +2361,47 @@ Semaphore*
 CacheCntlr::getNetworkThreadSemaphore()
 {
    return m_network_thread_sem;
+}
+
+/**
+ * Create a CacheCntlr to specified project.
+ * Added by Kleber Kruger
+ *
+ * @param mem_component
+ * @param name
+ * @param core_id
+ * @param memory_manager
+ * @param tag_directory_home_lookup
+ * @param user_thread_sem
+ * @param network_thread_sem
+ * @param cache_block_size
+ * @param cache_params
+ * @param shmem_perf_model
+ * @param is_last_level_cache
+ *
+ * @return the CacheCntlr according to the specified cache configuration
+ */
+CacheCntlr *CacheCntlr::create(MemComponent::component_t mem_component,
+                               const String& name,
+                               core_id_t core_id,
+                               MemoryManager *memory_manager,
+                               AddressHomeLookup *tag_directory_home_lookup,
+                               Semaphore *user_thread_sem,
+                               Semaphore *network_thread_sem,
+                               UInt32 cache_block_size,
+                               CacheParameters &cache_params,
+                               ShmemPerfModel *shmem_perf_model,
+                               bool is_last_level_cache)
+{
+   // The LLC already implements a DRAM-write strategy similar to a write-buffer using a queue-based model
+   if (Sim()->getCfg()->getBoolDefault("perf_model/" + cache_params.configName + "/writebuffer/enabled", false) && !is_last_level_cache)
+   {
+      return new CacheCntlrWrBuff(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
+                                  network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache);
+   }
+
+   return new CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
+                         network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache);
 }
 
 }
