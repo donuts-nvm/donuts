@@ -64,6 +64,7 @@ RUN apt-get update && apt-get install -y \
     git \
     g++-9 \
     vim \
+    nano \
  && rm -rf /var/lib/apt/lists/*
 
 # Upgrade OS

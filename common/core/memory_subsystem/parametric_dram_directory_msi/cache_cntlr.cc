@@ -1735,9 +1735,14 @@ assert(data_length==getCacheBlockSize());
    }
 
    if (m_cache_writethrough) {
-      acquireStackLock(true);
+      // Fixed by Kleber Kruger
+      #ifdef PRIVATE_L2_OPTIMIZATION
+      acquireStackLock(address, true);
+      #endif
       m_next_cache_cntlr->writeCacheBlock(address, offset, data_buf, data_length, thread_num);
-      releaseStackLock(true);
+      #ifdef PRIVATE_L2_OPTIMIZATION
+      releaseStackLock(address, true);
+      #endif
    }
 }
 

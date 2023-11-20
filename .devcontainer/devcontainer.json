@@ -3,9 +3,7 @@
   "name": "ubuntu:20.04-sniper",
   "dockerFile": "../docker/Dockerfile-ubuntu-20.04",
   "build": {
-    "args": {
-
-    }
+    "args": {}
   },
   "runArgs": []
 }
