@@ -6,6 +6,8 @@
 #include "stats.h"
 #include "fault_injection.h"
 #include "shmem_perf.h"
+#include "nvm_cntlr.h"        // Added by Kleber Kruger
+#include "dram_nvm_cntlr.h"   // Added by Kleber Kruger
 
 #if 0
    extern Lock iolock;
@@ -21,24 +23,58 @@ class TimeDistribution;
 namespace PrL1PrL2DramDirectoryMSI
 {
 
+/**
+ * Creates a DramCntlr.
+ * Modified by Kleber Kruger (original implementation in the other construction)
+ *
+ * @param memory_manager
+ * @param shmem_perf_model
+ * @param cache_block_size
+ */
 DramCntlr::DramCntlr(MemoryManagerBase* memory_manager,
-      ShmemPerfModel* shmem_perf_model,
-      UInt32 cache_block_size)
-   : DramCntlrInterface(memory_manager, shmem_perf_model, cache_block_size)
-   , m_reads(0)
-   , m_writes(0)
+                     ShmemPerfModel* shmem_perf_model,
+                     UInt32 cache_block_size) :
+    DramCntlr(memory_manager, shmem_perf_model, cache_block_size,
+              DramPerfModel::createDramPerfModel(memory_manager->getCore()->getId(), cache_block_size),
+              MemComponent::DRAM)
+{ }
+
+/**
+ * Creates a DramCntlr.
+ * Added and slightly modified by Kleber Kruger
+ *
+ * @param memory_manager
+ * @param shmem_perf_model
+ * @param cache_block_size
+ * @param dram_perf_model
+ * @param mem_component
+ */
+DramCntlr::DramCntlr(MemoryManagerBase* memory_manager,
+                     ShmemPerfModel* shmem_perf_model,
+                     UInt32 cache_block_size,
+                     DramPerfModel* dram_perf_model,
+                     MemComponent::component_t mem_component) :
+    DramCntlrInterface(memory_manager, shmem_perf_model, cache_block_size),
+    m_dram_perf_model(dram_perf_model),
+    m_fault_injector(Sim()->getFaultinjectionManager() ?
+                           Sim()->getFaultinjectionManager()->getFaultInjector(memory_manager->getCore()->getId(), mem_component) :
+                           nullptr),
+    m_reads(0),
+    m_writes(0)
 {
-   m_dram_perf_model = DramPerfModel::createDramPerfModel(
-         memory_manager->getCore()->getId(),
-         cache_block_size);
-
-   m_fault_injector = Sim()->getFaultinjectionManager()
-      ? Sim()->getFaultinjectionManager()->getFaultInjector(memory_manager->getCore()->getId(), MemComponent::DRAM)
-      : NULL;
-
    m_dram_access_count = new AccessCountMap[DramCntlrInterface::NUM_ACCESS_TYPES];
-   registerStatsMetric("dram", memory_manager->getCore()->getId(), "reads", &m_reads);
-   registerStatsMetric("dram", memory_manager->getCore()->getId(), "writes", &m_writes);
+
+   // TODO: (FIX-ME!) Generate statistics according to memory technology
+   if (DramCntlrInterface::getTechnology() == DramCntlrInterface::HYBRID)
+   {
+      registerStatsMetric(MemComponentString(mem_component), memory_manager->getCore()->getId(), "reads", &m_reads);
+      registerStatsMetric(MemComponentString(mem_component), memory_manager->getCore()->getId(), "writes", &m_writes);
+   }
+   else
+   {
+      registerStatsMetric("dram", memory_manager->getCore()->getId(), "reads", &m_reads);
+      registerStatsMetric("dram", memory_manager->getCore()->getId(), "writes", &m_writes);
+   }
 }
 
 DramCntlr::~DramCntlr()
@@ -134,6 +170,28 @@ DramCntlr::printDramAccessCount()
          }
       }
    }
+}
+
+/**
+ * Enable/disable dram perf model(s).
+ * Added by Kleber Kruger
+ *
+ * @param enable true to enable / false to disable
+ */
+void
+DramCntlr::enableDramPerfModel(bool enable)
+{
+   if (enable) m_dram_perf_model->enable();
+   else        m_dram_perf_model->disable();
+}
+
+DramCntlr*
+DramCntlr::create(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, UInt32 cache_block_size)
+{
+   DramCntlrInterface::technology_t technology = DramCntlrInterface::getTechnology();
+   return technology == NVM    ? new NvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :
+          technology == HYBRID ? new DramNvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :
+                                 new DramCntlr(memory_manager, shmem_perf_model, cache_block_size);
 }
 
 }

@@ -3,6 +3,7 @@
 #include "shmem_msg.h"
 #include "shmem_perf.h"
 #include "log.h"
+#include "config.hpp" // Added by Kleber Kruger
 
 void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2DramDirectoryMSI::ShmemMsg* shmem_msg)
 {
@@ -49,4 +50,19 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
          LOG_PRINT_ERROR("Unrecognized Shmem Msg Type: %u", shmem_msg_type);
          break;
    }
+}
+
+// TODO: Improve this method (check if technology is valid! use enum to set NVM technology?)
+DramCntlrInterface::technology_t
+DramCntlrInterface::getTechnology()
+{
+   String param = "perf_model/dram/technology";
+   String technology = Sim()->getCfg()->hasKey(param) ? Sim()->getCfg()->getString(param) : "dram";
+
+   if (technology == "dram")     return DRAM;
+   if (technology == "nvm")      return NVM;
+   if (technology == "hybrid")   return HYBRID;
+
+   LOG_ASSERT_ERROR(false, "Parameter [perf_model/dram/technology] is unknown");
+   return UNKNOWN;
 }

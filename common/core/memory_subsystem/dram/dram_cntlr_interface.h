@@ -31,6 +31,15 @@ class DramCntlrInterface
          NUM_ACCESS_TYPES
       } access_t;
 
+      // Added by Kleber Kruger
+      typedef enum
+      {
+         UNKNOWN,
+         DRAM,
+         NVM,
+         HYBRID
+      } technology_t;
+
       DramCntlrInterface(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, UInt32 cache_block_size)
          : m_memory_manager(memory_manager)
          , m_shmem_perf_model(shmem_perf_model)
@@ -42,6 +51,9 @@ class DramCntlrInterface
       virtual boost::tuple<SubsecondTime, HitWhere::where_t> putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now) = 0;
 
       void handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2DramDirectoryMSI::ShmemMsg* shmem_msg);
+
+      // Added by Kleber Kruger
+      static DramCntlrInterface::technology_t getTechnology();
 };
 
 #endif // __DRAM_CNTLR_INTERFACE_H
