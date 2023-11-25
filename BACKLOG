@@ -2,3 +2,13 @@
 ☑ Fix writethrough lock bug on L2 caches onwards
 ☑ Implement support for write-buffers
 ☑ Implement NVM support
+☐ Implement the epoch system
+☐ Implement DONUTS
+  - ☐ Add the paper config files + donuts.cfg, and do not commit 'sim.ckpts.csv' files
+  - ☐ Implement Least Recently Used Read (LRU-R) cache replacement policy
+  - ☐ Implement checkpoints performed by cache thresholds and timeout using a messaging system
+  - ☐ Add epoch tracking and integrate the checkpoints into the epoch system
+  - ☐ Implement LoR and LoW In-Memory Processing strategies
+  - ☐ Implement hybrid logging strategy
+☐ Implement scripts to generate experiment results
+☐ Create memory access test programs
