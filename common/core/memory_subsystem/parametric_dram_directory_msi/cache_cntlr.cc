@@ -10,6 +10,8 @@
 #include "shmem_perf.h"
 #include "cache_cntlr.h"
 #include "cache_cntlr_wb.h"      // Added by Kleber Kruger
+#include "cache_cntlr_donuts.h"  // Added by Kleber Kruger
+#include "epoch_manager.h"       // Added by Kleber Kruger
 
 #include <cstring>
 
@@ -2393,13 +2395,17 @@ CacheCntlr *CacheCntlr::create(MemComponent::component_t mem_component,
                                ShmemPerfModel *shmem_perf_model,
                                bool is_last_level_cache)
 {
-   // The LLC already implements a DRAM-write strategy similar to a write-buffer using a queue-based model
-   if (Sim()->getCfg()->getBoolDefault("perf_model/" + cache_params.configName + "/writebuffer/enabled", false) && !is_last_level_cache)
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
    {
+      return new CacheCntlrDonuts(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
+                                  network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache,
+                                  Sim()->getEpochManager()->getEpochCntlr(core_id));
+   }
+   if (Sim()->getCfg()->getBoolDefault("perf_model/" + cache_params.configName + "/writebuffer/enabled", false) && !is_last_level_cache)
+   {  // The LLC already implements a DRAM-write strategy similar to a write-buffer using a queue-based model
       return new CacheCntlrWrBuff(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
                                   network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache);
    }
-
    return new CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
                          network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache);
 }

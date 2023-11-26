@@ -199,6 +199,7 @@ namespace ParametricDramDirectoryMSI
 
          friend class CacheCntlr;
          friend class CacheCntlrWrBuff; // Added by Kleber Kruger
+         friend class CacheCntlrDonuts; // Added by Kleber Kruger
          friend class WriteBufferCntlr; // Added by Kleber Kruger
    };
 
@@ -429,6 +430,8 @@ namespace ParametricDramDirectoryMSI
 
          friend class WriteBufferCntlr;   // Added by Kleber Kruger
          friend class CacheCntlrWrBuff;   // Added by Kleber Kruger
+         friend class CacheCntlrDonuts;   // Added by Kleber Kruger
+
          friend class CacheCntlrList;
          friend class MemoryManager;
    };
