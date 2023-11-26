@@ -26,7 +26,10 @@ class CacheSet
       static CacheSet* createCacheSet(String cfgname, core_id_t core_id, String replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info = NULL);
       static CacheSetInfo* createCacheSetInfo(String name, String cfgname, core_id_t core_id, String replacement_policy, UInt32 associativity);
       static CacheBase::ReplacementPolicy parsePolicyType(String policy);
+      static CacheBase::ReplacementPolicy parsePolicyTypeDonuts(String policy);                                   // Added by Kleber Kruger
       static UInt8 getNumQBSAttempts(CacheBase::ReplacementPolicy, String cfgname, core_id_t core_id);
+      static float getCacheSetThreshold(CacheBase::ReplacementPolicy policy, String cfgname, core_id_t core_id);  // Added by Kleber Kruger
+      static bool isDonutsLLC(String cfgname);                                                                    // Added by Kleber Kruger
 
    protected:
       CacheBlockInfo** m_cache_block_info_array;
@@ -59,7 +62,7 @@ class CacheSet
       virtual UInt32 getReplacementIndex(CacheCntlr *cntlr) = 0;
       virtual void updateReplacementIndex(UInt32) = 0;
 
-      bool isValidReplacement(UInt32 index);
+      virtual bool isValidReplacement(UInt32 index); // Modified by Kleber Kruger (added virtual keyword)
 };
 
 #endif /* CACHE_SET_H */

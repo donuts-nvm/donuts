@@ -7,6 +7,7 @@
 #include "cache_set_random.h"
 #include "cache_set_round_robin.h"
 #include "cache_set_srrip.h"
+#include "cache_set_lrur.h" // Added by Kleber Kruger
 #include "cache_base.h"
 #include "log.h"
 #include "simulator.h"
@@ -137,7 +138,9 @@ CacheSet::createCacheSet(String cfgname, core_id_t core_id,
       CacheBase::cache_t cache_type,
       UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info)
 {
-   CacheBase::ReplacementPolicy policy = parsePolicyType(replacement_policy);
+   // Modified by Kleber Kruger
+   CacheBase::ReplacementPolicy policy = isDonutsLLC(cfgname) ? parsePolicyTypeDonuts(replacement_policy) :
+                                                                parsePolicyType(replacement_policy);
    switch(policy)
    {
       case CacheBase::ROUND_ROBIN:
@@ -166,9 +169,14 @@ CacheSet::createCacheSet(String cfgname, core_id_t core_id,
       case CacheBase::RANDOM:
          return new CacheSetRandom(cache_type, associativity, blocksize);
 
+      case CacheBase::LRU_R:         // Added by Kleber Kruger
+//    case CacheBase::LRU_R_QBS:     // Added by Kleber Kruger
+         return new CacheSetLRUR(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU *>(set_info),
+                                 getNumQBSAttempts(policy, cfgname, core_id),
+                        getCacheSetThreshold(policy, cfgname, core_id));
+
       default:
-         LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i",
-               policy);
+         LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i", policy);
          break;
    }
 
@@ -185,6 +193,8 @@ CacheSet::createCacheSetInfo(String name, String cfgname, core_id_t core_id, Str
       case CacheBase::LRU_QBS:
       case CacheBase::SRRIP:
       case CacheBase::SRRIP_QBS:
+      case CacheBase::LRU_R:        // Added by Kleber Kruger
+//    case CacheBase::LRU_R_QBS:    // Added by Kleber Kruger
          return new CacheSetInfoLRU(name, cfgname, core_id, associativity, getNumQBSAttempts(policy, cfgname, core_id));
       default:
          return NULL;
@@ -198,10 +208,26 @@ CacheSet::getNumQBSAttempts(CacheBase::ReplacementPolicy policy, String cfgname,
    {
       case CacheBase::LRU_QBS:
       case CacheBase::SRRIP_QBS:
+//    case CacheBase::LRU_R_QBS:    // Added by Kleber Kruger
          return Sim()->getCfg()->getIntArray(cfgname + "/qbs/attempts", core_id);
       default:
          return 1;
    }
+}
+
+/**
+ * Added by Kleber Kruger
+ *
+ * @param policy
+ * @param cfgname
+ * @param core_id
+ * @return
+ */
+float
+CacheSet::getCacheSetThreshold(CacheBase::ReplacementPolicy policy, String cfgname, core_id_t core_id)
+{
+   String key = cfgname + "/cache_set_threshold";
+   return Sim()->getCfg()->hasKey(key) ? Sim()->getCfg()->getFloatArray(key, core_id) : 1.0;
 }
 
 CacheBase::ReplacementPolicy
@@ -227,8 +253,44 @@ CacheSet::parsePolicyType(String policy)
       return CacheBase::SRRIP_QBS;
    if (policy == "random")
       return CacheBase::RANDOM;
+   if (policy == "lru_r")     // Added by Kleber Kruger
+      return CacheBase::LRU_R;
+// if (policy == "lru_r_qbs") // Added by Kleber Kruger
+//    return CacheBase::LRU_R_QBS;
 
    LOG_PRINT_ERROR("Unknown replacement policy %s", policy.c_str());
+}
+
+/**
+ * Added by Kleber Kruger
+ * @param policy
+ * @return the replacement policy for DONUTS
+ */
+CacheBase::ReplacementPolicy
+CacheSet::parsePolicyTypeDonuts(String policy)
+{
+   if (policy == "lru" || policy == "lru_r")
+      return CacheBase::LRU_R;
+
+   LOG_PRINT_ERROR("Replacement policy not yet implemented for DONUTS %s", policy.c_str());
+}
+
+/**
+ * Added by Kleber Kruger
+ *
+ * @param cfgname config name
+ * @return true if this set is DONUTS and LLC
+ */
+bool
+CacheSet::isDonutsLLC(String cfgname)
+{
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
+   {
+      static UInt32 levels = Sim()->getCfg()->getInt("perf_model/cache/levels");
+      static String last = levels == 1 ? "perf_model/l1_dcache" : "perf_model/l" + String(std::to_string(levels).c_str()) + "_cache";
+      return cfgname == last;
+   }
+   return false;
 }
 
 bool CacheSet::isValidReplacement(UInt32 index)

@@ -41,6 +41,7 @@ class CacheBlockInfo
       virtual void clone(CacheBlockInfo* cache_block_info);
 
       bool isValid() const { return (m_tag != ((IntPtr) ~0)); }
+      bool isDirty() const { return (m_cstate == CacheState::MODIFIED); } // Added by Kleber Kruger
 
       IntPtr getTag() const { return m_tag; }
       CacheState::cstate_t getCState() const { return m_cstate; }
@@ -67,6 +68,8 @@ class CacheCntlr
    public:
       virtual bool isInLowerLevelCache(CacheBlockInfo *block_info) { return false; }
       virtual void incrementQBSLookupCost() {}
+
+      virtual void checkpoint() {} // Added by Kleber Kruger
 };
 
 #endif /* __CACHE_BLOCK_INFO_H__ */
