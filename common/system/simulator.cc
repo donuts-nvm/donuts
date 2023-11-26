@@ -27,6 +27,7 @@
 #include "instruction_tracer.h"
 #include "memory_tracker.h"
 #include "circular_log.h"
+#include "epoch_manager.h" // Added by Kleber Kruger
 
 #include <sstream>
 
@@ -35,6 +36,33 @@ config::Config *Simulator::m_config_file;
 bool Simulator::m_config_file_allowed = true;
 Config::SimulationMode Simulator::m_mode;
 dl::Decoder *Simulator::m_decoder;
+
+const char* Simulator::project_names[] = {
+   "Baseline",
+   "dOnuts"
+};
+static_assert(ProjectType::NUM_PROJECT_TYPES == sizeof(Simulator::project_names) / sizeof(Simulator::project_names[0]),
+              "Not enough values in ProjectType::project_type_names");
+
+/**
+ * Get the project type
+ * Added by Kleber Kruger
+ *
+ * @return ProjectType
+ */
+ProjectType Simulator::loadProjectType()
+{
+   const String key = "general/project_type";
+   String project = Sim()->getCfg()->hasKey(key) ? Sim()->getCfg()->getString(key) : "default";
+   transform(project.begin(), project.end(), project.begin(), ::tolower);
+
+   if (project == "default")
+      return ProjectType::DEFAULT;
+   if (project == "donuts")
+      return ProjectType::DONUTS;
+
+   LOG_PRINT_ERROR("Unknown project %s", project.c_str());
+}
 
 void Simulator::allocate()
 {
@@ -122,6 +150,7 @@ Simulator::Simulator()
    , m_faultinjection_manager(NULL)
    , m_rtn_tracer(NULL)
    , m_memory_tracker(NULL)
+   , m_project_type(loadProjectType()) // Added by Kleber Kruger
    , m_running(false)
    , m_inst_mode_output(true)
 {
@@ -144,6 +173,7 @@ void Simulator::start()
    m_thread_stats_manager = new ThreadStatsManager();
    m_clock_skew_minimization_manager = ClockSkewMinimizationManager::create();
    m_clock_skew_minimization_server = ClockSkewMinimizationServer::create();
+   m_epoch_manager = m_project_type != ProjectType::DEFAULT ? new EpochManager() : nullptr; // Added by Kleber Kruger
    m_core_manager = new CoreManager();
    m_sim_thread_manager = new SimThreadManager();
    m_sampling_manager = new SamplingManager();
@@ -316,6 +346,7 @@ void Simulator::printInstModeSummary()
          LOG_PRINT_ERROR("Unknown simulation mode");
    }
    printf(" frontend\n");
+   printf("[SNIPER] Running project [ %s ]\n", project_names[m_project_type]); // Added by Kleber Kruger
    switch(getConfig()->getSimulationROI())
    {
       case Config::ROI_FULL:
