@@ -10,7 +10,7 @@ of Campinas and Federal University of Mato Grosso do Sul, Brazil.
 This project was implemented in the Sniper multicore simulator
 (described in the other README file).
 
-- Some new features of this project:
+Some new features of this project:
 
 * Support for write-through caches at all memory hierarchy levels
   (fixed lock bug in L2 caches onwards)
