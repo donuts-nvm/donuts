@@ -9,7 +9,7 @@
 class VersionedDomain
 {
 public:
-   VersionedDomain(const UInt32 id);
+   explicit VersionedDomain(const UInt32 id);
    ~VersionedDomain();
 
    void increment() { m_eid++; }

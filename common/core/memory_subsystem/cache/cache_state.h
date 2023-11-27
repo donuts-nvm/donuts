@@ -25,7 +25,7 @@ class CacheState
          NUM_CSTATE_SPECIAL_STATES
       };
 
-      CacheState(cstate_t state = INVALID) : cstate(state) {}
+      explicit CacheState(cstate_t state = INVALID) : cstate(state) {}
       ~CacheState() {}
 
       bool readable()
@@ -36,6 +36,23 @@ class CacheState
       bool writable()
       {
          return (cstate == MODIFIED);
+      }
+
+      char c_str() // Added by Kleber Kruger
+      {
+         switch(cstate)
+         {
+            case CacheState::INVALID:           return 'I';
+            case CacheState::SHARED:            return 'S';
+            case CacheState::SHARED_UPGRADING:  return 'u';
+            case CacheState::MODIFIED:          return 'M';
+            case CacheState::EXCLUSIVE:         return 'E';
+            case CacheState::OWNED:             return 'O';
+            case CacheState::INVALID_COLD:      return '_';
+            case CacheState::INVALID_EVICT:     return 'e';
+            case CacheState::INVALID_COHERENCY: return 'c';
+            default:                            return '?';
+         }
       }
 
    private:

@@ -10,12 +10,12 @@
 #include <variant>
 #include <algorithm>
 
-typedef std::pair<std::variant<WriteBufferEntry, IntPtr>, SubsecondTime> WriteBufferEntryPair;
-
 class WriteBuffer
 {
 public:
-   WriteBuffer(UInt32 num_entries) : m_num_entries(num_entries) {}
+   typedef std::pair<std::variant<WriteBufferEntry, IntPtr>, SubsecondTime> WriteBufferEntryPair;
+
+   explicit WriteBuffer(UInt32 num_entries) : m_num_entries(num_entries) {}
    virtual ~WriteBuffer() = default;
 
    virtual void insert(const WriteBufferEntry& entry, SubsecondTime time) = 0;
@@ -48,7 +48,7 @@ class NonCoalescingWriteBuffer : public WriteBuffer
 {
 public:
 
-   NonCoalescingWriteBuffer(UInt32 num_entries = DEFAULT_NUMBER_ENTRIES);
+   explicit NonCoalescingWriteBuffer(UInt32 num_entries = DEFAULT_NUMBER_ENTRIES);
    virtual ~NonCoalescingWriteBuffer();
 
    virtual void insert(const WriteBufferEntry& entry, SubsecondTime time);
@@ -63,7 +63,7 @@ class CoalescingWriteBuffer : public WriteBuffer
 {
 public:
 
-   CoalescingWriteBuffer(UInt32 num_entries = DEFAULT_NUMBER_ENTRIES);
+   explicit CoalescingWriteBuffer(UInt32 num_entries = DEFAULT_NUMBER_ENTRIES);
    virtual ~CoalescingWriteBuffer();
 
    virtual void insert(const WriteBufferEntry& entry, SubsecondTime time);

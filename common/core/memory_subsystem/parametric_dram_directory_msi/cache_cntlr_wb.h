@@ -44,8 +44,13 @@ public:
     */
    ~CacheCntlrWrBuff() override;
 
+   bool isWriteBufferEnabled() const { return m_writebuffer_enabled; }
+
+   friend WriteBufferCntlr;
+
 protected:
 
+   bool m_writebuffer_enabled;
    WriteBufferCntlr* m_writebuffer_cntlr;
 
    /**
@@ -57,7 +62,13 @@ protected:
     * @param data_length
     * @param thread_num
     */
-   void writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num) override;
+   void writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num, UInt64 eid) override;
+
+   virtual void sendByWriteBuffer(const WriteBufferEntry &entry);
+
+private:
+
+   static bool isWriteBufferEnabled(const CacheParameters& cache_params);
 };
 
 }// namespace ParametricDramDirectoryMSI

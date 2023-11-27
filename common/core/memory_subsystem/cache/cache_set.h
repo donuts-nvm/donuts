@@ -23,7 +23,8 @@ class CacheSet
 {
    public:
 
-      static CacheSet* createCacheSet(String cfgname, core_id_t core_id, String replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info = NULL);
+      // Modified by Kleber Kruger (added arg index)
+      static CacheSet* createCacheSet(UInt32 index, String cfgname, core_id_t core_id, String replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info = NULL);
       static CacheSetInfo* createCacheSetInfo(String name, String cfgname, core_id_t core_id, String replacement_policy, UInt32 associativity);
       static CacheBase::ReplacementPolicy parsePolicyType(String policy);
       static CacheBase::ReplacementPolicy parsePolicyTypeDonuts(String policy);                                   // Added by Kleber Kruger
@@ -62,7 +63,7 @@ class CacheSet
       virtual UInt32 getReplacementIndex(CacheCntlr *cntlr) = 0;
       virtual void updateReplacementIndex(UInt32) = 0;
 
-      virtual bool isValidReplacement(UInt32 index); // Modified by Kleber Kruger (added virtual keyword)
+      virtual bool isValidReplacement(UInt32 index); // Modified by Kleber Kruger (now is virtual)
 };
 
 #endif /* CACHE_SET_H */

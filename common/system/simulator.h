@@ -2,6 +2,7 @@
 #define SIMULATOR_H
 
 #include "config.h"
+#include "config_donuts.h" // Added by Kleber Kruger
 #include "log.h"
 #include "inst_mode.h"
 
@@ -62,6 +63,7 @@ public:
    ThreadManager *getThreadManager() { return m_thread_manager; }
    ClockSkewMinimizationManager *getClockSkewMinimizationManager() { return m_clock_skew_minimization_manager; }
    FastForwardPerformanceManager *getFastForwardPerformanceManager() { return m_fastforward_performance_manager; }
+   ConfigDonuts *getConfigDonuts() { return &m_config_donuts; }   // Added by Kleber Kruger
    Config *getConfig() { return &m_config; }
    config::Config *getCfg() {
       //if (! m_config_file_allowed)
@@ -98,6 +100,7 @@ public:
    
 private:
    Config m_config;
+   ConfigDonuts m_config_donuts;                                  // Added by Kleber Kruger
    Log m_log;
    TagsManager *m_tags_manager;
    SyscallServer *m_syscall_server;

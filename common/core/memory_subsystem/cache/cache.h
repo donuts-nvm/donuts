@@ -31,7 +31,10 @@ class Cache : public CacheBase
 
       FaultInjector *m_fault_injector;
 
-      #ifdef ENABLE_SET_USAGE_HIST
+      CacheBase::ReplacementPolicy m_replacement_policy; // Added by Kleber Kruger
+      float m_cache_threshold;                           // Added by Kleber Kruger
+
+#ifdef ENABLE_SET_USAGE_HIST
       UInt64* m_set_usage_hist;
       #endif
 
@@ -65,6 +68,11 @@ class Cache : public CacheBase
       // Update Cache Counters
       void updateCounters(bool cache_hit);
       void updateHits(Core::mem_op_t mem_op_type, UInt64 hits);
+
+      CacheBase::ReplacementPolicy getReplacementPolicy() { return m_replacement_policy; }   // Added by Kleber Kruger
+      float getCapacityUsed();                                                               // Added by Kleber Kruger
+      float getSetCapacityUsed(UInt32 index);                                                // Added by Kleber Kruger
+      float getCacheThreshold(const String& cfgname);                                        // Added by Kleber Kruger
 
       void enable() { m_enabled = true; }
       void disable() { m_enabled = false; }

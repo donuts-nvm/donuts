@@ -8,7 +8,7 @@ class CacheSetLRUR : public CacheSetLRU
 public:
    static const constexpr float DEFAULT_CACHE_SET_THRESHOLD = 1.0;
 
-   CacheSetLRUR(CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize,
+   CacheSetLRUR(CacheBase::cache_t cache_type, UInt32 index, UInt32 associativity, UInt32 blocksize,
                 CacheSetInfoLRU *set_info, UInt8 num_attempts,
                 float cache_set_threshold = DEFAULT_CACHE_SET_THRESHOLD);
 
@@ -18,6 +18,7 @@ public:
 
 protected:
 
+   UInt32 m_index;
    float m_cache_set_threshold;
 
    bool isValidReplacement(UInt32 index) override;

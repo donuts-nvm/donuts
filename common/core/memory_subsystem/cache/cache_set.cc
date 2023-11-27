@@ -132,8 +132,8 @@ CacheSet::getDataPtr(UInt32 line_index, UInt32 offset)
    return &m_blocks[line_index * m_blocksize + offset];
 }
 
-CacheSet*
-CacheSet::createCacheSet(String cfgname, core_id_t core_id,
+CacheSet* // Modified by Kleber Kruger (added arg index)
+CacheSet::createCacheSet(UInt32 index, String cfgname, core_id_t core_id,
       String replacement_policy,
       CacheBase::cache_t cache_type,
       UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info)
@@ -171,9 +171,9 @@ CacheSet::createCacheSet(String cfgname, core_id_t core_id,
 
       case CacheBase::LRU_R:         // Added by Kleber Kruger
 //    case CacheBase::LRU_R_QBS:     // Added by Kleber Kruger
-         return new CacheSetLRUR(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU *>(set_info),
+         return new CacheSetLRUR(cache_type, index, associativity, blocksize, dynamic_cast<CacheSetInfoLRU *>(set_info),
                                  getNumQBSAttempts(policy, cfgname, core_id),
-                        getCacheSetThreshold(policy, cfgname, core_id));
+                                 getCacheSetThreshold(policy, cfgname, core_id));
 
       default:
          LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i", policy);

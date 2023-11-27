@@ -1,12 +1,14 @@
 #include "cache_set_lrur.h"
 
 CacheSetLRUR::CacheSetLRUR(CacheBase::cache_t cache_type,
+                           UInt32 index,
                            UInt32 associativity,
                            UInt32 blocksize,
                            CacheSetInfoLRU *set_info,
                            UInt8 num_attempts,
                            float cache_set_threshold) :
     CacheSetLRU(cache_type, associativity, blocksize, set_info, num_attempts),
+    m_index(index),
     m_cache_set_threshold(cache_set_threshold) { }
 
 CacheSetLRUR::~CacheSetLRUR() = default;
@@ -54,7 +56,7 @@ CacheSetLRUR::getReplacementIndex(CacheCntlr *cntlr)
       {
          if (m_lru_bits[i] == max_bits)
          {
-            cntlr->checkpoint();
+            cntlr->checkpoint(CheckpointEvent::CACHE_SET_THRESHOLD, m_index);
             return i;
          }
       }

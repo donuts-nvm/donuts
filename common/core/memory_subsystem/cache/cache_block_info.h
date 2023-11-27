@@ -4,6 +4,7 @@
 #include "fixed_types.h"
 #include "cache_state.h"
 #include "cache_base.h"
+#include "checkpoint_event.h" // Added by Kleber Kruger
 
 class CacheBlockInfo
 {
@@ -26,11 +27,12 @@ class CacheBlockInfo
       UInt64 m_owner;
       BitsUsedType m_used;
       UInt8 m_options;  // large enough to hold a bitfield for all available option_t's
+      UInt64 m_eid;     // Added by Kleber Kruger
 
       static const char* option_names[];
 
    public:
-      CacheBlockInfo(IntPtr tag = ~0,
+      explicit CacheBlockInfo(IntPtr tag = ~0,
             CacheState::cstate_t cstate = CacheState::INVALID,
             UInt64 options = 0);
       virtual ~CacheBlockInfo();
@@ -41,16 +43,20 @@ class CacheBlockInfo
       virtual void clone(CacheBlockInfo* cache_block_info);
 
       bool isValid() const { return (m_tag != ((IntPtr) ~0)); }
-      bool isDirty() const { return (m_cstate == CacheState::MODIFIED); } // Added by Kleber Kruger
+      bool isDirty() const { return (m_cstate == CacheState::MODIFIED); }     // Added by Kleber Kruger
 
       IntPtr getTag() const { return m_tag; }
       CacheState::cstate_t getCState() const { return m_cstate; }
+      char getCStateString() const { return CacheState(m_cstate).c_str(); }   // Added by Kleber Kruger
 
       void setTag(IntPtr tag) { m_tag = tag; }
-      void setCState(CacheState::cstate_t cstate) { m_cstate = cstate; }
+      void setCState(CacheState::cstate_t cstate);                            // Modified by Kleber Kruger
 
       UInt64 getOwner() const { return m_owner; }
       void setOwner(UInt64 owner) { m_owner = owner; }
+
+      UInt64 getEpochID() const { return m_eid; }  // Added by Kleber Kruger
+      void setEpochID(UInt64 eid) { m_eid = eid; } // Added by Kleber Kruger
 
       bool hasOption(option_t option) { return m_options & (1 << option); }
       void setOption(option_t option) { m_options |= (1 << option); }
@@ -69,7 +75,8 @@ class CacheCntlr
       virtual bool isInLowerLevelCache(CacheBlockInfo *block_info) { return false; }
       virtual void incrementQBSLookupCost() {}
 
-      virtual void checkpoint() {} // Added by Kleber Kruger
+      // Added by Kleber Kruger to support checkpoint
+      virtual void checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_set_index) {};
 };
 
 #endif /* __CACHE_BLOCK_INFO_H__ */

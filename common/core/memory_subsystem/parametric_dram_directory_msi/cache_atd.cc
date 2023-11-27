@@ -33,16 +33,16 @@ ATD::ATD(String name, String configName, core_id_t core_id, UInt32 num_sets, UIn
    if (sampling == "full")
    {
       for(UInt64 set_index = 0; set_index < num_sets; ++set_index)
-      {
-         m_sets[set_index] = CacheSet::createCacheSet(name, core_id, replacement_policy, CacheBase::PR_L1_CACHE, associativity, 0, m_set_info);
+      {  // Modified by Kleber Kruger (added arg index)
+         m_sets[set_index] = CacheSet::createCacheSet(set_index, name, core_id, replacement_policy, CacheBase::PR_L1_CACHE, associativity, 0, m_set_info);
       }
    }
    else if (sampling == "2^n+1")
    {
       // Sample sets at indexes 2^N+1
       for(UInt64 set_index = 1; set_index < num_sets - 1; set_index <<= 1)
-      {
-         m_sets[set_index+1] = CacheSet::createCacheSet(name, core_id, replacement_policy, CacheBase::PR_L1_CACHE, associativity, 0, m_set_info);
+      {  // Modified by Kleber Kruger (added arg index)
+         m_sets[set_index+1] = CacheSet::createCacheSet(set_index, name, core_id, replacement_policy, CacheBase::PR_L1_CACHE, associativity, 0, m_set_info);
       }
    }
    else if (sampling == "random")
@@ -58,8 +58,8 @@ ATD::ATD(String name, String configName, core_id_t core_id, UInt32 num_sets, UIn
       {
          UInt64 set_index = rng_next(state) % num_sets;
          if (m_sets.count(set_index) == 0)
-         {
-            m_sets[set_index] = CacheSet::createCacheSet(name, core_id, replacement_policy, CacheBase::PR_L1_CACHE, associativity, 0, m_set_info);
+         {  // Modified by Kleber Kruger (added arg index)
+            m_sets[set_index] = CacheSet::createCacheSet(set_index, name, core_id, replacement_policy, CacheBase::PR_L1_CACHE, associativity, 0, m_set_info);
             --num_atds;
          }
          LOG_ASSERT_ERROR(++num_attempts < 10 * num_sets, "Cound not find unique ATD sets even after many attempts");

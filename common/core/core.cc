@@ -362,13 +362,19 @@ Core::initiateMemoryAccess(MemComponent::component_t mem_component,
       if (m_cheetah_manager)
          m_cheetah_manager->access(mem_op_type, curr_addr_aligned);
 
+      // Added by Kleber Kruger to track PC
+      m_program_counter.pc = eip;
+      if (mem_component == MemComponent::L1_ICACHE) m_program_counter.i_pc = eip;
+      if (mem_component == MemComponent::L1_DCACHE) m_program_counter.d_pc = eip;
+
       HitWhere::where_t this_hit_where = getMemoryManager()->coreInitiateMemoryAccess(
                mem_component,
                lock_signal,
                mem_op_type,
                curr_addr_aligned, curr_offset,
                data_buf ? curr_data_buffer_head : NULL, curr_size,
-               modeled);
+               modeled,
+               eip); // Added by Kleber Kruger
 
       if (hit_where != (HitWhere::where_t)mem_component)
       {

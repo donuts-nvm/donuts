@@ -83,6 +83,7 @@ void EpochManager::exit()
 
 void EpochManager::interrupt()
 {
+//   printf("t_now: %lu...\n", Sim()->getClockSkewMinimizationServer()->getGlobalTime().getNS());
    if (m_max_interval_time.getNS() > 0)
    {
       auto now = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
@@ -103,10 +104,19 @@ void EpochManager::commit()
    Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_END, m_system_eid);
 
    m_commited.eid = m_system_eid;
+   m_commited.pc = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache() >> 4;
    m_commited.instr = getTotalInstructionCount();
    m_commited.time = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
 
-   printf("Commited Epoch (%lu)\n- Inst: %lu\n- Time: %lu\n", m_commited.eid, m_commited.instr, m_commited.time.getNS());
+   printf("Commited Epoch (%lu)\n"
+          "- PC: %lX\n"
+          "- Inst: %lu\n"
+          "- Time: %lu\n",
+          m_commited.eid,
+          m_commited.pc,
+          m_commited.instr,
+          m_commited.time.getNS());
+
    // fprintf(m_log_file, "%lu\n", m_commited.time.getNS());
 
    Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_START, ++m_system_eid);

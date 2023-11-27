@@ -1,19 +1,5 @@
 #include "write_buffer.h"
 
-void WriteBuffer::print(String desc)
-{
-   UInt32 index = 0;
-   if (desc != "") printf("*** %s ***\n", desc.c_str());
-   printf("----------------------\n");
-   for (auto& e : m_queue)
-   {
-      auto tp = getEntryInfo(e);
-      printf("%4u [%12lX] -> (%lu)\n", index++, std::get<0>(tp), std::get<1>(tp).getNS());
-   }
-   printf("----------------------\n");
-}
-
-
 NonCoalescingWriteBuffer::NonCoalescingWriteBuffer(UInt32 num_entries)
     : WriteBuffer(num_entries) { }
 
@@ -82,4 +68,18 @@ CoalescingWriteBuffer::getEntryInfo(std::pair<std::variant<WriteBufferEntry, Int
 {
    auto entry = m_map.at(std::get<IntPtr>(e.first));
    return std::make_tuple(entry.getAddress(), e.second);
+}
+
+
+void WriteBuffer::print(String desc)
+{
+   UInt32 index = 0;
+   if (desc != "") printf("*** %s ***\n", desc.c_str());
+   printf("----------------------\n");
+   for (auto& e : m_queue)
+   {
+      auto tp = getEntryInfo(e);
+      printf("%4u [%12lx] -> (%lu)\n", index++, std::get<0>(tp), std::get<1>(tp).getNS());
+   }
+   printf("----------------------\n");
 }

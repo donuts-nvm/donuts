@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="donuts" targetName="regress_quick" />
+      <config projectName="donuts" targetName="configscripts" />
+      <config projectName="donuts" targetName="linux" />
+      <config projectName="donuts" targetName="xed_install" />
+      <config projectName="donuts" targetName="regress_unit" />
+      <config projectName="donuts" targetName="mbuild" />
+      <config projectName="donuts" targetName="distclean" />
+      <config projectName="donuts" targetName="lib" />
+      <config projectName="donuts" targetName="mcpat" />
+      <config projectName="donuts" targetName="dynamorio" />
+      <config projectName="donuts" targetName="compile_simulator" />
+      <config projectName="donuts" targetName="empty_config" />
+      <config projectName="donuts" targetName="package_deps" />
+      <config projectName="donuts" targetName="dependencies" />
+      <config projectName="donuts" targetName="message" />
+      <config projectName="donuts" targetName="all" />
+      <config projectName="donuts" targetName="showdebugstatus" />
+      <config projectName="donuts" targetName="empty_deps" />
+      <config projectName="donuts" targetName="sde_kit" />
+      <config projectName="donuts" targetName="Makefile" />
+      <config projectName="donuts" targetName="builddir" />
+      <config projectName="donuts" targetName="python" />
+      <config projectName="donuts" targetName="xed" />
+      <config projectName="donuts" targetName="capstone" />
+      <config projectName="donuts" targetName="regress_apps" />
+      <config projectName="donuts" targetName="pin" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e20096b7-f9dd-430e-a003-49f75173fb10" name="Changes" comment="Implemented asynchronous write-buffer to LLC in DONUTS">
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache.cc" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MakefileLocalSettings">
+    <option name="availableProjects">
+      <map>
+        <entry>
+          <key>
+            <ExternalProjectPojo>
+              <option name="name" value="donuts" />
+              <option name="path" value="$PROJECT_DIR$" />
+            </ExternalProjectPojo>
+          </key>
+          <value>
+            <list>
+              <ExternalProjectPojo>
+                <option name="name" value="donuts" />
+                <option name="path" value="$PROJECT_DIR$" />
+              </ExternalProjectPojo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
+      </map>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/nuca_cache.cc" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2ZNY4ndR87jjrdJybR3MH8sssg2" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Native Application.all.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
+    <layout>
+      <window_info id="Space Code Reviews" show_stripe_button="false" />
+      <window_info id="Bookmarks" show_stripe_button="false" side_tool="true" />
+      <window_info id="Merge Requests" show_stripe_button="false" />
+      <window_info id="Commit_Guest" show_stripe_button="false" />
+      <window_info id="Pull Requests" show_stripe_button="false" />
+      <window_info id="Learn" show_stripe_button="false" />
+      <window_info id="DFA" show_stripe_button="false" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.2802778" />
+      <window_info active="true" id="Commit" order="1" visible="true" weight="0.2802778" />
+      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
+      <window_info anchor="bottom" id="TypeScript" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Build" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Python Packages" show_stripe_button="false" />
+      <window_info anchor="bottom" id="TODO" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Messages" weight="0.32992893" />
+      <window_info anchor="bottom" id="File Transfer" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" weight="0.32992893" />
+      <window_info anchor="bottom" id="Vcpkg" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Find" weight="0.32992893" />
+      <window_info anchor="bottom" id="clangd" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="0" />
+      <window_info anchor="bottom" id="Problems View" order="1" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="2" visible="true" weight="0.32992893" />
+      <window_info anchor="bottom" id="Services" order="3" />
+      <window_info anchor="right" id="make" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" content_ui="combo" id="Notifications" order="0" weight="0.25" />
+      <window_info anchor="right" id="AIAssistant" order="1" weight="0.25" />
+      <window_info anchor="right" id="Database" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="RunManager" selected="Native Application.all">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Makefile" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="Makefile" CONFIG_NAME="Makefile" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="all" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-c donuts -- /bin/ls" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="run-sniper">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="builddir" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="builddir" CONFIG_NAME="builddir" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="capstone" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="capstone" CONFIG_NAME="capstone" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="compile_simulator" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="compile_simulator" CONFIG_NAME="compile_simulator" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="configscripts" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="configscripts" CONFIG_NAME="configscripts" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="dependencies" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="dependencies" CONFIG_NAME="dependencies" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="distclean" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="distclean" CONFIG_NAME="distclean" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="dynamorio" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="dynamorio" CONFIG_NAME="dynamorio" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="empty_config" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="empty_config" CONFIG_NAME="empty_config" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="empty_deps" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="empty_deps" CONFIG_NAME="empty_deps" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="lib" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="lib" CONFIG_NAME="lib" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="linux" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="linux" CONFIG_NAME="linux" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="mbuild" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="mbuild" CONFIG_NAME="mbuild" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="mcpat" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="mcpat" CONFIG_NAME="mcpat" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="message" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="message" CONFIG_NAME="message" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="package_deps" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="package_deps" CONFIG_NAME="package_deps" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="pin" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="pin" CONFIG_NAME="pin" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="python" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="python" CONFIG_NAME="python" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="regress_apps" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="regress_apps" CONFIG_NAME="regress_apps" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="regress_quick" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="regress_quick" CONFIG_NAME="regress_quick" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="regress_unit" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="regress_unit" CONFIG_NAME="regress_unit" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="sde_kit" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="sde_kit" CONFIG_NAME="sde_kit" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="showdebugstatus" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="showdebugstatus" CONFIG_NAME="showdebugstatus" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="xed" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="xed" CONFIG_NAME="xed" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="xed_install" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="xed_install" CONFIG_NAME="xed_install" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Native Application.all" />
+      <item itemvalue="Native Application.builddir" />
+      <item itemvalue="Native Application.compile_simulator" />
+      <item itemvalue="Native Application.configscripts" />
+      <item itemvalue="Native Application.dependencies" />
+      <item itemvalue="Native Application.distclean" />
+      <item itemvalue="Native Application.linux" />
+      <item itemvalue="Native Application.mbuild" />
+      <item itemvalue="Native Application.message" />
+      <item itemvalue="Native Application.package_deps" />
+      <item itemvalue="Native Application.pin" />
+      <item itemvalue="Native Application.python" />
+      <item itemvalue="Native Application.showdebugstatus" />
+      <item itemvalue="Native Application.xed" />
+      <item itemvalue="Native Application.xed_install" />
+      <item itemvalue="Native Application.capstone" />
+      <item itemvalue="Native Application.dynamorio" />
+      <item itemvalue="Native Application.empty_config" />
+      <item itemvalue="Native Application.empty_deps" />
+      <item itemvalue="Native Application.lib" />
+      <item itemvalue="Native Application.Makefile" />
+      <item itemvalue="Native Application.mcpat" />
+      <item itemvalue="Native Application.regress_apps" />
+      <item itemvalue="Native Application.regress_quick" />
+      <item itemvalue="Native Application.regress_unit" />
+      <item itemvalue="Native Application.sde_kit" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e20096b7-f9dd-430e-a003-49f75173fb10" name="Changes" comment="" />
+      <created>1702263815886</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1702263815886</updated>
+      <workItem from="1702263817618" duration="68000" />
+      <workItem from="1702263913646" duration="817000" />
+      <workItem from="1702264853381" duration="28000" />
+      <workItem from="1702264897227" duration="3811000" />
+      <workItem from="1702276342644" duration="1252000" />
+      <workItem from="1702328823458" duration="16000" />
+      <workItem from="1702328855211" duration="599000" />
+      <workItem from="1702432328514" duration="599000" />
+      <workItem from="1702433836923" duration="2961000" />
+      <workItem from="1702530456749" duration="20000" />
+      <workItem from="1702530493503" duration="6320000" />
+      <workItem from="1702571988914" duration="116000" />
+      <workItem from="1702572120878" duration="1595000" />
+      <workItem from="1702925347780" duration="125000" />
+      <workItem from="1702925488663" duration="1198000" />
+      <workItem from="1703092735140" duration="31000" />
+      <workItem from="1703093152428" duration="39000" />
+      <workItem from="1703093207488" duration="117000" />
+      <workItem from="1703094244323" duration="206000" />
+      <workItem from="1703094465421" duration="1402000" />
+      <workItem from="1703101833468" duration="502000" />
+      <workItem from="1703102361212" duration="38000" />
+      <workItem from="1703102414198" duration="26000" />
+      <workItem from="1703102455782" duration="123000" />
+      <workItem from="1703102594308" duration="597000" />
+      <workItem from="1703108370394" duration="18000" />
+      <workItem from="1703108406282" duration="597000" />
+      <workItem from="1703116485623" duration="956000" />
+      <workItem from="1703123138756" duration="597000" />
+      <workItem from="1703124373570" duration="3576000" />
+      <workItem from="1703165287108" duration="27000" />
+      <workItem from="1703165329894" duration="3191000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial commit COMMIT_REQ and COMMIT_REP">
+      <option name="closed" value="true" />
+      <created>1702340499171</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1702340499171</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Initial idea...">
+      <option name="closed" value="true" />
+      <created>1702555752139</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1702555752139</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Separating commit and persistence">
+      <option name="closed" value="true" />
+      <created>1702585067175</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1702585067175</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Implemented asynchronous write-buffer to LLC in DONUTS">
+      <option name="closed" value="true" />
+      <created>1703093308707</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1703093308707</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Implemented asynchronous write-buffer to LLC in DONUTS">
+      <option name="closed" value="true" />
+      <created>1703131794307</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1703131794307</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Implemented asynchronous write-buffer to LLC in DONUTS">
+      <option name="closed" value="true" />
+      <created>1703181320779</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1703181320779</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.cfg" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="Initial commit COMMIT_REQ and COMMIT_REP" />
+    <MESSAGE value="Initial idea..." />
+    <MESSAGE value="Separating commit and persistence" />
+    <MESSAGE value="Implemented asynchronous write-buffer to LLC in DONUTS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemented asynchronous write-buffer to LLC in DONUTS" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

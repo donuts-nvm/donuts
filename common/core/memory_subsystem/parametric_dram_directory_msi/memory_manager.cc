@@ -12,6 +12,7 @@
 #include "config.hpp"
 #include "distribution.h"
 #include "topology_info.h"
+#include "nvm_perf_model.h" // Added by Kleber Kruger
 
 #include <algorithm>
 
@@ -420,7 +421,8 @@ MemoryManager::coreInitiateMemoryAccess(
       Core::mem_op_t mem_op_type,
       IntPtr address, UInt32 offset,
       Byte* data_buf, UInt32 data_length,
-      Core::MemModeled modeled)
+      Core::MemModeled modeled,
+      IntPtr eip) // Added by Kleber Kruger
 {
    LOG_ASSERT_ERROR(mem_component <= m_last_level_cache,
       "Error: invalid mem_component (%d) for coreInitiateMemoryAccess", mem_component);
@@ -436,7 +438,8 @@ MemoryManager::coreInitiateMemoryAccess(
          address, offset,
          data_buf, data_length,
          modeled == Core::MEM_MODELED_NONE || modeled == Core::MEM_MODELED_COUNT ? false : true,
-         modeled == Core::MEM_MODELED_NONE ? false : true);
+         modeled == Core::MEM_MODELED_NONE ? false : true,
+         eip); // Modified by Kleber Kruger | added arg: eip
 }
 
 void
@@ -625,6 +628,15 @@ MemoryManager::getCost(MemComponent::component_t mem_component, CachePerfModel::
       return SubsecondTime::Zero();
 
    return m_cache_perf_models[mem_component]->getLatency(access_type);
+}
+
+SubsecondTime // Added by Kleber Kruger
+MemoryManager::getCostNvm(DramCntlrInterface::access_t access_type)
+{
+   static SubsecondTime read_latency = NvmPerfModel::getReadLatency();
+   static SubsecondTime write_latency = NvmPerfModel::getWriteLatency();
+
+   return access_type == DramCntlrInterface::WRITE ? write_latency : read_latency;
 }
 
 void

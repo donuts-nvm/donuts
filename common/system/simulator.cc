@@ -133,6 +133,7 @@ void Simulator::release()
 
 Simulator::Simulator()
    : m_config(m_mode)
+   , m_config_donuts()
    , m_log(m_config)
    , m_tags_manager(new TagsManager(m_config_file))
    , m_stats_manager(new StatsManager)

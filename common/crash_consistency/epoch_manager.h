@@ -104,6 +104,7 @@ private:
    {
       UInt64 eid;
       UInt64 instr;
+      IntPtr pc;
       SubsecondTime time;
    };
 

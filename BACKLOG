@@ -1,3 +1,6 @@
+==========================================================================================
+ FEATURES:
+------------------------------------------------------------------------------------------
 ☑ Add README, NOTES and BACKLOG files, and set compiler to an updated C++ version
 ☑ Fix writethrough lock bug on L2 caches onwards
 ☑ Implement support for write-buffers
@@ -6,10 +9,32 @@
 ☐ Implement DONUTS
   - ☑ Add the paper config files + donuts.cfg, and do not commit 'sim.ckpts.csv' files
   - ☑ Implement Least Recently Used Read (LRU-R) cache replacement policy
-  - ☐ Add specific CacheCntlr to DONUTS
-  - ☐ Implement checkpoints performed by cache thresholds and timeout using a messaging system
+  - ☑ Add specific CacheCntlr to DONUTS
+  - ☑ Implement checkpoints performed by cache thresholds using a messaging system
+  - ☑ Implement different persistence policies
   - ☐ Add epoch tracking and integrate the checkpoints into the epoch system
+  - ☑ Implement checkpoints performed by timeout
   - ☐ Implement LoR and LoW In-Memory Processing strategies
   - ☐ Implement hybrid logging strategy
+  - ☐ Create a ConfigDonuts class containing all settings "all-in-one"
 ☐ Implement scripts to generate experiment results
 ☐ Create memory access test programs
+☐ Find by "printf" in modified files to remove verbose code used in tests
+☐ Create separated patches to add write-buffer, NVM support, PIM and DONUTS checkpoints
+
+==========================================================================================
+
+
+
+==========================================================================================
+ TESTS:
+------------------------------------------------------------------------------------------
+☐ Use write-through policy at all cache levels using a baseline system
+☐ Use write-buffers at all cache levels using a baseline and DONUTS systems
+☐ Check NVM latencies
+☐ Test DONUTS checkpoint thresholds (cache, cache set, timeout, periodic instructions)
+☐ Test the persistence policies (fullest first, sequential, smart??)
+☐ Check sim.ckpts.csv file
+☐ Test LoR, LoW and Hybrid strategies
+☐ Test new Python scripts
+==========================================================================================

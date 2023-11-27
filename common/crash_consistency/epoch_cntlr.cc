@@ -18,6 +18,7 @@ void EpochCntlr::newEpoch()
    m_vd.increment();
 }
 
+// TODO: Add a reason
 void EpochCntlr::commit()
 {
    m_epoch_manager->commit();

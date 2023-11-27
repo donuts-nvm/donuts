@@ -1,6 +1,7 @@
 #include "simulator.h"
 #include "cache.h"
 #include "log.h"
+#include "config.hpp" // Added by Kleber Kruger
 
 // Cache class
 // constructors/destructors
@@ -22,13 +23,15 @@ Cache::Cache(
    m_num_accesses(0),
    m_num_hits(0),
    m_cache_type(cache_type),
-   m_fault_injector(fault_injector)
+   m_fault_injector(fault_injector),
+   m_replacement_policy(CacheSet::parsePolicyType(replacement_policy)), // Added by Kleber Kruger
+   m_cache_threshold(Cache::getCacheThreshold(cfgname))
 {
    m_set_info = CacheSet::createCacheSetInfo(name, cfgname, core_id, replacement_policy, m_associativity);
    m_sets = new CacheSet*[m_num_sets];
    for (UInt32 i = 0; i < m_num_sets; i++)
-   {
-      m_sets[i] = CacheSet::createCacheSet(cfgname, core_id, replacement_policy, m_cache_type, m_associativity, m_blocksize, m_set_info);
+   {  // Modified by Kleber Kruger (passing index as parameter also)
+      m_sets[i] = CacheSet::createCacheSet(i, cfgname, core_id, replacement_policy, m_cache_type, m_associativity, m_blocksize, m_set_info);
    }
 
    #ifdef ENABLE_SET_USAGE_HIST
@@ -136,6 +139,10 @@ Cache::insertSingleLine(IntPtr addr, Byte* fill_buff,
          eviction, evict_block_info, evict_buff, cntlr);
    *evict_addr = tagToAddress(evict_block_info->getTag());
 
+   // NVM Checkpoint Support (Added by Kleber Kruger)
+   if (Sim()->getProjectType() == ProjectType::DONUTS && getCapacityUsed() >= m_cache_threshold)
+      cntlr->checkpoint(CheckpointEvent::CACHE_THRESHOLD, set_index);
+
    if (m_fault_injector) {
       // NOTE: no callback is generated for read of evicted data
       UInt32 line_index = -1;
@@ -183,4 +190,47 @@ Cache::updateHits(Core::mem_op_t mem_op_type, UInt64 hits)
       m_num_accesses += hits;
       m_num_hits += hits;
    }
+}
+
+/**
+ * Get percentage (0..1) of modified blocks in cache.
+ * Added by Kleber Kruger
+ */
+float Cache::getCapacityUsed()
+{
+   UInt64 count = 0;
+   for (UInt32 i = 0; i < m_num_sets; i++)
+   {
+      for (UInt32 j = 0; j < m_associativity; j++)
+      {
+         if (peekBlock(i, j)->isDirty())
+            count++;
+      }
+   }
+   return static_cast<float>(count) / (m_num_sets * m_associativity);
+}
+
+/**
+ * Get percentage (0..1) of modified blocks in cache.
+ * Added by Kleber Kruger
+ */
+float Cache::getSetCapacityUsed(UInt32 index)
+{
+   UInt32 count = 0;
+   for (UInt32 i = 0; i < m_associativity; i++)
+   {
+      if (m_sets[index]->peekBlock(i)->isDirty())
+         count++;
+   }
+   return static_cast<float>(count) / m_associativity;
+}
+
+float Cache::getCacheThreshold(const String& cfgname)
+{
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
+   {
+      const String key = cfgname + "/cache_threshold";
+      return Sim()->getCfg()->hasKey(key) ? Sim()->getCfg()->getFloat(key) : 1.0;
+   }
+   return 0.0;
 }

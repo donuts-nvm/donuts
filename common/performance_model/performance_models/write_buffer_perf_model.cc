@@ -48,7 +48,7 @@ WriteBufferPerfModel::getInsertionLatency(IntPtr address, const SubsecondTime& s
       m_num_insertions++;
 
       // printWriteBuffer(m_queue);
-      // printf("Time: %lu | Written [%lX] in the writebuffer (%luns)\n\n", now.getNS(), address, latency.getNS());
+      // printf("Time: %lu | Written [%lx] in the writebuffer (%luns)\n", now.getNS(), address, latency.getNS());
    }
    m_num_accesses++;
    return latency;

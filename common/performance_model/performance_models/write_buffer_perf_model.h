@@ -31,7 +31,7 @@ private:
    UInt32 m_num_entries;
    bool m_coalescing;
    SubsecondTime m_insertion_latency;
-   std::deque<std::pair<IntPtr, SubsecondTime> > m_queue;
+   std::deque<std::pair<IntPtr, SubsecondTime>> m_queue;
 
    // Statistics
    SubsecondTime m_total_latency;
