@@ -32,9 +32,9 @@ class ShmemPerf
          DRAM_QUEUE,
          DRAM_BUS,
          DRAM_DEVICE,
-         NVM,           // Added by Kleber Kruger (not used yet!)
-         NVM_QUEUE,     // Added by Kleber Kruger (not used yet!)
-         NVM_BUS,       // Added by Kleber Kruger (not used yet!)
+         NVM,           // Added by Kleber Kruger
+         NVM_QUEUE,     // Added by Kleber Kruger
+         NVM_BUS,       // Added by Kleber Kruger
          NVM_DEVICE,    // Added by Kleber Kruger
          NVM_LOG_QUEUE, // Added by Kleber Kruger
          NVM_LOG_BUS,   // Added by Kleber Kruger

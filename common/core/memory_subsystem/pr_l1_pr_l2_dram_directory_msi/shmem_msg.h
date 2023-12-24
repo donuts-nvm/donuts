@@ -39,6 +39,14 @@ namespace PrL1PrL2DramDirectoryMSI
             // DRAM > tag directory
             DRAM_READ_REP,
 
+            // NVM Support (Added by Kleber Kruger)
+            // Tag directory > NVM
+            NVM_READ_REQ,
+            NVM_WRITE_REQ,
+            NVM_LOG_REQ,
+            // NVM > tag directory
+            NVM_READ_REP,
+
             MAX_MSG_TYPE = NULLIFY_REQ,
             NUM_MSG_TYPES = MAX_MSG_TYPE - MIN_MSG_TYPE + 1
          };

@@ -59,6 +59,9 @@ DramCntlr::DramCntlr(MemoryManagerBase* memory_manager,
     m_fault_injector(Sim()->getFaultinjectionManager() ?
                            Sim()->getFaultinjectionManager()->getFaultInjector(memory_manager->getCore()->getId(), mem_component) :
                            nullptr),
+    m_mem_component(mem_component),                                                       // Added by Kleber Kruger to add NVM support
+//  m_hit_where(m_mem_component == MemComponent::NVM ? HitWhere::NVM : HitWhere::DRAM),   // Added by Kleber Kruger to add NVM support
+    m_hit_where(HitWhere::DRAM), // FIXME: Put the line up!
     m_reads(0),
     m_writes(0)
 {
@@ -111,7 +114,7 @@ DramCntlr::getDataFromDram(IntPtr address, core_id_t requester, Byte* data_buf, 
    #endif
    MYLOG("R @ %08lx latency %s", address, itostr(dram_access_latency).c_str());
 
-   return boost::tuple<SubsecondTime, HitWhere::where_t>(dram_access_latency, HitWhere::DRAM);
+   return boost::tuple<SubsecondTime, HitWhere::where_t>(dram_access_latency, m_hit_where);
 }
 
 boost::tuple<SubsecondTime, HitWhere::where_t>
@@ -138,7 +141,7 @@ DramCntlr::putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, Su
    #endif
    MYLOG("W @ %08lx", address);
 
-   return boost::tuple<SubsecondTime, HitWhere::where_t>(dram_access_latency, HitWhere::DRAM);
+   return boost::tuple<SubsecondTime, HitWhere::where_t>(dram_access_latency, m_hit_where);
 }
 
 SubsecondTime
@@ -164,9 +167,9 @@ DramCntlr::printDramAccessCount()
       {
          if ((*i).second > 100)
          {
-            LOG_PRINT("Dram Cntlr(%i), Address(0x%x), Access Count(%llu), Access Type(%s)",
-                  m_memory_manager->getCore()->getId(), (*i).first, (*i).second,
-                  (k == READ)? "READ" : "WRITE");
+            LOG_PRINT("%s Cntlr(%i), Address(0x%x), Access Count(%llu), Access Type(%s)",
+                      MemComponentString(m_mem_component), m_memory_manager->getCore()->getId(), (*i).first, (*i).second,
+                      (k == READ) ? "READ" : (k == WRITE) ? "READ" : "LOG");
          }
       }
    }

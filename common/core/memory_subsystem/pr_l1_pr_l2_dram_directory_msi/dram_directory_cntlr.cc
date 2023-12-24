@@ -782,6 +782,8 @@ DramDirectoryCntlr::processDRAMReply(core_id_t sender, ShmemMsg* shmem_msg)
    HitWhere::where_t hit_where = shmem_msg->getWhere();
    if (hit_where == HitWhere::DRAM)
       hit_where = (sender == shmem_msg->getRequester()) ? HitWhere::DRAM_LOCAL : HitWhere::DRAM_REMOTE;
+   else if (hit_where == HitWhere::NVM) // Added by Kleber Kruger
+      hit_where = (sender == shmem_msg->getRequester()) ? HitWhere::NVM_LOCAL : HitWhere::NVM_REMOTE;
 
    //   Send reply
    MYLOG("MSG DRAM>%d for %lx", shmem_req->getShmemMsg()->getRequester(), address )

@@ -31,6 +31,8 @@ namespace PrL1PrL2DramDirectoryMSI
          std::unordered_map<IntPtr, Byte*> m_data_map;
          DramPerfModel* m_dram_perf_model;
          FaultInjector* m_fault_injector;
+         MemComponent::component_t m_mem_component;   // Added by Kleber Kruger
+         HitWhere::where_t m_hit_where;               // Added by Kleber Kruger
 
          typedef std::unordered_map<IntPtr,UInt64> AccessCountMap;
          AccessCountMap* m_dram_access_count;
@@ -41,9 +43,7 @@ namespace PrL1PrL2DramDirectoryMSI
          SubsecondTime runDramPerfModel(core_id_t requester, SubsecondTime time, IntPtr address, DramCntlrInterface::access_t access_type, ShmemPerf *perf);
 
          void addToDramAccessCount(IntPtr address, access_t access_type);
-         virtual void printDramAccessCount();   // Modified by Kleber Kruger (added virtual type)
-
-         static DramPerfModel *createDramPerfModel(core_id_t core_id, UInt32 cache_block_size); // Added by Kleber Kruger
+         void printDramAccessCount();
 
       public:
          DramCntlr(MemoryManagerBase* memory_manager,
@@ -54,10 +54,9 @@ namespace PrL1PrL2DramDirectoryMSI
 
          DramPerfModel* getDramPerfModel() { return m_dram_perf_model; }
 
-         // Run DRAM performance model. Pass in begin time, returns latency
-         // Modified by Kleber Kruger (added virtual type)
-         virtual boost::tuple<SubsecondTime, HitWhere::where_t> getDataFromDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf);
-         virtual boost::tuple<SubsecondTime, HitWhere::where_t> putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
+         // Run DRAM performance model. Pass in begin time, returns latency | Modified by Kleber Kruger (added virtual and override keywords)
+         virtual boost::tuple<SubsecondTime, HitWhere::where_t> getDataFromDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf) override;
+         virtual boost::tuple<SubsecondTime, HitWhere::where_t> putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now) override;
 
          virtual void enableDramPerfModel(bool enable); // Added by Kleber Kruger
 

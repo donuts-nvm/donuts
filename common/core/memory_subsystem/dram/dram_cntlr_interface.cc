@@ -3,7 +3,8 @@
 #include "shmem_msg.h"
 #include "shmem_perf.h"
 #include "log.h"
-#include "config.hpp" // Added by Kleber Kruger
+#include "nvm_cntlr.h"  // Added by Kleber Kruger
+#include "config.hpp"   // Added by Kleber Kruger
 
 void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2DramDirectoryMSI::ShmemMsg* shmem_msg)
 {
@@ -14,6 +15,7 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
    switch (shmem_msg_type)
    {
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_READ_REQ:
+      case PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_READ_REQ:   // Added by Kleber Kruger
       {
          IntPtr address = shmem_msg->getAddress();
          Byte data_buf[getCacheBlockSize()];
@@ -25,6 +27,7 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
          getShmemPerfModel()->incrElapsedTime(dram_latency, ShmemPerfModel::_SIM_THREAD);
 
          shmem_msg->getPerf()->updateTime(getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD),
+            shmem_msg_type == PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_READ_REQ ? ShmemPerf::NVM : // This line was added by Kleber Kruger
             hit_where == HitWhere::DRAM_CACHE ? ShmemPerf::DRAM_CACHE : ShmemPerf::DRAM);
 
          getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_READ_REP,
@@ -38,10 +41,21 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
       }
 
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_WRITE_REQ:
+      case PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_WRITE_REQ:  // Added by Kleber Kruger
       {
          putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
 
          // DRAM latency is ignored on write
+
+         break;
+      }
+
+      case PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_LOG_REQ:    // Added by Kleber Kruger
+      {
+         auto nvm_cntlr = static_cast<PrL1PrL2DramDirectoryMSI::NvmCntlr*>(this);
+         nvm_cntlr->logDataToNvm(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
+
+         // NVM Log latency is ignored on log
 
          break;
       }

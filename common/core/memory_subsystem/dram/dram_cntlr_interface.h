@@ -28,6 +28,7 @@ class DramCntlrInterface
       {
          READ = 0,
          WRITE,
+         LOG, // Added by Kleber Kruger (for NVM checkpoint projects)
          NUM_ACCESS_TYPES
       } access_t;
 
