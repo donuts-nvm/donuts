@@ -283,6 +283,9 @@ CacheCntlr::CacheCntlr(MemComponent::component_t mem_component,
       }
       registerStatsMetric(name, core_id, "uncore-totaltime", &m_shmem_perf_totaltime);
       registerStatsMetric(name, core_id, "uncore-requests", &m_shmem_perf_numrequests);
+
+      // Added by Kleber Kruger -- FIXME: remove bugs that cause this restriction
+      LOG_ASSERT_ERROR(!m_cache_writethrough, "LLC writethrough not allowed");
    }
 }
 

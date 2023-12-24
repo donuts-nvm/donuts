@@ -12,6 +12,7 @@ private:
    QueueModel *m_queue_model;
    SubsecondTime m_nvm_read_cost;
    SubsecondTime m_nvm_write_cost;
+   SubsecondTime m_nvm_log_cost;
    ComponentBandwidth m_nvm_bandwidth;
 
    SubsecondTime m_total_queueing_delay;

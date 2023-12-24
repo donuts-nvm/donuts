@@ -6,8 +6,9 @@
 #include "stats.h"
 #include "fault_injection.h"
 #include "shmem_perf.h"
-#include "nvm_cntlr.h"        // Added by Kleber Kruger
 #include "dram_nvm_cntlr.h"   // Added by Kleber Kruger
+#include "nvm_cntlr.h"        // Added by Kleber Kruger
+#include "nvm_cntlr_donuts.h" // Added by Kleber Kruger
 
 #if 0
    extern Lock iolock;
@@ -191,6 +192,9 @@ DramCntlr::enableDramPerfModel(bool enable)
 DramCntlr*
 DramCntlr::create(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, UInt32 cache_block_size)
 {
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
+      return new NvmCntlrDonuts(memory_manager, shmem_perf_model, cache_block_size);
+
    DramCntlrInterface::technology_t technology = DramCntlrInterface::getTechnology();
    return technology == NVM    ? new NvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :
           technology == HYBRID ? new DramNvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :

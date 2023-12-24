@@ -39,20 +39,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e20096b7-f9dd-430e-a003-49f75173fb10" name="Changes" comment="Implemented asynchronous write-buffer to LLC in DONUTS">
+    <list default="true" id="e20096b7-f9dd-430e-a003-49f75173fb10" name="Changes" comment="Logging operations via Processing-in-Memory (PIM)">
+      <change afterPath="$PROJECT_DIR$/test/fft-hetero/fft" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/fft-hetero/fft.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/dram/dram_cntlr_interface.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/dram/dram_cntlr_interface.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/dram/dram_cntlr_interface.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/dram/dram_cntlr_interface.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_cntlr.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_cntlr.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_cntlr.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_cntlr.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/nvm_cntlr.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/nvm_cntlr.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/nvm_cntlr.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/nvm_cntlr.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_msg.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_msg.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_msg.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_msg.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_perf.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_perf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/performance_model/hit_where.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/performance_model/hit_where.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/performance_model/hit_where.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/performance_model/hit_where.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/donuts.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/config/donuts.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/fft-hetero/out.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/fft-hetero/out.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +92,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="OCResolveContextSettings">
-    <option name="configuration" value="$PROJECT_DIR$/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/nvm_cntlr.cc" />
+    <option name="configuration" value="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.cc" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -166,6 +160,11 @@
     </layout>
   </component>
   <component name="RunManager" selected="Native Application.all">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Makefile" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="Makefile" CONFIG_NAME="Makefile" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -296,11 +295,6 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Native Application.all" />
       <item itemvalue="Native Application.builddir" />
@@ -370,7 +364,9 @@
       <workItem from="1703124373570" duration="3576000" />
       <workItem from="1703165287108" duration="27000" />
       <workItem from="1703165329894" duration="3191000" />
-      <workItem from="1703378491176" duration="2687000" />
+      <workItem from="1703378491176" duration="8566000" />
+      <workItem from="1703457374670" duration="86000" />
+      <workItem from="1703457476551" duration="1541000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit COMMIT_REQ and COMMIT_REP">
       <option name="closed" value="true" />
@@ -420,7 +416,23 @@
       <option name="project" value="LOCAL" />
       <updated>1703181320779</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Initial LOG implementation using Processing-in-Memory (PIM)">
+      <option name="closed" value="true" />
+      <created>1703383035328</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1703383035328</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Logging operations via Processing-in-Memory (PIM)">
+      <option name="closed" value="true" />
+      <created>1703398077685</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1703398077685</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -435,6 +447,7 @@
     <MESSAGE value="Initial idea..." />
     <MESSAGE value="Separating commit and persistence" />
     <MESSAGE value="Implemented asynchronous write-buffer to LLC in DONUTS" />
+    <MESSAGE value="Initial LOG implementation using Processing-in-Memory (PIM)" />
     <MESSAGE value="Logging operations via Processing-in-Memory (PIM)" />
     <option name="LAST_COMMIT_MESSAGE" value="Logging operations via Processing-in-Memory (PIM)" />
   </component>

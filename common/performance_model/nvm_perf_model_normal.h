@@ -13,6 +13,7 @@ private:
    QueueModel* m_queue_model;
    TimeDistribution* m_nvm_read_cost;
    TimeDistribution* m_nvm_write_cost;
+   TimeDistribution* m_nvm_log_cost;
    ComponentBandwidth m_nvm_bandwidth;
 
    SubsecondTime m_total_queueing_delay;
@@ -20,11 +21,10 @@ private:
 
 public:
    NvmPerfModelNormal(core_id_t core_id, UInt32 cache_block_size);
-
-   ~NvmPerfModelNormal();
+   ~NvmPerfModelNormal() override;
 
    SubsecondTime getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester, IntPtr address,
-                                  DramCntlrInterface::access_t access_type, ShmemPerf *perf);
+                                  DramCntlrInterface::access_t access_type, ShmemPerf *perf) override;
 };
 
 #endif // NVM_PERF_MODEL_NORMAL_H

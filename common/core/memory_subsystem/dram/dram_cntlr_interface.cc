@@ -23,6 +23,7 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
          HitWhere::where_t hit_where;
 
          boost::tie(dram_latency, hit_where) = getDataFromDram(address, shmem_msg->getRequester(), data_buf, msg_time, shmem_msg->getPerf());
+//         printf("%-5s [%08lx] in %lu ns\n", "LOAD", shmem_msg->getAddress(), dram_latency.getNS());
 
          getShmemPerfModel()->incrElapsedTime(dram_latency, ShmemPerfModel::_SIM_THREAD);
 
@@ -43,7 +44,11 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_WRITE_REQ:
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_WRITE_REQ:  // Added by Kleber Kruger
       {
-         putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
+         SubsecondTime dram_latency;
+         HitWhere::where_t hit_where;
+         boost::tie(dram_latency, hit_where) = putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
+//         printf("%-5s [%08lx] in %lu ns\n", "STORE", shmem_msg->getAddress(), dram_latency.getNS());
+//         getShmemPerfModel()->incrElapsedTime(dram_latency, ShmemPerfModel::_SIM_THREAD);
 
          // DRAM latency is ignored on write
 

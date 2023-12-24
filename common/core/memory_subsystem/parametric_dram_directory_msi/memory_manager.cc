@@ -635,8 +635,10 @@ MemoryManager::getCostNvm(DramCntlrInterface::access_t access_type)
 {
    static SubsecondTime read_latency = NvmPerfModel::getReadLatency();
    static SubsecondTime write_latency = NvmPerfModel::getWriteLatency();
+   static SubsecondTime log_latency = NvmPerfModel::getLogLatency();
 
-   return access_type == DramCntlrInterface::WRITE ? write_latency : read_latency;
+   return access_type == DramCntlrInterface::READ ? read_latency :
+          access_type == DramCntlrInterface::WRITE ? write_latency : log_latency;
 }
 
 void

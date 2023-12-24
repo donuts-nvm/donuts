@@ -29,12 +29,24 @@
 ==========================================================================================
  TESTS:
 ------------------------------------------------------------------------------------------
-☐ Use write-through policy at all cache levels using a baseline system
-☐ Use write-buffers at all cache levels using a baseline and DONUTS systems
-☐ Check NVM latencies
+☑ Test the baseline system with "gainestown" config
+
+☑ Use write-through policy at all cache levels using a baseline system
+--- ERROR on L3 write-through cache
+
+☐ Use sync and async write-buffers at all cache levels using a baseline and DONUTS systems
+--- ERROR on asynchronous write-buffer systems
+--- DONUTS was not tested
+
+☑ Check NVM latencies
+
 ☐ Test DONUTS checkpoint thresholds (cache, cache set, timeout, periodic instructions)
+
 ☐ Test the persistence policies (fullest first, sequential, smart??)
+
 ☐ Check sim.ckpts.csv file
+
 ☐ Test LoR, LoW and Hybrid strategies
+
 ☐ Test new Python scripts
 ==========================================================================================

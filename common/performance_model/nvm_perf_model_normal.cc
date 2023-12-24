@@ -18,6 +18,7 @@ NvmPerfModelNormal::NvmPerfModelNormal(core_id_t core_id, UInt32 cache_block_siz
 
    m_nvm_read_cost = new NormalTimeDistribution(NvmPerfModel::getReadLatency(), nvm_latency_stddev);
    m_nvm_write_cost = new NormalTimeDistribution(NvmPerfModel::getWriteLatency(), nvm_latency_stddev);
+   m_nvm_log_cost = new NormalTimeDistribution(NvmPerfModel::getLogLatency(), nvm_latency_stddev);
 
    if (Sim()->getCfg()->getBool("perf_model/dram/queue_model/enabled")) {
       m_queue_model = QueueModel::create(mem_technology + "-queue", core_id, Sim()->getCfg()->getString("perf_model/dram/queue_model/type"),
@@ -37,6 +38,7 @@ NvmPerfModelNormal::~NvmPerfModelNormal()
    }
    delete m_nvm_read_cost;
    delete m_nvm_write_cost;
+   delete m_nvm_log_cost;
 }
 
 SubsecondTime
@@ -54,13 +56,13 @@ NvmPerfModelNormal::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, co
    // Compute Queue Delay
    SubsecondTime queue_delay = m_queue_model ? m_queue_model->computeQueueDelay(pkt_time, processing_time, requester)
                                                : SubsecondTime::Zero();
-
-   SubsecondTime nvm_access_cost = (access_type == DramCntlrInterface::WRITE) ? m_nvm_write_cost->next()
-                                                                                : m_nvm_read_cost->next();
+   SubsecondTime nvm_access_cost = (access_type == DramCntlrInterface::READ) ? m_nvm_read_cost->next() :
+                                   (access_type == DramCntlrInterface::WRITE) ? m_nvm_write_cost->next() : m_nvm_log_cost->next();
    SubsecondTime access_latency = queue_delay + processing_time + nvm_access_cost;
 
 
    perf->updateTime(pkt_time);
+   // FIXME: use ShmemPerf::NVM_QUEUE, NVM_BUS and NVM_DEVICE
    perf->updateTime(pkt_time + queue_delay, ShmemPerf::DRAM_QUEUE);
    perf->updateTime(pkt_time + queue_delay + processing_time, ShmemPerf::DRAM_BUS);
    perf->updateTime(pkt_time + queue_delay + processing_time + nvm_access_cost, ShmemPerf::DRAM_DEVICE);

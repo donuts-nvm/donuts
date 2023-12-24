@@ -32,13 +32,13 @@ NvmCntlr::~NvmCntlr() = default;
 boost::tuple<SubsecondTime, HitWhere::where_t>
 NvmCntlr::getDataFromNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf* perf)
 {
-   return getDataFromDram(address, requester, data_buf, now, perf);
+   return DramCntlr::getDataFromDram(address, requester, data_buf, now, perf);
 }
 
 boost::tuple<SubsecondTime, HitWhere::where_t>
 NvmCntlr::putDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now)
 {
-   return putDataToDram(address, requester, data_buf, now);
+   return DramCntlr::putDataToDram(address, requester, data_buf, now);
 }
 
 boost::tuple<SubsecondTime, HitWhere::where_t>

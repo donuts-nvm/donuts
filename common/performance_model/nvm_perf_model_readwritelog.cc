@@ -1,50 +1,38 @@
-#include "nvm_perf_model_readwrite.h"
+#include "nvm_perf_model_readwritelog.h"
 #include "simulator.h"
 #include "config.h"
 #include "config.hpp"
 #include "stats.h"
 #include "shmem_perf.h"
 
-NvmPerfModelReadWrite::NvmPerfModelReadWrite(core_id_t core_id, UInt32 cache_block_size) :
-    NvmPerfModel(core_id, cache_block_size),
-    m_queue_model_read(nullptr),
-    m_queue_model_write(nullptr),
-    m_nvm_read_cost(NvmPerfModel::getReadLatency()),
-    m_nvm_write_cost(NvmPerfModel::getWriteLatency()),
+NvmPerfModelReadWriteLog::NvmPerfModelReadWriteLog(core_id_t core_id, UInt32 cache_block_size) :
+    NvmPerfModelReadWrite(core_id, cache_block_size),
+    m_queue_model_log(nullptr),
     m_nvm_log_cost(NvmPerfModel::getLogLatency()),
-    m_nvm_bandwidth(8 * Sim()->getCfg()->getFloat("perf_model/dram/per_controller_bandwidth")), // Convert bytes to bits
-    m_shared_readwrite(Sim()->getCfg()->getBool("perf_model/dram/readwrite/shared")),
-    m_total_read_queueing_delay(SubsecondTime::Zero()),
-    m_total_write_queueing_delay(SubsecondTime::Zero()),
-    m_total_access_latency(SubsecondTime::Zero())
+    m_total_log_queueing_delay(SubsecondTime::Zero())
 {
    String mem_technology = DramCntlrInterface::getTechnology() == DramCntlrInterface::HYBRID ? "nvm" : "dram";
    if (Sim()->getCfg()->getBool("perf_model/dram/queue_model/enabled")) {
       String queue_model_type = Sim()->getCfg()->getString("perf_model/dram/queue_model/type");
       SubsecondTime rounded_latency = m_nvm_bandwidth.getRoundedLatency(8 * cache_block_size); // bytes to bits
 
-      m_queue_model_read = QueueModel::create(mem_technology + "-queue-read", core_id, queue_model_type, rounded_latency);
-      m_queue_model_write = QueueModel::create(mem_technology + "-queue-write", core_id, queue_model_type, rounded_latency);
+      m_queue_model_log = QueueModel::create(mem_technology + "-queue-log", core_id, queue_model_type, rounded_latency);
    }
 
-   registerStatsMetric(mem_technology, core_id, "total-access-latency", &m_total_access_latency);
-   registerStatsMetric(mem_technology, core_id, "total-read-queueing-delay", &m_total_read_queueing_delay);
-   registerStatsMetric(mem_technology, core_id, "total-write-queueing-delay", &m_total_write_queueing_delay);
+   registerStatsMetric(mem_technology, core_id, "total-log-queueing-delay", &m_total_log_queueing_delay);
 }
 
-NvmPerfModelReadWrite::~NvmPerfModelReadWrite()
+NvmPerfModelReadWriteLog::~NvmPerfModelReadWriteLog()
 {
-   if (m_queue_model_read)
+   if (m_queue_model_log)
    {
-      delete m_queue_model_read;
-      m_queue_model_read = nullptr;
-      delete m_queue_model_write;
-      m_queue_model_write = nullptr;
+      delete m_queue_model_log;
+      m_queue_model_log = nullptr;
    }
 }
 
 SubsecondTime
-NvmPerfModelReadWrite::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester, IntPtr address,
+NvmPerfModelReadWriteLog::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester, IntPtr address,
                                         DramCntlrInterface::access_t access_type, ShmemPerf *perf)
 {
    // pkt_size is in 'Bytes'
@@ -74,8 +62,10 @@ NvmPerfModelReadWrite::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size,
             m_queue_model_write->computeQueueDelay(pkt_time, processing_time, requester);
          }
       }
-      else
+      else if (access_type == DramCntlrInterface::WRITE)
          queue_delay = m_queue_model_write->computeQueueDelay(pkt_time, processing_time, requester);
+      else
+         queue_delay = m_queue_model_log->computeQueueDelay(pkt_time, processing_time, requester);
    }
    else
    {
@@ -83,7 +73,7 @@ NvmPerfModelReadWrite::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size,
    }
 
    SubsecondTime access_cost = (access_type == DramCntlrInterface::READ) ? m_nvm_read_cost :
-                               (access_type == DramCntlrInterface::WRITE) ? m_nvm_write_cost : m_nvm_log_cost;
+                               (access_type == DramCntlrInterface::WRITE) ? m_nvm_write_cost : m_nvm_read_cost;
    SubsecondTime access_latency = queue_delay + processing_time + access_cost;
 
 
@@ -98,8 +88,10 @@ NvmPerfModelReadWrite::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size,
    m_total_access_latency += access_latency;
    if (access_type == DramCntlrInterface::READ)
       m_total_read_queueing_delay += queue_delay;
-   else
+   else if (access_type == DramCntlrInterface::WRITE)
       m_total_write_queueing_delay += queue_delay;
+   else
+      m_total_log_queueing_delay += queue_delay;
 
    return access_latency;
 }
