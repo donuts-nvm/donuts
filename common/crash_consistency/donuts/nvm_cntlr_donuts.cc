@@ -110,16 +110,6 @@ NvmCntlrDonuts::createLogEntry(IntPtr address, Byte* data_buf)
 //   memcpy((void*) m_log_map[address], (void*) data_buf, getCacheBlockSize());
 }
 
-bool NvmCntlrDonuts::canLoRtoLoW()
-{
-   return true;
-}
-
-bool NvmCntlrDonuts::canLoWtoLoR()
-{
-   return true;
-}
-
 SubsecondTime
 NvmCntlrDonuts::processLogging(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now)
 {
@@ -127,24 +117,27 @@ NvmCntlrDonuts::processLogging(IntPtr address, core_id_t requester, Byte* data_b
    HitWhere::where_t hit_where;
 
    boost::tie(latency, hit_where) = logDataToNvm(address, requester, data_buf, now);
-
-   m_checkpoint_predictor.predict(address);
-
-   if (m_log_policy.value == LogPolicy::LOGGING_HYBRID)
-   {
-      if (m_log_policy.current == LogPolicy::LOGGING_ON_READ && canLoRtoLoW())
-         m_log_policy.current = LogPolicy::LOGGING_ON_WRITE;
-      else if (m_log_policy.current == LogPolicy::LOGGING_ON_WRITE && canLoWtoLoR())
-         m_log_policy.current = LogPolicy::LOGGING_ON_READ;
-   }
-
    return latency;
 }
 
-void
-NvmCntlrDonuts::checkpoint()
+void NvmCntlrDonuts::startCheckpoint(IntPtr pc)
+{
+//   IntPtr pc = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache() >> 4;
+   if (m_log_policy.value == NvmCntlrDonuts::LOGGING_HYBRID) {
+      m_log_policy.current = m_checkpoint_predictor.predict(pc) ? LogPolicy::LOGGING_ON_READ : LogPolicy::LOGGING_ON_WRITE;
+   }
+   printf("CHECKPOINT on MODE %d\n", m_log_policy.current);
+}
+
+void NvmCntlrDonuts::finishCheckpoint(IntPtr pc)
 {
    SubsecondTime latency = m_log_row_buffer.flush();
+
+   if (m_log_policy.value == LogPolicy::LOGGING_HYBRID)
+   {
+      m_checkpoint_predictor.predictNext(pc, m_log_policy.current == LogPolicy::LOGGING_ON_WRITE,
+                                         SubsecondTime::Zero(), 0);
+   }
 
    // FIXME: Invocar este método quando realizar um checkpoint. Além disso, o que fazer com essa latência?
 }

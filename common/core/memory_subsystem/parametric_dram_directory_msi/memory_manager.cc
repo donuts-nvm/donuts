@@ -524,6 +524,13 @@ MYLOG("begin");
 
          switch(sender_mem_component)
          {
+            case MemComponent::LAST_LEVEL_CACHE:
+            {
+               DramCntlrInterface* dram_interface = m_dram_cache ? (DramCntlrInterface*)m_dram_cache : (DramCntlrInterface*)m_dram_cntlr;
+               dram_interface->handleMsgFromTagDirectory(sender, shmem_msg);
+               break;
+            }
+
             default:
                LOG_PRINT_ERROR("Unrecognized sender component(%u)", sender_mem_component);
                break;

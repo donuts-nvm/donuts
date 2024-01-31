@@ -1,6 +1,7 @@
 #include "cache_cntlr_donuts.h"
 #include "memory_manager.h"
 #include "hooks_manager.h"
+#include "nvm_cntlr_donuts.h"
 
 namespace ParametricDramDirectoryMSI
 {
@@ -99,10 +100,11 @@ CacheCntlrDonuts::checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_
    auto dirty_blocks = selectDirtyBlocks(evicted_set_index);
    if (!dirty_blocks.empty())
    {
-//      IntPtr pc = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache();
-//      printf("CHECKPOINT get PC = %lX (%u)\n", pc >> 4, evicted_set_index);
       // for all last level caches...
 //      printCache();
+
+      IntPtr pc = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache() >> 4;
+      processCheckpointStart(pc);
 
       while (!dirty_blocks.empty())
       {
@@ -122,10 +124,39 @@ CacheCntlrDonuts::checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_
 
          dirty_blocks.pop();
       }
+
+      processCheckpointFinished(pc);
+
       // for all last level caches...
 //      printCache();
       m_epoch_cntlr->commit();
    }
+}
+
+void
+CacheCntlrDonuts::processCheckpointStart(IntPtr address)
+{
+//   printf("CHECKPOINT get PC = %lX\n", address);
+   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::CHECKPOINT_START,
+                               MemComponent::LAST_LEVEL_CACHE, MemComponent::NVM,
+                               m_core_id_master, getHome(address), /* requester and receiver */
+                               address, NULL, 0,
+                               HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
+}
+
+void
+CacheCntlrDonuts::processCommit(IntPtr address)
+{
+}
+
+void
+CacheCntlrDonuts::processCheckpointFinished(IntPtr address)
+{
+   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::CHECKPOINT_FINISHED,
+                               MemComponent::LAST_LEVEL_CACHE, MemComponent::NVM,
+                               m_core_id_master, getHome(address), /* requester and receiver */
+                               address, NULL, 0,
+                               HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
 }
 
 void

@@ -11,15 +11,15 @@ class NvmPerfModelReadWriteLog : public NvmPerfModelReadWrite
 {
 private:
    QueueModel *m_queue_model_log;
-   SubsecondTime m_nvm_log_cost;
    SubsecondTime m_total_log_queueing_delay;
+
+   SubsecondTime computeQueueDelay(SubsecondTime pkt_time, SubsecondTime processing_time, core_id_t requester,
+                                   DramCntlrInterface::access_t access_type) override;
+   void increaseQueueDelay(DramCntlrInterface::access_t access_type, SubsecondTime queue_delay) override;
 
 public:
    NvmPerfModelReadWriteLog(core_id_t core_id, UInt32 cache_block_size);
-   ~NvmPerfModelReadWriteLog() override;
-
-   SubsecondTime getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester, IntPtr address,
-                                  DramCntlrInterface::access_t access_type, ShmemPerf *perf) override;
+   virtual ~NvmPerfModelReadWriteLog();
 };
 
 #endif // NVM_PERF_MODEL_READWRITELOG_H

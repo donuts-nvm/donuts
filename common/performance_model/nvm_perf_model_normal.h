@@ -10,21 +10,25 @@
 class NvmPerfModelNormal : public NvmPerfModel
 {
 private:
+
    QueueModel* m_queue_model;
    TimeDistribution* m_nvm_read_cost;
    TimeDistribution* m_nvm_write_cost;
    TimeDistribution* m_nvm_log_cost;
-   ComponentBandwidth m_nvm_bandwidth;
-
    SubsecondTime m_total_queueing_delay;
-   SubsecondTime m_total_access_latency;
+
+   SubsecondTime computeQueueDelay(SubsecondTime pkt_time, SubsecondTime processing_time, core_id_t requester,
+                                   DramCntlrInterface::access_t access_type) override;
+   void increaseQueueDelay(DramCntlrInterface::access_t access_type, SubsecondTime queue_delay) override;
+
+   SubsecondTime getReadCost() override { return m_nvm_read_cost->next(); }
+   SubsecondTime getWriteCost() override { return m_nvm_write_cost->next(); }
+   SubsecondTime getLogCost() override { return m_nvm_log_cost->next(); }
 
 public:
-   NvmPerfModelNormal(core_id_t core_id, UInt32 cache_block_size);
-   ~NvmPerfModelNormal() override;
 
-   SubsecondTime getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester, IntPtr address,
-                                  DramCntlrInterface::access_t access_type, ShmemPerf *perf) override;
+   NvmPerfModelNormal(core_id_t core_id, UInt32 cache_block_size);
+   virtual ~NvmPerfModelNormal();
 };
 
 #endif // NVM_PERF_MODEL_NORMAL_H

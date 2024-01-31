@@ -33,6 +33,8 @@ namespace PrL1PrL2DramDirectoryMSI
             // NVM Checkpoint Support (Added by Kleber Kruger)
             COMMIT,
             PERSIST,
+            CHECKPOINT_START,
+            CHECKPOINT_FINISHED,
             // Tag directory > DRAM
             DRAM_READ_REQ,
             DRAM_WRITE_REQ,

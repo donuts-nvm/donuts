@@ -51,6 +51,11 @@ private:
 
    void addAllDirtyBlocks(std::queue<CacheBlockInfo*>& dirty_blocks, UInt32 set_index) const;
 
+   void processCheckpointStart(IntPtr address);
+   void processCommit(IntPtr address);
+   void processCheckpointFinished(IntPtr address);
+
+
    // Used to periodic checkpoints
    static SInt64 _checkpoint_timeout(UInt64 arg, UInt64 val) {
       ((CacheCntlrDonuts *)arg)->checkpoint(CheckpointEvent::PERIODIC_TIME, 0);

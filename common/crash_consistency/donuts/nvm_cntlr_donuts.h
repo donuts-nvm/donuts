@@ -46,7 +46,7 @@ public:
       LOGGING_ON_WRITE,
       LOGGING_HYBRID,
       LOGGING_ON_COMMAND,
-      NUM_LOGGING_POLICIES
+      NUM_LOGGING_POLICIES = LOGGING_ON_COMMAND - 1
    } LogPolicy;
 
    NvmCntlrDonuts(MemoryManagerBase* memory_manager,
@@ -69,7 +69,10 @@ public:
    virtual boost::tuple<SubsecondTime, HitWhere::where_t> putDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
    virtual boost::tuple<SubsecondTime, HitWhere::where_t> logDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
 
-   void checkpoint();
+   void startCheckpoint(IntPtr pc);
+   void finishCheckpoint(IntPtr pc);
+
+   static log_policy_t getLogPolicy();
 
 private:
 
@@ -78,8 +81,10 @@ private:
       log_policy_t current;
    } m_log_policy;
 
-   LogRowBuffer m_log_row_buffer;
+   UInt64 m_num_logging[NUM_LOGGING_POLICIES];
    CheckpointPredictor m_checkpoint_predictor;
+
+   LogRowBuffer m_log_row_buffer;
 
    void createLogEntry(IntPtr address, Byte* data_buf);
 
@@ -87,7 +92,6 @@ private:
    bool canLoRtoLoW();
    bool canLoWtoLoR();
 
-   static log_policy_t getLogPolicy();
    static UInt32 getLogRowBufferSize();
    static SubsecondTime getInsertionLatency();
    static SubsecondTime getFlushLatency();
