@@ -97,8 +97,12 @@ CacheBlockInfo::updateUsage(BitsUsedType used)
 void // Modified by Kleber Kruger
 CacheBlockInfo::setCState(CacheState::cstate_t cstate)
 {
-   m_cstate = cstate;
    // Added by Kleber Kruger
    if (Sim()->getProjectType() == ProjectType::DONUTS && cstate == CacheState::MODIFIED)
-      m_eid = EpochManager::getGlobalSystemEID();
+   {
+      UInt64 eid = EpochManager::getGlobalSystemEID();
+      LOG_ASSERT_ERROR(m_cstate != CacheState::MODIFIED || m_eid == eid, "It's not allowed to write to an uncommitted block (%lu -> %lu)", m_eid, eid);
+      m_eid = eid;
+   }
+   m_cstate = cstate;
 }

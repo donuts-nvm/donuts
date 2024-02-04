@@ -72,10 +72,10 @@ WriteBufferPerfModel::flushAll(ShmemPerfModel* perf)
 /************************************************************
  * ONLY FOR DEBUG!
  ************************************************************/
-void printWriteBuffer(std::deque<std::pair<IntPtr, SubsecondTime> >& queue)
+void WriteBufferPerfModel::print(String desc)
 {
    UInt32 index = 0;
    printf("----------------------\n");
-   for (auto& e: queue) printf("%4u [%12lX] -> (%lu)\n", index++, e.first, e.second.getNS());
+   for (auto& e: m_queue) printf("%4u [%12lX] -> (%lu)\n", index++, e.first, e.second.getNS());
    printf("----------------------\n");
 }

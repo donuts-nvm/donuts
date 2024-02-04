@@ -6,6 +6,8 @@ services:
       args:
         - UID=${UID}
         - USER=${USER}
+        - GRAPHITE_ROOT=${HOME}/donuts
+        - BENCHMARKS_ROOT=${HOME}/sniper-benchmarks
     image: ubuntu-sniper
     ports:
       - "2222:22"

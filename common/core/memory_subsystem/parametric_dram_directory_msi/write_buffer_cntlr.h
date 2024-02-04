@@ -31,7 +31,12 @@ public:
    SubsecondTime flush();
    SubsecondTime flushAll();
 
+   bool isEmpty() { return isAsynchronous() ? m_buffer->isEmpty() : m_perf_model->isEmpty(); }
+   bool isFull() { return isAsynchronous() ? m_buffer->isFull() : m_perf_model->isFull(); }
+
    [[nodiscard]] bool isAsynchronous() const { return m_buffer != nullptr; }
+
+   void print(const String& desc = ""); // ONLY FOR DEBUG!
 
 private:
 

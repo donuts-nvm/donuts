@@ -33,7 +33,7 @@ public:
    UInt32 getCapacity() { return m_num_entries; }
 
    // for debug
-   void print(String desc = "");
+   void print(const String& desc = "");
    virtual std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& e) = 0;
 
 protected:

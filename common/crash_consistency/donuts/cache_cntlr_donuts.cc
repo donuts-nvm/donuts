@@ -28,11 +28,13 @@ CacheCntlrDonuts::CacheCntlrDonuts(MemComponent::component_t mem_component,
 
    if (is_last_level_cache)
    {
-      // TODO: Implement for non-unified LLC
+      // TODO: Implement for non-unified LLC... Use a Master Controller??
       LOG_ASSERT_ERROR(m_core_id_master == 0, "DONUTS does not allow non-unified LLC yet");
 
       Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT, _checkpoint_timeout, (UInt64) this);
       Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT_INS, _checkpoint_instr, (UInt64) this);
+
+      Sim()->getHooksManager()->registerHook(HookType::HOOK_PERIODIC, _interrupt, (UInt64) this);
    }
 }
 
@@ -41,7 +43,6 @@ CacheCntlrDonuts::~CacheCntlrDonuts() = default;
 void
 CacheCntlrDonuts::addAllDirtyBlocks(std::queue<CacheBlockInfo*>& dirty_blocks, UInt32 set_index) const
 {
-//   printf("Scanning set %u: %.1f%%\n", set_index, m_master->m_cache->getSetCapacityUsed(set_index) * 100);
    for (UInt32 way = 0; way < m_master->m_cache->getAssociativity(); way++)
    {
       CacheBlockInfo* block_info = m_master->m_cache->peekBlock(set_index, way);
@@ -71,7 +72,7 @@ CacheCntlrDonuts::selectDirtyBlocks(UInt32 evicted_set_index) const
    {
       if (i == evicted_set_index) continue;
       auto used = m_persistence_policy == FULLEST_FIRST ? m_master->m_cache->getSetCapacityUsed(i) : 1;
-      if (used > 0) other_sets.push_back(std::pair<UInt32, double>(i, used));
+      if (used > 0) other_sets.emplace_back(i, used);
    }
 
    if (m_persistence_policy == FULLEST_FIRST)
@@ -86,112 +87,159 @@ CacheCntlrDonuts::selectDirtyBlocks(UInt32 evicted_set_index) const
 void
 CacheCntlrDonuts::checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_set_index)
 {
-//   for (UInt32 i = 0; i < Sim()->getConfig()->getTotalCores(); i++)
-//   {
-//      auto cache_cntlr = getMemoryManager()->getCacheCntlrAt(i, m_mem_component);
-//      if (cache_cntlr->isMasterCache())
-//      {
-//         // TODO: invocar o checkpoint para todos os controladores indicando a cache e o conjunto associativo que estourou o limiar
-//         printf("Running checkpoint on CacheCntlrDonuts %p\n", cache_cntlr);
-//      }
-//   }
-
-   // for all last level caches... (ALL IN THE SAME TIME!)
-   auto dirty_blocks = selectDirtyBlocks(evicted_set_index);
-   if (!dirty_blocks.empty())
+   if (!m_dirty_blocks.empty())
    {
-      // for all last level caches...
-//      printCache();
-
-      IntPtr pc = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache() >> 4;
-      processCheckpointStart(pc);
-
-      while (!dirty_blocks.empty())
-      {
-//         sendDataToDram(m_master->m_cache->tagToAddress(dirty_blocks.front()->getTag()));
-
-         auto cache_block = dirty_blocks.front();
-         IntPtr address = m_master->m_cache->tagToAddress(cache_block->getTag());
-         auto latency = m_writebuffer_cntlr->insert(address, 0, nullptr, getCacheBlockSize(), ShmemPerfModel::_USER_THREAD, cache_block->getEpochID());
-         Byte data_buf[getCacheBlockSize()];
-         getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::COMMIT,
-                                     MemComponent::LAST_LEVEL_CACHE, MemComponent::TAG_DIR,
-                                     m_core_id_master, getHome(address), /* requester and receiver */
-                                     address, NULL, 0,
-                                     HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
-         updateCacheBlock(address, CacheState::SHARED, Transition::COHERENCY, data_buf, ShmemPerfModel::_USER_THREAD);
-         getMemoryManager()->incrElapsedTime(latency, ShmemPerfModel::_USER_THREAD);
-
-         dirty_blocks.pop();
-      }
-
-      processCheckpointFinished(pc);
-
-      // for all last level caches...
-//      printCache();
+      printf("AINDA TINHA PORRA NESSA BUCETA!!!\n");
+      SubsecondTime t_send = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+      printf("CHECKPOINT STARTING in %lu\n", t_send.getNS());
+      flushAll();
       m_epoch_cntlr->commit();
    }
+   else
+   {
+      auto dirty_blocks = selectDirtyBlocks(evicted_set_index);
+      SubsecondTime t_send = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+      printf("CHECKPOINT STARTING in %lu\n", t_send.getNS());
+      while (!dirty_blocks.empty())
+      {
+         auto cache_block = dirty_blocks.front();
+         t_send += SubsecondTime::NS(200);
+         m_dirty_blocks.emplace(cache_block, t_send);
+         dirty_blocks.pop();
+
+         printf("[ %lx ] (%lu)\n", m_master->m_cache->tagToAddress(cache_block->getTag()), t_send.getNS());
+      }
+      m_epoch_cntlr->commit();
+      produceWriteBuffer();
+   }
+
+
+//   auto dirty_blocks = selectDirtyBlocks(evicted_set_index);
+//   if (!dirty_blocks.empty())
+//   {
+////      printCache();
+//      while (!dirty_blocks.empty())
+//      {
+//         auto latency = sendDataToDram(m_master->m_cache->tagToAddress(dirty_blocks.front()->getTag()));
+//         getMemoryManager()->incrElapsedTime(latency, ShmemPerfModel::_USER_THREAD);
+//         dirty_blocks.pop();
+//      }
+//      printf("Checkpoint FINISHED %lu\n", getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD).getNS());
+////      getMemoryManager()->incrElapsedTime()
+//      m_epoch_cntlr->commit();
+////      printCache();
+//   }
 }
 
 void
-CacheCntlrDonuts::processCheckpointStart(IntPtr address)
+CacheCntlrDonuts::processCommit(IntPtr address, Byte* data_buf)
 {
-//   printf("CHECKPOINT get PC = %lX\n", address);
-   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::CHECKPOINT_START,
-                               MemComponent::LAST_LEVEL_CACHE, MemComponent::NVM,
+   sendMsgTo(PrL1PrL2DramDirectoryMSI::ShmemMsg::COMMIT, MemComponent::TAG_DIR, address, nullptr);
+   updateCacheBlock(address, CacheState::SHARED, Transition::COHERENCY, data_buf, ShmemPerfModel::_USER_THREAD);
+}
+void
+CacheCntlrDonuts::processPersist(IntPtr address, Byte* data_buf)
+{
+   sendMsgTo(PrL1PrL2DramDirectoryMSI::ShmemMsg::PERSIST, MemComponent::TAG_DIR, address, data_buf);
+}
+
+void
+CacheCntlrDonuts::sendMsgTo(PrL1PrL2DramDirectoryMSI::ShmemMsg::msg_t msg_type, MemComponent::component_t receiver_mem_component,
+                            IntPtr address, Byte* data_buf)
+{
+   getMemoryManager()->sendMsg(msg_type,MemComponent::LAST_LEVEL_CACHE, receiver_mem_component,
                                m_core_id_master, getHome(address), /* requester and receiver */
-                               address, NULL, 0,
+                               address, data_buf, data_buf != nullptr ? getCacheBlockSize() : 0,
                                HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
 }
 
-void
-CacheCntlrDonuts::processCommit(IntPtr address)
+SubsecondTime // FIXME: Don't use me!
+CacheCntlrDonuts::sendDataToDram(IntPtr address)
 {
-}
+//   if (!isLastLevel())
+//      return CacheCntlrWrBuff::sendDataToDram(address);
+//
+//   Byte data_buf[getCacheBlockSize()];
+//   auto cache_block = getCacheBlockInfo(address);
+//   printf("Commiting [ %lx ] (%c) (time: %lu)...\n", address, getCacheBlockInfo(address)->getCStateString(), getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD).getNS());
+//   auto latency = m_writebuffer_cntlr->insert(address, 0, nullptr, getCacheBlockSize(), ShmemPerfModel::_USER_THREAD, cache_block->getEpochID());
+////   if (latency > SubsecondTime::Zero()) {
+//      m_writebuffer_cntlr->print();
+////   }
+//   processCommit(address, data_buf);
+//   printf("Commit Latency: %lu\n", latency.getNS());
+//
+//   return latency;
 
-void
-CacheCntlrDonuts::processCheckpointFinished(IntPtr address)
-{
-   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::CHECKPOINT_FINISHED,
-                               MemComponent::LAST_LEVEL_CACHE, MemComponent::NVM,
-                               m_core_id_master, getHome(address), /* requester and receiver */
-                               address, NULL, 0,
-                               HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
+   return SubsecondTime::Zero();
 }
 
 void
 CacheCntlrDonuts::sendByWriteBuffer(const WriteBufferEntry& entry)
 {
    // FIXME: e se for usar write-buffer nos níveis intermediários da cache??
-//   printf("Sending via write-buffer %lx...\n", entry.getAddress());
-   IntPtr address = entry.getAddress();
+   printf("Sending via write-buffer [ %lx ] (time: %lu)...\n", entry.getAddress(), getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD).getNS());
+
    Byte data_buf[getCacheBlockSize()];
-   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::PERSIST,
-                               MemComponent::LAST_LEVEL_CACHE, MemComponent::TAG_DIR,
-                               m_core_id_master, getHome(address), /* requester and receiver */
-                               address, data_buf, getCacheBlockSize(),
-                               HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
+   processPersist(entry.getAddress(), data_buf);
 }
 
-SubsecondTime
-CacheCntlrDonuts::sendDataToDram(IntPtr address)
+void
+CacheCntlrDonuts::produceWriteBuffer()
 {
-   //   printf("Sending %lX (%c)...\n", address, getCacheBlockInfo(address)->getCStateString());
-   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::COMMIT,
-                               MemComponent::LAST_LEVEL_CACHE, MemComponent::TAG_DIR,
-                               m_core_id_master, getHome(address), /* requester and receiver */
-                               address, NULL, 0,
-                               HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
+   while (!m_dirty_blocks.empty() && m_buffer.size() < 16)
+   {
+      m_buffer.push(m_dirty_blocks.front());
+      m_dirty_blocks.pop();
 
-   Byte data_buf[getCacheBlockSize()];
-   updateCacheBlock(address, CacheState::SHARED, Transition::COHERENCY, data_buf, ShmemPerfModel::_USER_THREAD);
+      auto entry = m_buffer.back();
+      auto cache_block = entry.first;
+      auto address = m_master->m_cache->tagToAddress(cache_block->getTag());
 
-   getMemoryManager()->sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::PERSIST,
-                               MemComponent::LAST_LEVEL_CACHE, MemComponent::TAG_DIR,
-                               m_core_id_master, getHome(address), /* requester and receiver */
-                               address, data_buf, getCacheBlockSize(),
-                               HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_USER_THREAD);
-   return SubsecondTime::Zero();
+      printf("Time: %lu | Commiting [ %lx ]...\n", getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD).getNS(), address);
+
+      Byte data_buf[getCacheBlockSize()];
+      processCommit(address, data_buf);
+   }
+}
+
+void
+CacheCntlrDonuts::consumeWriteBuffer()
+{
+   auto now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+   printf("Time: %lu...\n", now.getNS());
+   while (!m_buffer.empty() && now > m_buffer.front().second)
+   {
+      auto entry = m_buffer.front();
+      auto cache_block = entry.first;
+      auto address = m_master->m_cache->tagToAddress(cache_block->getTag());
+
+      printf("Time: %lu | Persisted via writebuffer [ %lx ]...\n", now.getNS(), address);
+
+      Byte data_buf[getCacheBlockSize()];
+      processPersist(address, data_buf);
+      m_buffer.pop();
+   }
+}
+
+void
+CacheCntlrDonuts::flushAll()
+{
+   auto now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+//   auto delay = m_dirty_blocks.back().second - now;
+   while (!m_dirty_blocks.empty())
+   {
+      auto entry = m_buffer.front();
+      auto cache_block = entry.first;
+      auto address = m_master->m_cache->tagToAddress(cache_block->getTag());
+
+      printf("Time: %lu | Persisted via writebuffer [ %lx ]...\n", now.getNS(), address);
+
+      Byte data_buf[getCacheBlockSize()];
+      processCommit(address, data_buf);
+      processPersist(address, data_buf);
+      m_dirty_blocks.pop();
+   }
 }
 
 CacheCntlrDonuts::PersistencePolicy

@@ -165,4 +165,13 @@ WriteBufferCntlr::isAsynchronous(const String& cache_name)
    return Sim()->getCfg()->hasKey(key) ? Sim()->getCfg()->getBool(key) : Sim()->getCfg()->getBoolDefault(default_key, false);
 }
 
+/************************************************************
+ * ONLY FOR DEBUG!
+ ************************************************************/
+void WriteBufferCntlr::print(const String& desc)
+{
+   if (isAsynchronous()) m_buffer->print(desc);
+   else m_perf_model->print(desc);
+}
+
 }

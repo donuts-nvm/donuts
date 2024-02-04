@@ -20,6 +20,11 @@ public:
    SubsecondTime flush(ShmemPerfModel* perf);
    SubsecondTime flushAll(ShmemPerfModel* perf);
 
+   bool isEmpty() { return m_queue.empty(); }
+   bool isFull() { return m_queue.size() >= m_num_entries; }
+
+   void print(String desc); // ONLY FOR DEBUG!
+
    // Statistics
    SubsecondTime getAvgLatency() { return m_total_latency / m_num_insertions; }
    [[nodiscard]] UInt64 getTotalAccesses() const { return m_num_accesses; }

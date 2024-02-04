@@ -80,6 +80,8 @@ NvmCntlrDonuts::putDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf
    if (m_log_policy.current == LogPolicy::LOGGING_ON_WRITE)
       log_latency = processLogging(address, requester, data_buf, now);
 
+   printf("putDataToNvm [ %lx ] (time: %lu)...\n", address, now.getNS());
+
    boost::tie(nvm_latency, hit_where) = NvmCntlr::putDataToNvm(address, requester, data_buf, now);
    return boost::tuple<SubsecondTime, HitWhere::where_t>(nvm_latency + log_latency, m_hit_where);
 }

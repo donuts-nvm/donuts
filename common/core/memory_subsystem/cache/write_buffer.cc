@@ -7,7 +7,7 @@ NonCoalescingWriteBuffer::~NonCoalescingWriteBuffer() = default;
 
 void NonCoalescingWriteBuffer::insert(const WriteBufferEntry& entry, SubsecondTime time)
 {
-   m_queue.push_back(std::make_pair(entry, time));
+   m_queue.emplace_back(entry, time);
 }
 
 WriteBufferEntry NonCoalescingWriteBuffer::remove()
@@ -40,7 +40,7 @@ CoalescingWriteBuffer::~CoalescingWriteBuffer() = default;
 
 void CoalescingWriteBuffer::insert(const WriteBufferEntry& entry, SubsecondTime time)
 {
-   m_queue.push_back(std::make_pair(entry.getAddress(), time));
+   m_queue.emplace_back(entry.getAddress(), time);
    m_map.insert(std::make_pair(entry.getAddress(), entry));
 }
 
@@ -70,11 +70,13 @@ CoalescingWriteBuffer::getEntryInfo(std::pair<std::variant<WriteBufferEntry, Int
    return std::make_tuple(entry.getAddress(), e.second);
 }
 
-
-void WriteBuffer::print(String desc)
+/************************************************************
+ * ONLY FOR DEBUG!
+ ************************************************************/
+void WriteBuffer::print(const String& desc)
 {
    UInt32 index = 0;
-   if (desc != "") printf("*** %s ***\n", desc.c_str());
+   if (!desc.empty()) printf("*** %s ***\n", desc.c_str());
    printf("----------------------\n");
    for (auto& e : m_queue)
    {

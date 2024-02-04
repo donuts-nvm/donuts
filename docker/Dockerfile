@@ -8,6 +8,9 @@ ARG TZ_ARG=UTC
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=${TZ_ARG}
 
+ENV GRAPHITE_ROOT=${GRAPHITE_ROOT}
+ENV BENCHMARKS_ROOT=${BENCHMARKS_ROOT}
+
 # Add i386 support for Pin
 RUN dpkg --add-architecture i386
 RUN apt-get update && apt-get install -y \
@@ -66,6 +69,17 @@ RUN apt-get update && apt-get install -y \
     vim \
     nano \
     lsof \
+ && rm -rf /var/lib/apt/lists/*
+
+# For compile the benchmarks \
+RUN apt-get update && apt-get install -y \
+    xsltproc \
+    gettext \
+    libx11-dev \
+    libxext-dev \
+    libxt-dev \
+    libxmu-dev \
+    libxi-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # Upgrade OS

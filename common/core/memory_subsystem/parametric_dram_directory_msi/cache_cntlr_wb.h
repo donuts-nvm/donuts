@@ -71,4 +71,4 @@ private:
    static bool isWriteBufferEnabled(const CacheParameters& cache_params);
 };
 
-}// namespace ParametricDramDirectoryMSI
+} // namespace ParametricDramDirectoryMSI

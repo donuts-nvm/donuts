@@ -85,7 +85,7 @@ public:
     * @param core_id
     * @return EpochCntlr*
     */
-   EpochCntlr* getEpochCntlr(const core_id_t core_id);
+   EpochCntlr* getEpochCntlr(core_id_t core_id);
 
    /**
     * @brief Get the Global SystemEID
@@ -109,6 +109,7 @@ private:
    };
 
    FILE *m_log_file;
+   std::map<IntPtr, CheckpointEvent> m_epoch_events;
 
    UInt64 m_system_eid;
    struct epoch_instant_t m_commited;

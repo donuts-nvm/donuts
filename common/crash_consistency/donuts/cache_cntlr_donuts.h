@@ -3,8 +3,6 @@
 #include "cache_cntlr_wb.h"
 #include "epoch_cntlr.h"
 
-#include <queue>
-
 namespace ParametricDramDirectoryMSI
 {
 
@@ -35,26 +33,24 @@ public:
 
    void checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_set_index) override;
 
-   EpochCntlr* getEpochCntlr() const { return m_epoch_cntlr; }
-
-private:
-
-   void sendByWriteBuffer(const WriteBufferEntry &entry) override;
-
 private:
 
    EpochCntlr* m_epoch_cntlr;
    PersistencePolicy m_persistence_policy;
 
-   std::queue<CacheBlockInfo*> selectDirtyBlocks(UInt32 evicted_set_index) const;
-   SubsecondTime sendDataToDram(IntPtr address) override;
+   std::queue<std::pair<CacheBlockInfo*, SubsecondTime>> m_dirty_blocks;
+   std::queue<std::pair<CacheBlockInfo*, SubsecondTime>> m_buffer;
 
    void addAllDirtyBlocks(std::queue<CacheBlockInfo*>& dirty_blocks, UInt32 set_index) const;
+   std::queue<CacheBlockInfo*> selectDirtyBlocks(UInt32 evicted_set_index) const;
 
-   void processCheckpointStart(IntPtr address);
-   void processCommit(IntPtr address);
-   void processCheckpointFinished(IntPtr address);
+   SubsecondTime sendDataToDram(IntPtr address) override; // FIXME: Don't use me!
+   void sendByWriteBuffer(const WriteBufferEntry &entry) override;
 
+   void processCommit(IntPtr address, Byte* data_buf);
+   void processPersist(IntPtr address, Byte* data_buf);
+
+   void sendMsgTo(PrL1PrL2DramDirectoryMSI::ShmemMsg::msg_t msg_type, MemComponent::component_t receiver_mem_component, IntPtr address, Byte* data_buf);
 
    // Used to periodic checkpoints
    static SInt64 _checkpoint_timeout(UInt64 arg, UInt64 val) {
@@ -71,6 +67,18 @@ private:
    static PersistencePolicy getPersistencePolicy();
 
    void printCache(); // ONLY FOR DEBUG! //
+
+   void produceWriteBuffer();
+   void consumeWriteBuffer();
+   void flushAll();
+
+   static SInt64 _interrupt(UInt64 arg, UInt64 val) {
+      auto now = ((CacheCntlrDonuts *)arg)->getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+      printf("time: %lu...\n", now.getNS());
+      ((CacheCntlrDonuts *)arg)->consumeWriteBuffer();
+      ((CacheCntlrDonuts *)arg)->produceWriteBuffer();
+      return 0;
+   }
 };
 
-}
+} // namespace ParametricDramDirectoryMSI
