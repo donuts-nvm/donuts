@@ -29,7 +29,7 @@ NvmPerfModelConstant::NvmPerfModelConstant(core_id_t core_id, UInt32 cache_block
 
 NvmPerfModelConstant::~NvmPerfModelConstant()
 {
-   if (m_queue_model)
+   if (m_queue_model != nullptr)
    {
       delete m_queue_model;
       m_queue_model = nullptr;
@@ -40,7 +40,7 @@ SubsecondTime
 NvmPerfModelConstant::computeQueueDelay(SubsecondTime pkt_time, SubsecondTime processing_time, core_id_t requester,
                                         DramCntlrInterface::access_t access_type)
 {
-   return m_queue_model ? m_queue_model->computeQueueDelay(pkt_time, processing_time, requester) : SubsecondTime::Zero();
+   return (m_queue_model != nullptr) ? m_queue_model->computeQueueDelay(pkt_time, processing_time, requester) : SubsecondTime::Zero();
 }
 
 void

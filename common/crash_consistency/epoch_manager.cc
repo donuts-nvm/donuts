@@ -1,14 +1,11 @@
 #include "epoch_manager.h"
 
 EpochManager::EpochManager()  : m_log_file(nullptr)
-    , m_system_eid(0)
     , m_max_interval_time(SubsecondTime::NS(getMaxIntervalTime()))
     , m_max_interval_instr(getMaxIntervalInstructions())
     , m_cntlrs(getNumVersionedDomains())
+    , m_cores_by_vd(getSharedCoresByVD())
 {
-   bzero(&m_commited, sizeof(m_commited));
-   bzero(&m_persisted, sizeof(m_persisted));
-
    Sim()->getHooksManager()->registerHook(HookType::HOOK_APPLICATION_START, _start, (UInt64) this);
    Sim()->getHooksManager()->registerHook(HookType::HOOK_APPLICATION_EXIT, _exit, (UInt64) this);
 
@@ -16,7 +13,7 @@ EpochManager::EpochManager()  : m_log_file(nullptr)
    // Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT, _commit, (UInt64) this);
    // Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT_INS, _commit, (UInt64) this);
 
-   registerStatsMetric("epoch", 0, "system_eid", &m_system_eid);
+   registerStatsMetric("epoch", 0, "system_eid", &m_current.eid);
    registerStatsMetric("epoch", 0, "commited_eid", &m_commited.eid);
    registerStatsMetric("epoch", 0, "persisted_eid", &m_persisted.eid);
 
@@ -27,6 +24,7 @@ void EpochManager::createEpochCntlrs()
 {
    std::vector<core_id_t> all_cores;
    auto total_cores = Sim()->getConfig()->getApplicationCores();
+   all_cores.reserve((core_id_t) total_cores);
    for (core_id_t core_id = 0; core_id < (core_id_t) total_cores; core_id++)
       all_cores.push_back(core_id);
 
@@ -35,11 +33,10 @@ void EpochManager::createEpochCntlrs()
 
    else
    {
-      auto cores_by_vd = getSharedCoresByVD();
       for (std::vector<EpochCntlr*>::size_type vd_id = 0; vd_id < m_cntlrs.size(); vd_id++)
       {
-         auto first = vd_id * cores_by_vd;
-         auto last = (first + cores_by_vd) <= total_cores ? (first + cores_by_vd) : total_cores;
+         UInt32 first = vd_id * m_cores_by_vd;
+         UInt32 last = (first + m_cores_by_vd) <= total_cores ? (first + m_cores_by_vd) : total_cores;
          std::vector<core_id_t> cores(all_cores.begin() + first, all_cores.begin() + last);
          m_cntlrs[vd_id] = new EpochCntlr(this, vd_id, cores);
       }
@@ -48,8 +45,8 @@ void EpochManager::createEpochCntlrs()
 
 EpochManager::~EpochManager()
 {
-   for (std::vector<EpochCntlr*>::size_type i = 0; i < m_cntlrs.size(); i++)
-      delete m_cntlrs[i];
+   for (auto& m_cntlr : m_cntlrs)
+      delete m_cntlr;
 }
 
 void EpochManager::start()
@@ -71,12 +68,19 @@ void EpochManager::start()
    if (m_max_interval_instr > 0)
       Sim()->getHooksManager()->registerHook(HookType::HOOK_PERIODIC_INS, _interrupt, (UInt64) this);
 
-   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_START, ++m_system_eid);
+//   printf("EITA 0 1!\n");
+   m_current.eid   = 1;
+//   m_current.pc    = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache();
+//   m_current.instr = getTotalInstructionCount();
+//   m_commited.time = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
+   printf("EITA 0 2!\n");
+
+   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_START, m_current.eid);
 }
 
-void EpochManager::exit()
+void EpochManager::exit() const
 {
-   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_END, m_system_eid);
+   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_END, m_current.eid);
 
    // fclose(m_log_file);
 }
@@ -89,24 +93,22 @@ void EpochManager::interrupt()
       auto now = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
       auto gap = gapBetweenCheckpoints<SubsecondTime>(now, getCommitedTime());
       if (gap >= m_max_interval_time)
-         Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_TIMEOUT, m_system_eid);
+         Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_TIMEOUT, m_current.eid);
    }
    if (m_max_interval_instr > 0)
    {
       auto gap = gapBetweenCheckpoints<UInt64>(getTotalInstructionCount(), getCommitedInstruction());
       if (gap >= m_max_interval_instr)
-         Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_TIMEOUT_INS, m_system_eid);
+         Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_TIMEOUT_INS, m_current.eid);
    }
 }
 
 void EpochManager::commit()
 {
-   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_END, m_system_eid);
-
-   m_commited.eid = m_system_eid;
-   m_commited.pc = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache() >> 4;
+   m_commited.eid   = m_current.eid;
+   m_commited.pc    = m_current.pc;
    m_commited.instr = getTotalInstructionCount();
-   m_commited.time = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
+   m_commited.time  = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
 
    printf("Commited Epoch (%lu)\n"
           "- PC: %lX\n"
@@ -117,9 +119,16 @@ void EpochManager::commit()
           m_commited.instr,
           m_commited.time.getNS());
 
+   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_END, m_current.eid);
+
+   m_current.instr = m_commited.instr;
+   m_current.time  = m_commited.time;
+   m_current.pc    = Sim()->getCoreManager()->getCurrentCore()->getLastPCToDCache();
+   m_current.eid   = m_current.eid + 1;
+
    // fprintf(m_log_file, "%lu\n", m_commited.time.getNS());
 
-   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_START, ++m_system_eid);
+   Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_START, m_current.eid);
 }
 
 void EpochManager::registerPersistedEID(UInt64 eid)
@@ -181,7 +190,8 @@ UInt32 EpochManager::getNumVersionedDomains()
    if (num_vds < 1)
    {
       auto total_cores = Sim()->getCfg()->getInt("general/total_cores");
-      num_vds = ceil(static_cast<float>(total_cores) / getSharedCoresByVD());
+      auto cores_by_vd = getSharedCoresByVD();
+      num_vds = std::ceil(static_cast<double>(total_cores) / cores_by_vd);
    }
 
    return num_vds;
@@ -189,7 +199,7 @@ UInt32 EpochManager::getNumVersionedDomains()
 
 /**
  * Deduces the number of cores in each Versioned Domain checking the number
- * of shared cores in the penult level cache
+ * of shared cores in the penultimate level cache
  *
  * @return UInt32
  */
@@ -208,7 +218,7 @@ EpochCntlr* EpochManager::getEpochCntlr(const core_id_t core_id)
    if (m_cntlrs.size() == 1)
       return m_cntlrs[0];
 
-   return m_cntlrs[core_id / getSharedCoresByVD()];
+   return m_cntlrs[core_id / m_cores_by_vd];
 }
 
 UInt64 EpochManager::getGlobalSystemEID()

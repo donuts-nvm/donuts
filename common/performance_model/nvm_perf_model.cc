@@ -4,6 +4,7 @@
 #include "nvm_perf_model_readwrite.h"
 #include "nvm_perf_model_readwritelog.h"
 #include "nvm_perf_model_normal.h"
+#include "nvm_perf_model_donuts.h"
 #include "config.hpp"
 #include "shmem_perf.h"
 
@@ -19,19 +20,24 @@ NvmPerfModel* NvmPerfModel::createNvmPerfModel(core_id_t core_id, UInt32 cache_b
 {
    String type = Sim()->getCfg()->getString("perf_model/dram/type");
 
+   // Added by Kleber Kruger
+   if (Sim()->getProjectType() == ProjectType::DONUTS) {
+      return new NvmPerfModelDonuts(core_id, cache_block_size);
+   }
+
    if (type == "constant")
    {
       return new NvmPerfModelConstant(core_id, cache_block_size);
    }
-   else if (type == "readwrite")
+   if (type == "readwrite")
    {
       return new NvmPerfModelReadWrite(core_id, cache_block_size);
    }
-   else if (type == "readwritelog")
+   if (type == "readwritelog")
    {
       return new NvmPerfModelReadWriteLog(core_id, cache_block_size);
    }
-   else if (type == "normal")
+   if (type == "normal")
    {
       return new NvmPerfModelNormal(core_id, cache_block_size);
    }

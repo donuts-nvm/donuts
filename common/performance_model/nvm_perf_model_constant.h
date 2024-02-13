@@ -8,7 +8,7 @@
 
 class NvmPerfModelConstant : public NvmPerfModel
 {
-private:
+protected:
 
    QueueModel *m_queue_model;
    SubsecondTime m_nvm_read_cost;

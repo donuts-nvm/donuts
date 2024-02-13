@@ -12,11 +12,11 @@ public:
    bool predict(IntPtr address);
    void predictNext(IntPtr address, bool is_low, SubsecondTime total_time, UInt32 size);
 
-protected:
-   std::queue<IntPtr> m_map;
-
    void insert(IntPtr address);
    void remove(IntPtr address);
+
+protected:
+   std::queue<IntPtr> m_map;
 
    bool canLoRtoLoW();
    bool canLoWtoLoR();

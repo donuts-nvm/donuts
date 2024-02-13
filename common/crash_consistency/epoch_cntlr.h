@@ -9,22 +9,25 @@
 class VersionedDomain
 {
 public:
-   explicit VersionedDomain(const UInt32 id);
+
+   explicit VersionedDomain(UInt32 id);
    ~VersionedDomain();
 
    void increment() { m_eid++; }
 
    void synchronize(UInt64 remote_eid);
 
-   UInt32 getID() const { return m_id; }
-   UInt64 getEpochID() const { return m_eid; }
+   [[nodiscard]] UInt32 getID() const { return m_id; }
+   [[nodiscard]] UInt64 getEpochID() const { return m_eid; }
 
 private:
+
    const UInt32 m_id;
    UInt64 m_eid;
 };
 
 class EpochManager;
+
 class EpochCntlr
 {
 public:
@@ -41,7 +44,7 @@ public:
    /**
     * @brief Construct a new Epoch Cntlr
     */
-   EpochCntlr(EpochManager* epoch_manager, const UInt32 vd_id, std::vector<core_id_t> cores);
+   EpochCntlr(EpochManager* epoch_manager, UInt32 vd_id, std::vector<core_id_t> cores);
 
    /**
     * @brief Destroy the Epoch Cntlr
@@ -65,9 +68,9 @@ public:
     */
    void registerPersistedEID(UInt64 persisted_eid);
 
-   UInt64 getCurrentEID() const { return m_vd.getEpochID(); }
+   [[nodiscard]] UInt64 getCurrentEID() const { return m_vd.getEpochID(); }
 
-   const VersionedDomain* getVersionedDomain() const { return &m_vd; }
+   [[nodiscard]] const VersionedDomain* getVersionedDomain() const { return &m_vd; }
 
 private:
 

@@ -14,7 +14,7 @@ public:
             ShmemPerfModel* shmem_perf_model,
             UInt32 cache_block_size);
 
-   virtual ~NvmCntlr();
+   ~NvmCntlr() override;
 
    // These methods below are similar to the base class
    DramPerfModel* getNvmPerfModel() { return m_dram_perf_model; }

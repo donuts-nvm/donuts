@@ -80,6 +80,7 @@ RUN apt-get update && apt-get install -y \
     libxt-dev \
     libxmu-dev \
     libxi-dev \
+    task-spooler \
  && rm -rf /var/lib/apt/lists/*
 
 # Upgrade OS

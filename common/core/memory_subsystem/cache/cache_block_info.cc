@@ -101,6 +101,7 @@ CacheBlockInfo::setCState(CacheState::cstate_t cstate)
    if (Sim()->getProjectType() == ProjectType::DONUTS && cstate == CacheState::MODIFIED)
    {
       UInt64 eid = EpochManager::getGlobalSystemEID();
+      // TODO: In the cache_cntlr, case the system tries to write to a cache block from a past epoch that has not yet been committed, commit it!
       LOG_ASSERT_ERROR(m_cstate != CacheState::MODIFIED || m_eid == eid, "It's not allowed to write to an uncommitted block (%lu -> %lu)", m_eid, eid);
       m_eid = eid;
    }

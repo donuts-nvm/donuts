@@ -3,6 +3,7 @@
 
 #include "nvm_cntlr.h"
 #include "checkpoint_predictor.h"
+#include "checkpoint_event.h"
 
 namespace PrL1PrL2DramDirectoryMSI
 {
@@ -11,8 +12,8 @@ class LogRowBuffer
 {
 public:
 
-   explicit LogRowBuffer(UInt32 capacity, SubsecondTime flush_latency,
-                         SubsecondTime insertion_latency = SubsecondTime::Zero());
+   explicit LogRowBuffer(UInt32 capacity, const SubsecondTime& flush_latency,
+                         const SubsecondTime& insertion_latency = SubsecondTime::Zero());
    virtual ~LogRowBuffer();
 
    SubsecondTime insert(IntPtr address, Byte* data_buf, UInt32 data_size);
@@ -53,26 +54,25 @@ public:
                   ShmemPerfModel* shmem_perf_model,
                   UInt32 cache_block_size);
 
-   virtual ~NvmCntlrDonuts();
+   ~NvmCntlrDonuts() override;
 
-   inline virtual boost::tuple<SubsecondTime, HitWhere::where_t>
-   getDataFromDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf) {
+   boost::tuple<SubsecondTime, HitWhere::where_t>
+   getDataFromDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf) override {
       return getDataFromNvm(address, requester, data_buf, now, perf);
    }
 
-   inline virtual boost::tuple<SubsecondTime, HitWhere::where_t>
-   putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now) {
+   boost::tuple<SubsecondTime, HitWhere::where_t>
+   putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now) override {
       return putDataToNvm(address, requester, data_buf, now);
    }
 
-   virtual boost::tuple<SubsecondTime, HitWhere::where_t> getDataFromNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf);
-   virtual boost::tuple<SubsecondTime, HitWhere::where_t> putDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
-   virtual boost::tuple<SubsecondTime, HitWhere::where_t> logDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
+   boost::tuple<SubsecondTime, HitWhere::where_t> getDataFromNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf) override;
+   boost::tuple<SubsecondTime, HitWhere::where_t> putDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now) override;
+   boost::tuple<SubsecondTime, HitWhere::where_t> logDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now) override;
 
-   void startCheckpoint(IntPtr pc);
-   void finishCheckpoint(IntPtr pc);
+//   void checkpoint(UInt64 eid);
 
-   static log_policy_t getLogPolicy();
+   void checkpoint(CheckpointEvent::type_t event_type, UInt64 num_dirty_blocks, float cache_used);
 
 private:
 
@@ -85,16 +85,23 @@ private:
    CheckpointPredictor m_checkpoint_predictor;
 
    LogRowBuffer m_log_row_buffer;
+   UInt32 m_checkpoint_region_size;
+   UInt64 m_logs_by_epoch;
+
+   FILE* m_checkpoint_info;
 
    void createLogEntry(IntPtr address, Byte* data_buf);
 
-   SubsecondTime processLogging(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
    bool canLoRtoLoW();
    bool canLoWtoLoR();
 
+   static log_policy_t getLogPolicy();
    static UInt32 getLogRowBufferSize();
    static SubsecondTime getInsertionLatency();
    static SubsecondTime getFlushLatency();
+   static UInt32 getCheckpointRegionSize();
+
+//   static SInt64 _checkpoint(UInt64 arg, UInt64 eid) { ((NvmCntlrDonuts *)arg)->checkpoint(eid); return 0; }
 };
 
 }

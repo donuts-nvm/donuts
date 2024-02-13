@@ -3,14 +3,7 @@
 #include "stats.h"
 #include "fault_injection.h"
 
-#if 0
-   extern Lock iolock;
-#  include "core_manager.h"
-#  include "simulator.h"
-#  define MYLOG(...) { ScopedLock l(iolock); fflush(stdout); printf("[%s] %d%cdr %-25s@%3u: ", itostr(getShmemPerfModel()->getElapsedTime()).c_str(), getMemoryManager()->getCore()->getId(), Sim()->getCoreManager()->amiUserThread() ? '^' : '_', __FUNCTION__, __LINE__); printf(__VA_ARGS__); printf("\n"); fflush(stdout); }
-#else
-#  define MYLOG(...) {}
-#endif
+#define MYLOG(...) {}
 
 namespace PrL1PrL2DramDirectoryMSI
 {
@@ -65,7 +58,8 @@ NvmCntlr::logDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf, Subs
 #endif
    MYLOG("L @ %08lx", address);
 
-   return boost::tuple<SubsecondTime, HitWhere::where_t>(nvm_access_latency, m_hit_where);
+   auto values = boost::tuple<SubsecondTime, HitWhere::where_t>(nvm_access_latency, m_hit_where);
+   return values;
 }
 
 }

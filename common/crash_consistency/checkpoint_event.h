@@ -13,6 +13,13 @@ public:
       NUM_EVENT_TYPES
    } Type;
 
+   // o que motivou o checkpoint
+   // tempo em que o checkpoint foi realizado
+   // instrução em que o checkpoint foi realizado
+   // quantidade de logs desse checkpoint
+   // -- o tamanho do checkpoint
+   // -- o tempo de persistência desse checkpoint
+
    static const char *TypeString(Type type);
 };
 

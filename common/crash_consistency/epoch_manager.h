@@ -31,6 +31,13 @@ public:
    void commit();
 
    /**
+    * @brief Commit the current epoch
+    *
+    * @param event_type
+    */
+   void commit(CheckpointEvent::type_t event_type);
+
+   /**
     * @brief Register an Epoch ID with the last persisted data
     *
     * @param persisted_eid
@@ -41,43 +48,55 @@ public:
     * @brief Get the System EpochID
     * @return UInt64
     */
-   UInt64 getSystemEID() const { return m_system_eid; }
+   [[nodiscard]] UInt64 getSystemEID() const { return m_current.eid; }
+
+   /**
+    * @brief Get PC from the Current Epoch
+    * @return UInt64
+    */
+   [[nodiscard]] UInt64 getSystemPC() const { return m_current.pc; }
 
    /**
     * @brief Get the Commited EpochID
     * @return UInt64
     */
-   UInt64 getCommitedEID() const { return m_commited.eid; }
+   [[nodiscard]] UInt64 getCommitedEID() const { return m_commited.eid; }
+
+   /**
+    * @brief Get the Commited PC
+    * @return UInt64
+    */
+   [[nodiscard]] UInt64 getCommitedPC() const { return m_commited.pc; }
 
    /**
     * @brief Get the Commited Time
     * @return SubsecondTime
     */
-   SubsecondTime getCommitedTime() const { return m_commited.time; }
+   [[nodiscard]] SubsecondTime getCommitedTime() const { return m_commited.time; }
 
    /**
     * @brief Get the Commited Instruction
     * @return UInt64
     */
-   UInt64 getCommitedInstruction() const { return m_commited.instr; }
+   [[nodiscard]] UInt64 getCommitedInstruction() const { return m_commited.instr; }
 
    /**
     * @brief Get the Persisted EpochID
     * @return UInt64
     */
-   UInt64 getPersistedEID() const { return m_persisted.eid; }
+   [[nodiscard]] UInt64 getPersistedEID() const { return m_persisted.eid; }
 
    /**
     * @brief Get the Persisted Time
     * @return SubsecondTime
     */
-   SubsecondTime getPersistedTime() const { return m_persisted.time; }
+   [[nodiscard]] SubsecondTime getPersistedTime() const { return m_persisted.time; }
 
    /**
     * @brief Get the Persisted Instruction
     * @return UInt64
     */
-   UInt64 getPersistedInstruction() const { return m_commited.instr; }
+   [[nodiscard]] UInt64 getPersistedInstruction() const { return m_commited.instr; }
 
    /**
     * @brief Get the Epoch Cntlr
@@ -102,6 +121,7 @@ public:
 private:
    struct epoch_instant_t
    {
+      epoch_instant_t() : eid(0), instr(0), pc(0), time(SubsecondTime::Zero()) {}
       UInt64 eid;
       UInt64 instr;
       IntPtr pc;
@@ -111,7 +131,7 @@ private:
    FILE *m_log_file;
    std::map<IntPtr, CheckpointEvent> m_epoch_events;
 
-   UInt64 m_system_eid;
+   struct epoch_instant_t m_current;
    struct epoch_instant_t m_commited;
    struct epoch_instant_t m_persisted;
 
@@ -133,7 +153,7 @@ private:
     * @brief Exit the epoch manager system
     * This method is called on application start
     */
-   void exit();
+   void exit() const;
 
    /**
     * @brief Interrupt the epoch manager system

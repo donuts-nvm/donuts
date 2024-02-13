@@ -24,7 +24,6 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
          HitWhere::where_t hit_where;
 
          boost::tie(dram_latency, hit_where) = getDataFromDram(address, shmem_msg->getRequester(), data_buf, msg_time, shmem_msg->getPerf());
-//         printf("%-5s [%08lx] in %lu ns\n", "LOAD", shmem_msg->getAddress(), dram_latency.getNS());
 
          getShmemPerfModel()->incrElapsedTime(dram_latency, ShmemPerfModel::_SIM_THREAD);
 
@@ -45,11 +44,9 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_WRITE_REQ:
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_WRITE_REQ:  // Added by Kleber Kruger
       {
-         SubsecondTime dram_latency;
-         HitWhere::where_t hit_where;
-         boost::tie(dram_latency, hit_where) = putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
-//         printf("%-5s [%08lx] in %lu ns\n", "STORE", shmem_msg->getAddress(), dram_latency.getNS());
-//         getShmemPerfModel()->incrElapsedTime(dram_latency, ShmemPerfModel::_SIM_THREAD);
+//         putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
+         auto values = putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
+         getShmemPerfModel()->incrElapsedTime(values.head, ShmemPerfModel::_SIM_THREAD);
 
          // DRAM latency is ignored on write
 
@@ -59,26 +56,11 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
       // Added by Kleber Kruger
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::NVM_LOG_REQ:
       {
-         auto nvm_cntlr = static_cast<PrL1PrL2DramDirectoryMSI::NvmCntlr*>(this);
+         auto *nvm_cntlr = dynamic_cast<PrL1PrL2DramDirectoryMSI::NvmCntlr*>(this);
          nvm_cntlr->logDataToNvm(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
 
          // NVM Log latency is ignored on log
 
-         break;
-      }
-
-      // Added by Kleber Kruger
-      case PrL1PrL2DramDirectoryMSI::ShmemMsg::CHECKPOINT_START:
-      {
-         auto nvm_cntlr = static_cast<PrL1PrL2DramDirectoryMSI::NvmCntlrDonuts*>(this);
-         nvm_cntlr->startCheckpoint(shmem_msg->getAddress());
-         break;
-      }
-      // Added by Kleber Kruger
-      case PrL1PrL2DramDirectoryMSI::ShmemMsg::CHECKPOINT_FINISHED:
-      {
-         auto nvm_cntlr = static_cast<PrL1PrL2DramDirectoryMSI::NvmCntlrDonuts*>(this);
-         nvm_cntlr->finishCheckpoint(shmem_msg->getAddress());
          break;
       }
 

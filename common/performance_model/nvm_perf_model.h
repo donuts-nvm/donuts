@@ -8,7 +8,7 @@ class NvmPerfModel : public DramPerfModel
 public:
 
    NvmPerfModel(core_id_t core_id, UInt64 cache_block_size);
-   virtual ~NvmPerfModel();
+   ~NvmPerfModel() override;
 
    SubsecondTime getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester, IntPtr address,
                                   DramCntlrInterface::access_t access_type, ShmemPerf *perf) override;
