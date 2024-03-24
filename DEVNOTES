@@ -27,3 +27,17 @@ Tutorial: https://youtu.be/UO2RFLAId7Y
 5. git push --force (to push to GitHub repository)
 
 Tutorial: https://youtu.be/xpYUiE2OqQM
+
+
+--- CREATE A PATCH FROM SNIPER TO DONUTS ---
+
+1. make clean
+2. git remote add upstream https://github.com/snipersim/snipersim.git
+3. git fetch upstream
+4. git merge upstream/main
+5. git diff upstream/main > sniper_to_donuts.patch
+
+- To apply it:
+
+1. git clone https://github.com/snipersim/snipersim.git
+2. git apply --whitespace=nowarn sniper_to_donuts.patch
