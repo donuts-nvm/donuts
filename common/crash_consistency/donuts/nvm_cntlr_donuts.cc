@@ -102,7 +102,7 @@ NvmCntlrDonuts::putDataToNvm(IntPtr address, core_id_t requester, Byte* data_buf
    if (m_log_policy.current == LogPolicy::LOGGING_ON_WRITE)
       log_latency = logDataToNvm(address, requester, data_buf, now).head;
 
-   if (log_latency > SubsecondTime::Zero()) printf("Fechando LogRowBuffer in %lu\n", log_latency.getNS());
+//   if (log_latency > SubsecondTime::Zero()) printf("Fechando LogRowBuffer in %lu\n", log_latency.getNS());
 
    boost::tie(nvm_latency, hit_where) = NvmCntlr::putDataToNvm(address, requester, data_buf, now);
    auto values = boost::tuple<SubsecondTime, HitWhere::where_t>(nvm_latency + log_latency, m_hit_where);

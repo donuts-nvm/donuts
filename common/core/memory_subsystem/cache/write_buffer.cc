@@ -1,16 +1,18 @@
 #include "write_buffer.h"
 
-NonCoalescingWriteBuffer::NonCoalescingWriteBuffer(UInt32 num_entries)
-    : WriteBuffer(num_entries) { }
+NonCoalescingWriteBuffer::NonCoalescingWriteBuffer(UInt32 num_entries) :
+    WriteBuffer(num_entries) {}
 
 NonCoalescingWriteBuffer::~NonCoalescingWriteBuffer() = default;
 
-void NonCoalescingWriteBuffer::insert(const WriteBufferEntry& entry, SubsecondTime time)
+void
+NonCoalescingWriteBuffer::insert(const WriteBufferEntry& entry, SubsecondTime time)
 {
    m_queue.emplace_back(entry, time);
 }
 
-WriteBufferEntry NonCoalescingWriteBuffer::remove()
+WriteBufferEntry
+NonCoalescingWriteBuffer::remove()
 {
    WriteBufferEntry entry = std::get<WriteBufferEntry>(m_queue.front().first);
    m_queue.pop_front();
@@ -18,9 +20,11 @@ WriteBufferEntry NonCoalescingWriteBuffer::remove()
    return entry;
 }
 
-bool NonCoalescingWriteBuffer::isPresent(IntPtr address)
+bool
+NonCoalescingWriteBuffer::isPresent(IntPtr address)
 {
-   auto same_address = [&](auto& e) { return std::get<WriteBufferEntry>(e.first).getAddress() == address; };
+   auto same_address = [&](auto& e)
+   { return std::get<WriteBufferEntry>(e.first).getAddress() == address; };
    return std::find_if(m_queue.begin(), m_queue.end(), same_address) != m_queue.end();
 }
 
@@ -31,25 +35,26 @@ NonCoalescingWriteBuffer::getEntryInfo(std::pair<std::variant<WriteBufferEntry, 
    return std::make_tuple(entry.getAddress(), e.second);
 }
 
-
-CoalescingWriteBuffer::CoalescingWriteBuffer(UInt32 num_entries)
-    : WriteBuffer(num_entries), m_map()
-{ }
+CoalescingWriteBuffer::CoalescingWriteBuffer(UInt32 num_entries) :
+    WriteBuffer(num_entries) {}
 
 CoalescingWriteBuffer::~CoalescingWriteBuffer() = default;
 
-void CoalescingWriteBuffer::insert(const WriteBufferEntry& entry, SubsecondTime time)
+void
+CoalescingWriteBuffer::insert(const WriteBufferEntry& entry, SubsecondTime time)
 {
    m_queue.emplace_back(entry.getAddress(), time);
    m_map.insert(std::make_pair(entry.getAddress(), entry));
 }
 
-void CoalescingWriteBuffer::update(const WriteBufferEntry& entry)
+void
+CoalescingWriteBuffer::update(const WriteBufferEntry& entry)
 {
    m_map.find(entry.getAddress())->second = entry;
 }
 
-WriteBufferEntry CoalescingWriteBuffer::remove()
+WriteBufferEntry
+CoalescingWriteBuffer::remove()
 {
    WriteBufferEntry entry = m_map.at(std::get<IntPtr>(m_queue.front().first));
    m_map.erase(entry.getAddress());
@@ -58,9 +63,10 @@ WriteBufferEntry CoalescingWriteBuffer::remove()
    return entry;
 }
 
-bool CoalescingWriteBuffer::isPresent(IntPtr address)
+bool
+CoalescingWriteBuffer::isPresent(IntPtr address)
 {
-   return m_map.count(address) > 0;
+   return m_map.contains(address);
 }
 
 std::tuple<IntPtr, SubsecondTime>
@@ -73,15 +79,20 @@ CoalescingWriteBuffer::getEntryInfo(std::pair<std::variant<WriteBufferEntry, Int
 /************************************************************
  * ONLY FOR DEBUG!
  ************************************************************/
-void WriteBuffer::print(const String& desc)
+void
+WriteBuffer::print(const String& desc)
 {
    UInt32 index = 0;
-   if (!desc.empty()) printf("*** %s ***\n", desc.c_str());
-   printf("----------------------\n");
-   for (auto& e : m_queue)
+   if (!desc.empty())
    {
-      auto tp = getEntryInfo(e);
-      printf("%4u [%12lx] -> (%lu)\n", index++, std::get<0>(tp), std::get<1>(tp).getNS());
+      printf("*** %s ***\n", desc.c_str());
+   }
+   printf("----------------------\n");
+
+   for (auto& entry: m_queue)
+   {
+      auto info = getEntryInfo(entry);
+      printf("%4u [%12lx] -> (%lu)\n", index++, std::get<0>(info), std::get<1>(info).getNS());
    }
    printf("----------------------\n");
 }

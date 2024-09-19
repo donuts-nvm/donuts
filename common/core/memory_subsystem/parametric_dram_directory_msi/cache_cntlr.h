@@ -313,8 +313,6 @@ namespace ParametricDramDirectoryMSI
          void writeCacheBlock(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num, UInt64 eid);
          // Added by Kleber Kruger (a wrapper to instruction: "m_next_cache_cntlr->writeCacheBlock")
          virtual void writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num, UInt64 eid);
-         // Added by Kleber Kruger (to flush cache-block to DRAM in LLC writethrough models)
-         virtual SubsecondTime sendDataToDram(IntPtr address);
 
          // Handle Request from previous level cache
          HitWhere::where_t processShmemReqFromPrevCache(CacheCntlr* requester, Core::mem_op_t mem_op_type, IntPtr address, bool modeled, bool count, Prefetch::prefetch_type_t isPrefetch, SubsecondTime t_issue, bool have_write_lock);

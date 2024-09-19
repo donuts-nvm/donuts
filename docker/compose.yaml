@@ -15,7 +15,6 @@ services:
     volumes:
       - "${HOME}:${HOME}"
     command: ["sh", "-c", "sudo service ssh start && tail -f /dev/null"]
-
 secrets:
   user_ssh_key:
     file: ~/.ssh/id_ed25519

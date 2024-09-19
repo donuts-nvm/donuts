@@ -29,6 +29,8 @@ CacheCntlrDonuts::CacheCntlrDonuts(MemComponent::component_t mem_component,
 
    if (is_last_level_cache)
    {
+      LOG_ASSERT_ERROR(!m_cache_writethrough, "DONUTS does not allow LLC write-through");
+
       // TODO: Implement for non-unified LLC... Use a Master Controller??
       LOG_ASSERT_ERROR(m_core_id_master == 0, "DONUTS does not allow non-unified LLC yet");
 
@@ -107,6 +109,7 @@ CacheCntlrDonuts::checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_
                auto latency = m_writebuffer_cntlr->insert(address, 0, nullptr, getCacheBlockSize(), ShmemPerfModel::_USER_THREAD, cache_block->getEpochID());
                getMemoryManager()->incrElapsedTime(latency, ShmemPerfModel::_USER_THREAD);
                processCommit(address, data_buf);
+               printf("tomar no cu\n");
             }
             else
             {
@@ -126,17 +129,6 @@ CacheCntlrDonuts::checkpoint(CheckpointEvent::type_t event_type, UInt32 evicted_
    {
       // TODO: Commit cache blocks in burst according to the write buffer size.
    }
-}
-
-SubsecondTime // FIXME: Don't use me!
-CacheCntlrDonuts::sendDataToDram(IntPtr address)
-{
-   if (!isLastLevel())
-      return CacheCntlrWrBuff::sendDataToDram(address);
-
-   LOG_ASSERT_ERROR(!isLastLevel(), "Should not reach here");
-
-   return SubsecondTime::Zero();
 }
 
 void

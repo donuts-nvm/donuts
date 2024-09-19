@@ -28,16 +28,19 @@ CacheCntlrWrBuff::CacheCntlrWrBuff(MemComponent::component_t mem_component,
       }
       else
       {
-         auto master_cache_cntlr = getMemoryManager()->getCacheCntlrAt(m_core_id_master, mem_component);
-         m_writebuffer_cntlr = static_cast<CacheCntlrWrBuff *>(master_cache_cntlr)->m_writebuffer_cntlr;
+         auto* master_cache_cntlr = getMemoryManager()->getCacheCntlrAt(m_core_id_master, mem_component);
+         m_writebuffer_cntlr      = dynamic_cast<CacheCntlrWrBuff*>(master_cache_cntlr)->m_writebuffer_cntlr;
       }
    }
-//   printf("WriteBufferCntlr from %s | Core %u/%u (%p)\n", getCache()->getName().c_str(), m_core_id_master, m_core_id, m_writebuffer_cntlr);
+   //   printf("WriteBufferCntlr from %s | Core %u/%u (%p)\n", getCache()->getName().c_str(), m_core_id_master, m_core_id, m_writebuffer_cntlr);
 }
 
 CacheCntlrWrBuff::~CacheCntlrWrBuff()
 {
-   if (isWriteBufferEnabled() && isMasterCache()) delete m_writebuffer_cntlr;
+   if (isWriteBufferEnabled() && isMasterCache())
+   {
+      delete m_writebuffer_cntlr;
+   }
 }
 
 void
@@ -45,7 +48,9 @@ CacheCntlrWrBuff::writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte
 {
    // The LLC already implements a DRAM-write strategy similar to a write-buffer using a queue-based model
    if (!isWriteBufferEnabled() || isLastLevel())
+   {
       CacheCntlr::writeCacheBlockAtNextLevel(address, offset, data_buf, data_length, thread_num, eid);
+   }
    else
    {  // Write the cache block in the next level cache via write-buffer
       SubsecondTime latency = m_writebuffer_cntlr->insert(address, offset, data_buf, data_length, thread_num, eid);

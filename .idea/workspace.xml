@@ -3,6 +3,9 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
       <config projectName="donuts" targetName="regress_quick" />
@@ -39,33 +42,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e1e6a68-25ee-4a9a-a2f8-1f32c9b41eb1" name="Changes" comment="Updated script files">
-      <change afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_perf_model_donuts.cc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_perf_model_donuts.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts-test.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb1024.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb2048.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb256.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb4096.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb512.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb64.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_lrb8192.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_wb1.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_wb32.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config/donuts_wb8.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tools/experiment.py" afterDir="false" />
+    <list default="true" id="3e1e6a68-25ee-4a9a-a2f8-1f32c9b41eb1" name="Changes" comment="New NVM technologies">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/dram/dram_cntlr_interface.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/dram/dram_cntlr_interface.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/config_donuts.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/config_donuts.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/config_donuts.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/config_donuts.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/nvm_cntlr_donuts.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/performance_model/nvm_perf_model.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/performance_model/nvm_perf_model.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/performance_model/nvm_perf_model.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/performance_model/nvm_perf_model.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/performance_model/nvm_perf_model_constant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/performance_model/nvm_perf_model_constant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/performance_model/nvm_perf_model_constant.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/performance_model/nvm_perf_model_constant.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/donuts.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/config/donuts.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/gen_results.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/gen_results.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/run_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/run_experiment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,7 +128,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/kleber.kruger/donuts/results&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -159,42 +137,45 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;,
+    &quot;two.files.diff.last.used.file&quot;: &quot;/home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
     <layout>
       <window_info id="Space Code Reviews" show_stripe_button="false" />
-      <window_info id="Bookmarks" show_stripe_button="false" side_tool="true" />
+      <window_info id="Bookmarks" side_tool="true" />
       <window_info id="Merge Requests" show_stripe_button="false" />
       <window_info id="Commit_Guest" show_stripe_button="false" />
-      <window_info id="Pull Requests" show_stripe_button="false" />
+      <window_info id="Pull Requests" />
       <window_info id="Settings Sync History" show_stripe_button="false" />
       <window_info id="Learn" show_stripe_button="false" />
       <window_info id="DFA" show_stripe_button="false" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23305556" />
-      <window_info id="Commit" order="1" weight="0.23305556" />
-      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.50075305" weight="0.13694444" />
+      <window_info active="true" id="Commit" order="1" sideWeight="0.50075305" visible="true" weight="0.13694444" />
+      <window_info id="VcsChanges" order="2" weight="0.1786111" />
+      <window_info id="Structure" order="3" sideWeight="0.49924698" side_tool="true" weight="0.1786111" />
+      <window_info anchor="bottom" id="Database Changes" />
       <window_info anchor="bottom" id="TypeScript" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Packages" show_stripe_button="false" />
       <window_info anchor="bottom" id="File Transfer" show_stripe_button="false" />
       <window_info anchor="bottom" id="Vcpkg" show_stripe_button="false" />
       <window_info anchor="bottom" id="clangd" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="0" weight="0.32992893" />
-      <window_info anchor="bottom" id="Problems View" order="1" weight="0.32992893" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="2" visible="true" weight="0.4631439" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.3106203" />
+      <window_info anchor="bottom" id="Problems View" order="1" weight="0.3106203" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="2" visible="true" weight="0.3106203" />
       <window_info anchor="bottom" id="Build" order="3" weight="0.32992893" />
       <window_info anchor="bottom" id="Debug" order="4" weight="0.32992893" />
-      <window_info anchor="bottom" id="TODO" order="5" weight="0.32992893" />
-      <window_info anchor="bottom" id="Messages" order="6" weight="0.32992893" />
-      <window_info anchor="bottom" id="Run" order="7" weight="0.32992893" />
-      <window_info anchor="bottom" id="Services" order="8" />
+      <window_info anchor="bottom" id="TODO" order="5" weight="0.3106203" />
+      <window_info anchor="bottom" id="Messages" order="6" weight="0.3106203" />
+      <window_info anchor="bottom" id="Run" order="7" weight="0.33035713" />
+      <window_info anchor="bottom" id="Services" order="8" weight="0.3106203" />
       <window_info anchor="bottom" id="Find" order="9" weight="0.32992893" />
       <window_info anchor="right" id="make" show_stripe_button="false" side_tool="true" />
       <window_info anchor="right" id="documentation.v2" show_stripe_button="false" side_tool="true" />
       <window_info anchor="right" id="Python Console" show_stripe_button="false" />
-      <window_info anchor="right" id="Coverage" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" id="Coverage" side_tool="true" />
       <window_info anchor="right" id="Meson" show_stripe_button="false" />
       <window_info anchor="right" content_ui="combo" id="Notifications" order="0" weight="0.25" />
       <window_info anchor="right" id="AIAssistant" order="1" weight="0.25" />
@@ -346,11 +327,6 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Native Application.Makefile" />
       <item itemvalue="Native Application.all" />
@@ -424,6 +400,31 @@
       <workItem from="1710725876627" duration="7076000" />
       <workItem from="1711012708428" duration="1614000" />
       <workItem from="1711067170334" duration="592000" />
+      <workItem from="1711325098827" duration="1795000" />
+      <workItem from="1711335855909" duration="176000" />
+      <workItem from="1711336048089" duration="2346000" />
+      <workItem from="1711349691012" duration="599000" />
+      <workItem from="1711438182919" duration="2143000" />
+      <workItem from="1711749597937" duration="599000" />
+      <workItem from="1711954213828" duration="67000" />
+      <workItem from="1711954296644" duration="291000" />
+      <workItem from="1711954613686" duration="599000" />
+      <workItem from="1711955980493" duration="3172000" />
+      <workItem from="1711972505556" duration="874000" />
+      <workItem from="1712407794986" duration="7907000" />
+      <workItem from="1725658232956" duration="1373000" />
+      <workItem from="1726084149950" duration="1035000" />
+      <workItem from="1726688380294" duration="2426000" />
+      <workItem from="1726726124941" duration="5412000" />
+      <workItem from="1726734254189" duration="610000" />
+      <workItem from="1727245184518" duration="413000" />
+      <workItem from="1727245832671" duration="605000" />
+      <workItem from="1727254074154" duration="62000" />
+      <workItem from="1727255237022" duration="167000" />
+      <workItem from="1727255440117" duration="29000" />
+      <workItem from="1727255527996" duration="3653000" />
+      <workItem from="1727259271645" duration="4295000" />
+      <workItem from="1727293935240" duration="7384000" />
     </task>
     <task id="LOCAL-00001" summary="Async epoch commit">
       <option name="closed" value="true" />
@@ -497,7 +498,23 @@
       <option name="project" value="LOCAL" />
       <updated>1710226473318</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Test">
+      <option name="closed" value="true" />
+      <created>1726708205152</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1726708205152</updated>
+    </task>
+    <task id="LOCAL-00011" summary="New NVM technologies">
+      <option name="closed" value="true" />
+      <created>1727326783730</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1727326783730</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -519,7 +536,9 @@
     <MESSAGE value="NvmCntlrDonuts refactored" />
     <MESSAGE value="Added script files" />
     <MESSAGE value="Updated script files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated script files" />
+    <MESSAGE value="Test" />
+    <MESSAGE value="New NVM technologies" />
+    <option name="LAST_COMMIT_MESSAGE" value="New NVM technologies" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

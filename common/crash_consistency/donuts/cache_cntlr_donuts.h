@@ -42,7 +42,6 @@ private:
    void addAllDirtyBlocks(std::queue<CacheBlockInfo*>& dirty_blocks, UInt32 set_index) const;
    std::queue<CacheBlockInfo*> selectDirtyBlocks(UInt32 evicted_set_index) const;
 
-   SubsecondTime sendDataToDram(IntPtr address) override; // FIXME: Don't use me!
    void sendByWriteBuffer(const WriteBufferEntry &entry) override;
 
    void processCommit(IntPtr address, Byte* data_buf);

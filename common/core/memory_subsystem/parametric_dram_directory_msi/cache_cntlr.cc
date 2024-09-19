@@ -8,7 +8,6 @@
 #include "hooks_manager.h"
 #include "cache_atd.h"
 #include "shmem_perf.h"
-#include "cache_cntlr.h"
 #include "cache_cntlr_wb.h"      // Added by Kleber Kruger
 #include "cache_cntlr_donuts.h"  // Added by Kleber Kruger
 #include "epoch_manager.h"       // Added by Kleber Kruger
@@ -1310,7 +1309,7 @@ CacheCntlr::accessCache(
       case Core::WRITE:
       {
          // Modified by Kleber Kruger (added auto cache_block = m_master->m_cache->accessSingleLine...)
-         auto cache_block = m_master->m_cache->accessSingleLine(ca_address + offset, Cache::STORE, data_buf, data_length,
+         auto *cache_block = m_master->m_cache->accessSingleLine(ca_address + offset, Cache::STORE, data_buf, data_length,
                                                                 getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD), update_replacement);
          // Write-through cache - Write the next level cache also
          if (m_cache_writethrough)
@@ -1747,10 +1746,10 @@ assert(data_length==getCacheBlockSize());
    } else {
       __attribute__((unused)) SharedCacheBlockInfo* cache_block_info = (SharedCacheBlockInfo*) m_master->m_cache->accessSingleLine(
          address + offset, Cache::STORE, data_buf, data_length, getShmemPerfModel()->getElapsedTime(thread_num), false);
-      // Added by Kleber Kruger to copy eid field
-      cache_block_info->setEpochID(eid); // FIXME: Fix null value to write-buffer in async mode
       LOG_ASSERT_ERROR(cache_block_info, "writethrough expected a hit at next-level cache but got miss");
       LOG_ASSERT_ERROR(cache_block_info->getCState() == CacheState::MODIFIED, "Got writeback for non-MODIFIED line");
+      // Added by Kleber Kruger to copy eid field
+      cache_block_info->setEpochID(eid); // FIXME: Fix null value to write-buffer in async mode
    }
 
    if (m_cache_writethrough) {
@@ -1776,41 +1775,30 @@ assert(data_length==getCacheBlockSize());
  * @param data_buf
  * @param data_length
  * @param thread_num
+ * @param eid
  */
 void
 CacheCntlr::writeCacheBlockAtNextLevel(IntPtr address, UInt32 offset, Byte* data_buf, UInt32 data_length, ShmemPerfModel::Thread_t thread_num, UInt64 eid)
 {
    if (!isLastLevel())
+   {
       m_next_cache_cntlr->writeCacheBlock(address, offset, data_buf, data_length, thread_num, eid);
-   else
-   {  // Writing via a write buffer is unnecessary because the DRAM writing model already implements a queue model.
-      SubsecondTime latency = sendDataToDram(address);
-      getMemoryManager()->incrElapsedTime(latency, ShmemPerfModel::_USER_THREAD);
    }
-}
+   else
+   {  // TODO: Check this implementation because it don't update directory states.
+      LOG_ASSERT_ERROR(false, "NÃO DEVERIA TER CHEGADO AQUI! O SISTEMA ESTÁ ENVIANDO UM BLOCO DA CACHE PARA A MEMÓRIA RAM NUMA CACHE WRITE-THROUGH")
 
-/**
- * Send the modified cache-block to DRAM in case of LLC writethrough.
- * Added by Kleber Kruger
- * TODO: Check this implementation because it don't update directory states.
- *
- * @param address
- * @param data_buf
- *
- * @return sending latency to DRAM
- */
-SubsecondTime
-CacheCntlr::sendDataToDram(IntPtr address)
-{
-   ScopedLock sl(getLock());
-
-   Byte data_buf[getCacheBlockSize()];
-   SubsecondTime t_issue = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
-   SubsecondTime latency;
-   HitWhere::where_t hit_where;
-
-   boost::tie(latency, hit_where) = getMemoryManager()->getDramCntlr()->putDataToDram(address, m_core_id_master, data_buf, t_issue);
-   return latency;
+//      // Send the modified cache-block to DRAM in case of LLC write-through.
+//      ScopedLock sl(getLock());
+//      Byte data_buf[getCacheBlockSize()];
+//
+//      SubsecondTime t_issue = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_USER_THREAD);
+//      SubsecondTime latency = getMemoryManager()->getDramCntlr()->putDataToDram(address, m_core_id_master, data_buf, t_issue).head;
+//
+//      // Writing via a write buffer is unnecessary because the DRAM writing model already implements a queue model.
+//      // TODO: 1) Couldn't you use MemoryManager for this?... 2) Should the latency of writing to DRAM be added?
+//      getMemoryManager()->incrElapsedTime(latency, ShmemPerfModel::_USER_THREAD);
+   }
 }
 
 bool

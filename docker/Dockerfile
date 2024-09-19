@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-ARG UID 
+ARG UID
 ARG USER
 ARG TZ_ARG=UTC
 
@@ -60,18 +60,25 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
  && rm -rf /var/lib/apt/lists/*
 
+# Add PPA for the latest gcc/g++
+RUN apt-get update && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:ubuntu-toolchain-r/test \
+    && apt-get update && apt-get install -y gcc-13 g++-13 \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 60 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 60 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Helper utilities
 RUN apt-get update && apt-get install -y \
     gdb \
     gfortran \
     git \
-    g++-9 \
     vim \
     nano \
     lsof \
  && rm -rf /var/lib/apt/lists/*
 
-# For compile the benchmarks \
+# For compile the benchmarks
 RUN apt-get update && apt-get install -y \
     xsltproc \
     gettext \
@@ -84,8 +91,8 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Upgrade OS
-RUN apt-get upgrade \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install sudo and SSH server
 RUN apt-get update && apt-get install -y \
@@ -95,10 +102,11 @@ RUN apt-get update && apt-get install -y \
 
 # Create user and setup permissions on /etc/sudoers
 RUN useradd -m -s /bin/bash -N -u $UID $USER && \
-    # usermod -aG sudo $USER && \ 
+    # usermod -aG sudo $USER && \
     echo "${USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers && \
     chmod 0440 /etc/sudoers && \
     chmod g+w /etc/passwd
+
 # Copy the id_ed25519 key to container using Docker secrets
 RUN mkdir -p /home/$USER/.ssh && ln -s /run/secrets/user_ssh_key /home/$USER/.ssh/id_ed25519
 RUN chown -R $USER:sudo /home/$USER/.ssh

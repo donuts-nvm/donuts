@@ -196,7 +196,7 @@ DramCntlr::create(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_
       return new NvmCntlrDonuts(memory_manager, shmem_perf_model, cache_block_size);
 
    DramCntlrInterface::technology_t technology = DramCntlrInterface::getTechnology();
-   return technology == NVM    ? new NvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :
+   return /*technology == NVM    ? new NvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :*/
           technology == HYBRID ? new DramNvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :
                                  new DramCntlr(memory_manager, shmem_perf_model, cache_block_size);
 }

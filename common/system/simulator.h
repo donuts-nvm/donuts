@@ -36,9 +36,10 @@ namespace config { class Config; }
 // Added by Kleber Kruger
 typedef enum project_type_t
 {
-   DEFAULT = 0,
+   UNKNOWN = 0,
+   DEFAULT,
    DONUTS,
-   NUM_PROJECT_TYPES
+   NUM_PROJECT_TYPES = DONUTS
 } ProjectType;
 
 class Simulator

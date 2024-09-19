@@ -38,6 +38,11 @@ class DramCntlrInterface
          UNKNOWN,
          DRAM,
          NVM,
+         PCM,
+         STT_RAM,
+         MEMRISTOR,
+         RERAM,
+         INTEL_OPTANE,
          HYBRID
       } technology_t;
 

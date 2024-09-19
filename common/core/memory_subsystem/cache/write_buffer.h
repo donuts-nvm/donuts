@@ -1,40 +1,41 @@
 #ifndef WRITE_BUFFER_H
 #define WRITE_BUFFER_H
 
-#include "write_buffer_entry.h"
-#include "subsecond_time.h"
 #include "shmem_perf_model.h"
+#include "subsecond_time.h"
+#include "write_buffer_entry.h"
 
+#include <algorithm>
 #include <deque>
 #include <map>
 #include <variant>
-#include <algorithm>
 
 class WriteBuffer
 {
 public:
-   typedef std::pair<std::variant<WriteBufferEntry, IntPtr>, SubsecondTime> WriteBufferEntryPair;
+   using WriteBufferEntryPair = std::pair<std::variant<WriteBufferEntry, IntPtr>, SubsecondTime>;
 
-   explicit WriteBuffer(UInt32 num_entries) : m_num_entries(num_entries) {}
+   explicit WriteBuffer(UInt32 num_entries) :
+       m_num_entries(num_entries) {}
    virtual ~WriteBuffer() = default;
 
    virtual void insert(const WriteBufferEntry& entry, SubsecondTime time) = 0;
-   virtual WriteBufferEntry remove() = 0;
+   virtual WriteBufferEntry remove()                                      = 0;
    // virtual WriteBufferEntry get(IntPtr address) = 0;
    virtual bool isPresent(IntPtr address) = 0;
 
    SubsecondTime getFirstReleaseTime() { return m_queue.front().second; }
    SubsecondTime getLastReleaseTime() { return m_queue.back().second; }
 
-   bool isEmpty() { return m_queue.empty(); }
-   bool isFull() { return m_queue.size() >= m_num_entries; }
+   [[nodiscard]] constexpr bool isEmpty() const noexcept { return m_queue.empty(); }
+   [[nodiscard]] constexpr bool isFull() const noexcept { return m_queue.size() >= m_num_entries; }
 
-   UInt32 getSize() { return m_queue.size(); }
-   UInt32 getCapacity() { return m_num_entries; }
+   [[nodiscard]] constexpr UInt32 getSize() const noexcept { return m_queue.size(); }
+   [[nodiscard]] constexpr UInt32 getCapacity() const noexcept { return m_num_entries; }
 
    // for debug
    void print(const String& desc = "");
-   virtual std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& e) = 0;
+   virtual std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& entry) = 0;
 
 protected:
    static const UInt32 DEFAULT_NUMBER_ENTRIES = 32;
@@ -43,36 +44,33 @@ protected:
    std::deque<WriteBufferEntryPair> m_queue;
 };
 
-
 class NonCoalescingWriteBuffer : public WriteBuffer
 {
 public:
-
    explicit NonCoalescingWriteBuffer(UInt32 num_entries = DEFAULT_NUMBER_ENTRIES);
-   virtual ~NonCoalescingWriteBuffer();
+   ~NonCoalescingWriteBuffer() override;
 
-   virtual void insert(const WriteBufferEntry& entry, SubsecondTime time);
-   virtual WriteBufferEntry remove();
-   // virtual WriteBufferEntry get(IntPtr address);
-   virtual bool isPresent(IntPtr address);
+   void insert(const WriteBufferEntry& entry, SubsecondTime time) override;
+   WriteBufferEntry remove() override;
+   // WriteBufferEntry get(IntPtr address) override;
+   bool isPresent(IntPtr address) override;
 
-   std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& e);
+   std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& e) override;
 };
 
 class CoalescingWriteBuffer : public WriteBuffer
 {
 public:
-
    explicit CoalescingWriteBuffer(UInt32 num_entries = DEFAULT_NUMBER_ENTRIES);
-   virtual ~CoalescingWriteBuffer();
+   ~CoalescingWriteBuffer() override;
 
-   virtual void insert(const WriteBufferEntry& entry, SubsecondTime time);
-   virtual void update(const WriteBufferEntry& entry);
-   virtual WriteBufferEntry remove();
+   void insert(const WriteBufferEntry& entry, SubsecondTime time) override;
+   void update(const WriteBufferEntry& entry);
+   WriteBufferEntry remove() override;
    // virtual WriteBufferEntry get(IntPtr address);
-   virtual bool isPresent(IntPtr address);
+   bool isPresent(IntPtr address) override;
 
-   std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& e);
+   std::tuple<IntPtr, SubsecondTime> getEntryInfo(WriteBufferEntryPair& entry) override;
 
 private:
    std::map<IntPtr, WriteBufferEntry> m_map;
