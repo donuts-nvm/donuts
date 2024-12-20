@@ -4,6 +4,7 @@
 #include "config.h"
 #include "log.h"
 #include "inst_mode.h"
+#include "project.h"
 
 #include <decoder.h>
 
@@ -82,6 +83,9 @@ public:
    // Access to the Decoder library for the simulator run
    void createDecoder();
    dl::Decoder *getDecoder();
+
+   [[nodiscard]] ProjectType getProjectType() const { return m_project.getType(); }
+   [[nodiscard]] const char *getProjectName() const { return m_project.getName(); }
    
 private:
    Config m_config;
@@ -109,6 +113,8 @@ private:
 
    bool m_running;
    bool m_inst_mode_output;
+
+   Project m_project;
 
    static Simulator *m_singleton;
 

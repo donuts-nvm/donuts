@@ -124,6 +124,7 @@ Simulator::Simulator()
    , m_memory_tracker(NULL)
    , m_running(false)
    , m_inst_mode_output(true)
+   , m_project()
 {
 }
 
@@ -316,6 +317,7 @@ void Simulator::printInstModeSummary()
          LOG_PRINT_ERROR("Unknown simulation mode");
    }
    printf(" frontend\n");
+   printf("[SNIPER] Running project [ %s ]\n", m_project.getName());
    switch(getConfig()->getSimulationROI())
    {
       case Config::ROI_FULL:
