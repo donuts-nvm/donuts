@@ -1,8 +1,9 @@
-#include "simulator.h"
-#include "config.hpp"
 #include "cache.h"
+#include "cache_donuts.h"
 #include "cache_set_donuts.h"
+#include "config.hpp"
 #include "log.h"
+#include "simulator.h"
 
 // Cache class
 // constructors/destructors
@@ -28,7 +29,7 @@ Cache::Cache(
    m_fault_injector(fault_injector)
 {
    const auto num_attempts  = CacheSet::getNumQBSAttempts(m_replacement_policy, cfgname, core_id);
-   const auto is_donuts_llc = isDonutsLLC(cfgname);
+   const auto is_donuts_llc = CacheDonuts::isDonutsLLC(cfgname);
 
    m_set_info = CacheSet::createCacheSetInfo(name, cfgname, core_id, m_replacement_policy, m_associativity);
    m_sets     = new CacheSet*[m_num_sets];
@@ -134,6 +135,15 @@ void
 Cache::insertSingleLine(IntPtr addr, Byte* fill_buff,
       bool* eviction, IntPtr* evict_addr,
       CacheBlockInfo* evict_block_info, Byte* evict_buff,
+      SubsecondTime now)
+{
+   insertSingleLine(addr, fill_buff, eviction, evict_addr, evict_block_info, evict_buff, now, nullptr);
+}
+
+void
+Cache::insertSingleLine(IntPtr addr, Byte* fill_buff,
+      bool* eviction, IntPtr* evict_addr,
+      CacheBlockInfo* evict_block_info, Byte* evict_buff,
       SubsecondTime now, CacheCntlr *cntlr)
 {
    IntPtr tag;
@@ -229,16 +239,4 @@ Cache::getSetCapacityUsed(const UInt32 index) const
          count++;
    }
    return static_cast<float>(count) / static_cast<float>(m_associativity);
-}
-
-bool
-Cache::isDonutsLLC(const String& cfgname)
-{
-   if (Sim()->getProjectType() == ProjectType::DONUTS)
-   {
-      const UInt32 levels = Sim()->getCfg()->getInt("perf_model/cache/levels");
-      const String last   = levels == 1 ? "perf_model/l1_dcache" : "perf_model/l" + String(std::to_string(levels).c_str()) + "_cache";
-      return cfgname == last;
-   }
-   return false;
 }

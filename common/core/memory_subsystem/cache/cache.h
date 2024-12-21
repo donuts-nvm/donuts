@@ -17,7 +17,7 @@
 
 class Cache : public CacheBase
 {
-   private:
+   protected:
       bool m_enabled;
 
       // Cache counters
@@ -35,8 +35,6 @@ class Cache : public CacheBase
       #ifdef ENABLE_SET_USAGE_HIST
       UInt64* m_set_usage_hist;
       #endif
-
-      [[nodiscard]] static bool isDonutsLLC(const String& cfgname);
 
    public:
 
@@ -58,9 +56,12 @@ class Cache : public CacheBase
       bool invalidateSingleLine(IntPtr addr);
       CacheBlockInfo* accessSingleLine(IntPtr addr,
             access_t access_type, Byte* buff, UInt32 bytes, SubsecondTime now, bool update_replacement);
-      void insertSingleLine(IntPtr addr, Byte* fill_buff,
+      virtual void insertSingleLine(IntPtr addr, Byte* fill_buff,
             bool* eviction, IntPtr* evict_addr,
-            CacheBlockInfo* evict_block_info, Byte* evict_buff, SubsecondTime now, CacheCntlr *cntlr = NULL);
+            CacheBlockInfo* evict_block_info, Byte* evict_buff, SubsecondTime now);
+      virtual void insertSingleLine(IntPtr addr, Byte* fill_buff,
+            bool* eviction, IntPtr* evict_addr,
+            CacheBlockInfo* evict_block_info, Byte* evict_buff, SubsecondTime now, CacheCntlr *cntlr);
       CacheBlockInfo* peekSingleLine(IntPtr addr);
 
       CacheBlockInfo* peekBlock(UInt32 set_index, UInt32 way) const { return m_sets[set_index]->peekBlock(way); }
