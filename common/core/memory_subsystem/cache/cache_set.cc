@@ -1,4 +1,5 @@
 #include "cache_set.h"
+#include "cache_base.h"
 #include "cache_set_lru.h"
 #include "cache_set_mru.h"
 #include "cache_set_nmru.h"
@@ -7,11 +8,10 @@
 #include "cache_set_random.h"
 #include "cache_set_round_robin.h"
 #include "cache_set_srrip.h"
-#include "cache_base.h"
-#include "log.h"
-#include "simulator.h"
 #include "config.h"
 #include "config.hpp"
+#include "log.h"
+#include "simulator.h"
 
 CacheSet::CacheSet(CacheBase::cache_t cache_type,
       UInt32 associativity, UInt32 blocksize):
@@ -133,19 +133,18 @@ CacheSet::getDataPtr(UInt32 line_index, UInt32 offset)
 
 CacheSet*
 CacheSet::createCacheSet(String cfgname, core_id_t core_id,
-      String replacement_policy,
+      CacheBase::ReplacementPolicy replacement_policy,
       CacheBase::cache_t cache_type,
       UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info)
 {
-   CacheBase::ReplacementPolicy policy = parsePolicyType(replacement_policy);
-   switch(policy)
+   switch (replacement_policy)
    {
       case CacheBase::ROUND_ROBIN:
          return new CacheSetRoundRobin(cache_type, associativity, blocksize);
 
       case CacheBase::LRU:
       case CacheBase::LRU_QBS:
-         return new CacheSetLRU(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetLRU(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(replacement_policy, cfgname, core_id));
 
       case CacheBase::NRU:
          return new CacheSetNRU(cache_type, associativity, blocksize);
@@ -161,31 +160,26 @@ CacheSet::createCacheSet(String cfgname, core_id_t core_id,
 
       case CacheBase::SRRIP:
       case CacheBase::SRRIP_QBS:
-         return new CacheSetSRRIP(cfgname, core_id, cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetSRRIP(cfgname, core_id, cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(replacement_policy, cfgname, core_id));
 
       case CacheBase::RANDOM:
          return new CacheSetRandom(cache_type, associativity, blocksize);
 
       default:
-         LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i",
-               policy);
-         break;
+         LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i", replacement_policy);
    }
-
-   return (CacheSet*) NULL;
 }
 
 CacheSetInfo*
-CacheSet::createCacheSetInfo(String name, String cfgname, core_id_t core_id, String replacement_policy, UInt32 associativity)
+CacheSet::createCacheSetInfo(String name, String cfgname, core_id_t core_id, CacheBase::ReplacementPolicy replacement_policy, UInt32 associativity)
 {
-   CacheBase::ReplacementPolicy policy = parsePolicyType(replacement_policy);
-   switch(policy)
+   switch (replacement_policy)
    {
       case CacheBase::LRU:
       case CacheBase::LRU_QBS:
       case CacheBase::SRRIP:
       case CacheBase::SRRIP_QBS:
-         return new CacheSetInfoLRU(name, cfgname, core_id, associativity, getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetInfoLRU(name, cfgname, core_id, associativity, getNumQBSAttempts(replacement_policy, cfgname, core_id));
       default:
          return NULL;
    }
@@ -205,7 +199,7 @@ CacheSet::getNumQBSAttempts(CacheBase::ReplacementPolicy policy, String cfgname,
 }
 
 CacheBase::ReplacementPolicy
-CacheSet::parsePolicyType(String policy)
+CacheSet::parsePolicyType(const String& policy)
 {
    if (policy == "round_robin")
       return CacheBase::ROUND_ROBIN;

@@ -28,12 +28,15 @@ class Cache : public CacheBase
       cache_t m_cache_type;
       CacheSet** m_sets;
       CacheSetInfo* m_set_info;
+      ReplacementPolicy m_replacement_policy;
 
       FaultInjector *m_fault_injector;
 
       #ifdef ENABLE_SET_USAGE_HIST
       UInt64* m_set_usage_hist;
       #endif
+
+      [[nodiscard]] static bool isDonutsLLC(const String& cfgname);
 
    public:
 
@@ -68,6 +71,10 @@ class Cache : public CacheBase
 
       void enable() { m_enabled = true; }
       void disable() { m_enabled = false; }
+
+      [[nodiscard]] ReplacementPolicy getReplacementPolicy() const { return m_replacement_policy; }
+      [[nodiscard]] float getCapacityUsed() const;
+      [[nodiscard]] float getSetCapacityUsed(UInt32 index) const;
 };
 
 template <class T>

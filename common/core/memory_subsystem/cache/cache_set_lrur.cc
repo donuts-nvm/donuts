@@ -6,9 +6,9 @@ CacheSetLRUR::CacheSetLRUR(const CacheBase::cache_t cache_type,
                            const UInt32 blocksize,
                            CacheSetInfoLRU* set_info,
                            const UInt8 num_attempts,
-                           const float cache_set_threshold) :
+                           const float set_threshold) :
     CacheSet(cache_type, associativity, blocksize),
-    CacheSetDonuts(cache_type, index, associativity, blocksize, cache_set_threshold),
+    CacheSetDonuts(cache_type, index, associativity, blocksize, set_threshold),
     CacheSetLRU(cache_type, associativity, blocksize, set_info, num_attempts) {}
 
 CacheSetLRUR::~CacheSetLRUR() = default;

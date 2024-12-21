@@ -6,10 +6,10 @@
 #include "simulator.h"
 
 CacheSetDonuts::CacheSetDonuts(const CacheBase::cache_t cache_type, const UInt32 index, const UInt32 associativity,
-                               const UInt32 blocksize, const float cache_set_threshold) :
+                               const UInt32 blocksize, const float set_threshold) :
     CacheSet(cache_type, associativity, blocksize),
     m_index(index),
-    m_cache_set_threshold(cache_set_threshold) {}
+    m_cache_set_threshold(set_threshold) {}
 
 CacheSetDonuts::~CacheSetDonuts() = default;
 
@@ -29,20 +29,20 @@ CacheSetDonuts::getCacheSetThreshold(const String& cfgname, const core_id_t core
 
 CacheSet*
 CacheSetDonuts::createCacheSet(const UInt32 index,
-                               String cfgname,
-                               core_id_t core_id,
-                               String replacement_policy,
-                               CacheBase::cache_t cache_type,
-                               UInt32 associativity,
-                               UInt32 blocksize,
-                               CacheSetInfo* set_info)
+                               const CacheBase::ReplacementPolicy policy,
+                               const CacheBase::cache_t cache_type,
+                               const UInt32 associativity,
+                               const UInt32 blocksize,
+                               const float set_threshold,
+                               CacheSetInfo* set_info,
+                               const UInt8 num_attempts)
 {
-   CacheBase::ReplacementPolicy policy = parsePolicyType(replacement_policy);
    switch (policy)
    {
       case CacheBase::LRU:
       case CacheBase::LRU_QBS:
-         return new CacheSetLRUR(cache_type, index, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetLRUR(cache_type, index, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info),
+                                 num_attempts, set_threshold);
       default:
          LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i", policy);
    }

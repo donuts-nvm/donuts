@@ -23,9 +23,9 @@ class CacheSet
 {
    public:
 
-      static CacheSet* createCacheSet(String cfgname, core_id_t core_id, String replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info = NULL);
-      static CacheSetInfo* createCacheSetInfo(String name, String cfgname, core_id_t core_id, String replacement_policy, UInt32 associativity);
-      static CacheBase::ReplacementPolicy parsePolicyType(String policy);
+      static CacheSet* createCacheSet(String cfgname, core_id_t core_id, CacheBase::ReplacementPolicy replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info = NULL);
+      static CacheSetInfo* createCacheSetInfo(String name, String cfgname, core_id_t core_id, CacheBase::ReplacementPolicy replacement_policy, UInt32 associativity);
+      static CacheBase::ReplacementPolicy parsePolicyType(const String& policy);
       static UInt8 getNumQBSAttempts(CacheBase::ReplacementPolicy, String cfgname, core_id_t core_id);
 
    protected:

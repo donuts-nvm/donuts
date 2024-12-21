@@ -1,5 +1,7 @@
 #include "simulator.h"
+#include "config.hpp"
 #include "cache.h"
+#include "cache_set_donuts.h"
 #include "log.h"
 
 // Cache class
@@ -22,13 +24,22 @@ Cache::Cache(
    m_num_accesses(0),
    m_num_hits(0),
    m_cache_type(cache_type),
+   m_replacement_policy(CacheSet::parsePolicyType(replacement_policy)),
    m_fault_injector(fault_injector)
 {
-   m_set_info = CacheSet::createCacheSetInfo(name, cfgname, core_id, replacement_policy, m_associativity);
-   m_sets = new CacheSet*[m_num_sets];
+   const auto num_attempts  = CacheSet::getNumQBSAttempts(m_replacement_policy, cfgname, core_id);
+   const auto is_donuts_llc = isDonutsLLC(cfgname);
+
+   m_set_info = CacheSet::createCacheSetInfo(name, cfgname, core_id, m_replacement_policy, m_associativity);
+   m_sets     = new CacheSet*[m_num_sets];
+
+   const auto set_threshold = is_donuts_llc ? CacheSetDonuts::getCacheSetThreshold(cfgname, core_id) : 0.0f;
    for (UInt32 i = 0; i < m_num_sets; i++)
    {
-      m_sets[i] = CacheSet::createCacheSet(cfgname, core_id, replacement_policy, m_cache_type, m_associativity, m_blocksize, m_set_info);
+      m_sets[i] = is_donuts_llc ?
+                  CacheSetDonuts::createCacheSet(i, m_replacement_policy, m_cache_type, m_associativity, m_blocksize,
+                                                 set_threshold, m_set_info, num_attempts) :
+                  CacheSet::createCacheSet(cfgname, core_id, m_replacement_policy, m_cache_type, m_associativity, m_blocksize, m_set_info);
    }
 
    #ifdef ENABLE_SET_USAGE_HIST
@@ -183,4 +194,51 @@ Cache::updateHits(Core::mem_op_t mem_op_type, UInt64 hits)
       m_num_accesses += hits;
       m_num_hits += hits;
    }
+}
+
+/**
+ * Get percentage (0..1) of modified blocks in cache.
+ * Added by Kleber Kruger
+ */
+float
+Cache::getCapacityUsed() const
+{
+   UInt32 count = 0;
+   for (UInt32 i = 0; i < m_num_sets; i++)
+   {
+      for (UInt32 j = 0; j < m_associativity; j++)
+      {
+         if (peekBlock(i, j)->isDirty())
+            count++;
+      }
+   }
+   return static_cast<float>(count) / static_cast<float>(m_num_sets * m_associativity);
+}
+
+/**
+ * Get percentage (0..1) of modified blocks in cache.
+ * Added by Kleber Kruger
+ */
+float
+Cache::getSetCapacityUsed(const UInt32 index) const
+{
+   UInt32 count = 0;
+   for (UInt32 i = 0; i < m_associativity; i++)
+   {
+      if (m_sets[index]->peekBlock(i)->isDirty())
+         count++;
+   }
+   return static_cast<float>(count) / static_cast<float>(m_associativity);
+}
+
+bool
+Cache::isDonutsLLC(const String& cfgname)
+{
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
+   {
+      const UInt32 levels = Sim()->getCfg()->getInt("perf_model/cache/levels");
+      const String last   = levels == 1 ? "perf_model/l1_dcache" : "perf_model/l" + String(std::to_string(levels).c_str()) + "_cache";
+      return cfgname == last;
+   }
+   return false;
 }
