@@ -8,7 +8,7 @@
 
 #include <optional>
 
-NvmPerfModel::NvmPerfModel(core_id_t core_id, UInt64 cache_block_size) :
+NvmPerfModel::NvmPerfModel(const core_id_t core_id, const UInt64 cache_block_size) :
     DramPerfModel(core_id, cache_block_size),
     m_nvm_bandwidth(8 * Sim()->getCfg()->getFloat("perf_model/dram/per_controller_bandwidth")),
     m_total_access_latency(SubsecondTime::Zero()) {}
@@ -16,9 +16,9 @@ NvmPerfModel::NvmPerfModel(core_id_t core_id, UInt64 cache_block_size) :
 NvmPerfModel::~NvmPerfModel() = default;
 
 NvmPerfModel*
-NvmPerfModel::createNvmPerfModel(core_id_t core_id, UInt32 cache_block_size)
+NvmPerfModel::createNvmPerfModel(const core_id_t core_id, const UInt32 cache_block_size)
 {
-   String type = Sim()->getCfg()->getString("perf_model/dram/type");
+   const String type = Sim()->getCfg()->getString("perf_model/dram/type");
 
    if (type == "constant")
    {
@@ -37,18 +37,18 @@ NvmPerfModel::createNvmPerfModel(core_id_t core_id, UInt32 cache_block_size)
 }
 
 SubsecondTime
-NvmPerfModel::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_t requester,
-                               IntPtr address, DramCntlrInterface::access_t access_type, ShmemPerf* perf)
+NvmPerfModel::getAccessLatency(SubsecondTime pkt_time, const UInt64 pkt_size, const core_id_t requester,
+                               const IntPtr address, const DramCntlrInterface::access_t access_type, ShmemPerf* perf)
 {
    // pkt_size is in 'Bytes'
    // m_nvm_bandwidth is in 'Bits per clock cycle'
-   if ((!m_enabled) || (requester >= (core_id_t) Config::getSingleton()->getApplicationCores()))
+   if (!m_enabled || requester >= static_cast<core_id_t>(Config::getSingleton()->getApplicationCores()))
       return SubsecondTime::Zero();
 
-   SubsecondTime processing_time = m_nvm_bandwidth.getRoundedLatency(8 * pkt_size);// bytes to bits
-   SubsecondTime queue_delay     = computeQueueDelay(pkt_time, processing_time, requester, access_type);
-   SubsecondTime access_cost     = computeAccessCost(access_type);
-   SubsecondTime access_latency  = queue_delay + processing_time + access_cost;
+   const SubsecondTime processing_time = m_nvm_bandwidth.getRoundedLatency(8 * pkt_size);// bytes to bits
+   const SubsecondTime queue_delay     = computeQueueDelay(pkt_time, processing_time, requester, access_type);
+   const SubsecondTime access_cost     = computeAccessCost(access_type);
+   const SubsecondTime access_latency  = queue_delay + processing_time + access_cost;
 
    perf->updateTime(pkt_time);
    perf->updateTime(pkt_time + queue_delay, ShmemPerf::DRAM_QUEUE);
@@ -64,7 +64,7 @@ NvmPerfModel::getAccessLatency(SubsecondTime pkt_time, UInt64 pkt_size, core_id_
 }
 
 SubsecondTime
-NvmPerfModel::computeAccessCost(DramCntlrInterface::access_t access_type)
+NvmPerfModel::computeAccessCost(const DramCntlrInterface::access_t access_type)
 {
    return access_type == DramCntlrInterface::READ ? getReadCost() : getWriteCost();
 }

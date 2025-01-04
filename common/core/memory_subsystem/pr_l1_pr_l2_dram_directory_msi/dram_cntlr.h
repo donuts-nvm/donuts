@@ -19,10 +19,18 @@ namespace PrL1PrL2DramDirectoryMSI
 {
    class DramCntlr : public DramCntlrInterface
    {
-      private:
+      protected:
+         // Added by Kleber Kruger to allow derived memory controller classes
+         DramCntlr(MemoryManagerBase* memory_manager,
+                   ShmemPerfModel* shmem_perf_model,
+                   UInt32 cache_block_size,
+                   DramPerfModel* dram_perf_model,
+                   MemComponent::component_t mem_component);
+
          std::unordered_map<IntPtr, Byte*> m_data_map;
          DramPerfModel* m_dram_perf_model;
          FaultInjector* m_fault_injector;
+         MemComponent::component_t m_mem_component;
 
          typedef std::unordered_map<IntPtr,UInt64> AccessCountMap;
          AccessCountMap* m_dram_access_count;
@@ -35,17 +43,18 @@ namespace PrL1PrL2DramDirectoryMSI
          void addToDramAccessCount(IntPtr address, access_t access_type);
          void printDramAccessCount(void);
 
-      public:
-         DramCntlr(MemoryManagerBase* memory_manager,
-               ShmemPerfModel* shmem_perf_model,
-               UInt32 cache_block_size);
+      private:
+         DramCntlr(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, UInt32 cache_block_size);
 
-         ~DramCntlr();
+      public:
+         ~DramCntlr() override;
 
          DramPerfModel* getDramPerfModel() { return m_dram_perf_model; }
 
          // Run DRAM performance model. Pass in begin time, returns latency
          boost::tuple<SubsecondTime, HitWhere::where_t> getDataFromDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now, ShmemPerf *perf);
          boost::tuple<SubsecondTime, HitWhere::where_t> putDataToDram(IntPtr address, core_id_t requester, Byte* data_buf, SubsecondTime now);
+
+         static DramCntlr* create(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, UInt32 cache_block_size);
    };
 }

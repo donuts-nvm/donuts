@@ -229,9 +229,8 @@ MemoryManager::MemoryManager(Core* core,
    {
       m_dram_cntlr_present = true;
 
-      m_dram_cntlr = new PrL1PrL2DramDirectoryMSI::DramCntlr(this,
-            getShmemPerfModel(),
-            getCacheBlockSize());
+      m_dram_cntlr = PrL1PrL2DramDirectoryMSI::DramCntlr::create(this, getShmemPerfModel(), getCacheBlockSize());
+
       Sim()->getStatsManager()->logTopology("dram-cntlr", core->getId(), core->getId());
 
       if (Sim()->getCfg()->getBoolArray("perf_model/dram/cache/enabled", core->getId()))
@@ -275,7 +274,7 @@ MemoryManager::MemoryManager(Core* core,
    }
 
    for(UInt32 i = MemComponent::FIRST_LEVEL_CACHE; i <= (UInt32)m_last_level_cache; ++i) {
-      CacheCntlr* cache_cntlr = new CacheCntlr(
+      CacheCntlr* cache_cntlr = CacheCntlr::create(
          (MemComponent::component_t)i,
          cache_names[(MemComponent::component_t)i],
          getCore()->getId(),
@@ -421,7 +420,8 @@ MemoryManager::coreInitiateMemoryAccess(
       Core::mem_op_t mem_op_type,
       IntPtr address, UInt32 offset,
       Byte* data_buf, UInt32 data_length,
-      Core::MemModeled modeled)
+      Core::MemModeled modeled,
+      IntPtr eip)
 {
    LOG_ASSERT_ERROR(mem_component <= m_last_level_cache,
       "Error: invalid mem_component (%d) for coreInitiateMemoryAccess", mem_component);
@@ -437,7 +437,8 @@ MemoryManager::coreInitiateMemoryAccess(
          address, offset,
          data_buf, data_length,
          modeled == Core::MEM_MODELED_NONE || modeled == Core::MEM_MODELED_COUNT ? false : true,
-         modeled == Core::MEM_MODELED_NONE ? false : true);
+         modeled == Core::MEM_MODELED_NONE ? false : true,
+         eip);
 }
 
 void

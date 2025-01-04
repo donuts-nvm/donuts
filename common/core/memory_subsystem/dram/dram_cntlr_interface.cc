@@ -55,17 +55,15 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
 
 std::pair<DramCntlrInterface::technology_t, String> DramCntlrInterface::getTechnology()
 {
-   static const std::unordered_set<String> nvm_options = {
-      "nvm", "pcm", "stt-ram", "memristor", "reram", "optane"
-   };
+   static const std::unordered_set<String> nvm_options = {"pcm", "stt-ram", "memristor", "reram", "optane" };
 
-   String param = "perf_model/dram/technology";
+   const String param = "perf_model/dram/technology";
    String value = Sim()->getCfg()->hasKey(param) ? Sim()->getCfg()->getString(param) : "dram";
 
    if (value == "dram")
-      return std::make_pair(DRAM, value);
-   if (nvm_options.find(value) != nvm_options.end())
-      return std::make_pair(NVM, value);
+      return std::make_pair(technology_t::DRAM, value);
+   if (value == "nvm" || nvm_options.contains(value))
+      return std::make_pair(technology_t::NVM, value);
 
    LOG_PRINT_ERROR("Parameter [perf_model/dram/technology] is invalid");
 }

@@ -3,7 +3,7 @@
 
 #include "cache_set.h"
 
-class CacheSetRandom : public CacheSet
+class CacheSetRandom : public virtual CacheSet
 {
    public:
       CacheSetRandom(CacheBase::cache_t cache_type,

@@ -26,7 +26,7 @@ class CacheSetInfoLRU : public CacheSetInfo
       UInt64* m_attempts;
 };
 
-class CacheSetLRU : public CacheSet
+class CacheSetLRU : public virtual CacheSet
 {
    public:
       CacheSetLRU(CacheBase::cache_t cache_type,

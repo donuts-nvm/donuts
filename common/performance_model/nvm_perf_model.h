@@ -26,11 +26,7 @@ protected:
    virtual SubsecondTime getReadCost()  = 0;
    virtual SubsecondTime getWriteCost() = 0;
 
-   static SubsecondTime getLatency(const String &param);
+   static SubsecondTime getLatency(const String& param);
    static SubsecondTime getReadLatency() { return getLatency("read_latency"); }
    static SubsecondTime getWriteLatency() { return getLatency("write_latency"); }
-
-   static DramPerfModel* createDramPerfModel(core_id_t core_id, UInt32 cache_block_size) {
-      return createNvmPerfModel(core_id, cache_block_size);
-   }
 };

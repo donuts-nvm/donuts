@@ -17,7 +17,18 @@
 
 class Cache : public CacheBase
 {
-   private:
+   protected:
+      Cache(const String& name,
+            UInt32 num_sets,
+            UInt32 associativity,
+            UInt32 cache_block_size,
+            const String& replacement_policy,
+            cache_t cache_type,
+            hash_t hash,
+            FaultInjector *fault_injector,
+            AddressHomeLookup *ahl,
+            const std::function<void()>& createSets);
+
       bool m_enabled;
 
       // Cache counters
@@ -26,6 +37,7 @@ class Cache : public CacheBase
 
       // Generic Cache Info
       cache_t m_cache_type;
+      ReplacementPolicy m_replacement_policy;
       CacheSet** m_sets;
       CacheSetInfo* m_set_info;
 
@@ -57,7 +69,10 @@ class Cache : public CacheBase
             access_t access_type, Byte* buff, UInt32 bytes, SubsecondTime now, bool update_replacement);
       void insertSingleLine(IntPtr addr, Byte* fill_buff,
             bool* eviction, IntPtr* evict_addr,
-            CacheBlockInfo* evict_block_info, Byte* evict_buff, SubsecondTime now, CacheCntlr *cntlr = NULL);
+            CacheBlockInfo* evict_block_info, Byte* evict_buff, SubsecondTime now);
+      virtual void insertSingleLine(IntPtr addr, Byte* fill_buff,
+            bool* eviction, IntPtr* evict_addr,
+            CacheBlockInfo* evict_block_info, Byte* evict_buff, SubsecondTime now, CacheCntlr *cntlr);
       CacheBlockInfo* peekSingleLine(IntPtr addr);
 
       CacheBlockInfo* peekBlock(UInt32 set_index, UInt32 way) const { return m_sets[set_index]->peekBlock(way); }
@@ -68,6 +83,23 @@ class Cache : public CacheBase
 
       void enable() { m_enabled = true; }
       void disable() { m_enabled = false; }
+
+      [[nodiscard]] ReplacementPolicy getReplacementPolicy() const { return m_replacement_policy; }
+      [[nodiscard]] float getCapacityUsed() const;
+      [[nodiscard]] float getSetCapacityUsed(UInt32 index) const;
+
+      static Cache*
+      create(const String& name,
+             const String& cfgname,
+             core_id_t core_id,
+             UInt32 num_sets,
+             UInt32 associativity,
+             UInt32 cache_block_size,
+             const String& replacement_policy,
+             cache_t cache_type,
+             hash_t hash = HASH_MASK,
+             FaultInjector *fault_injector = nullptr,
+             AddressHomeLookup *ahl = nullptr);
 };
 
 template <class T>

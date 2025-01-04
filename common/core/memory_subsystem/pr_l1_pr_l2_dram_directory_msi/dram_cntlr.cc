@@ -1,4 +1,6 @@
 #include "dram_cntlr.h"
+#include "nvm_cntlr.h"
+#include "../donuts/nvm/nvm_cntlr.h"
 #include "memory_manager.h"
 #include "core.h"
 #include "log.h"
@@ -22,22 +24,46 @@ class TimeDistribution;
 namespace PrL1PrL2DramDirectoryMSI
 {
 
+/**
+ * Creates a DramCntlr.
+ * Modified by Kleber Kruger (original implementation in the other construction)
+ *
+ * @param memory_manager
+ * @param shmem_perf_model
+ * @param cache_block_size
+ */
+DramCntlr::DramCntlr(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, const UInt32 cache_block_size) :
+    DramCntlr(memory_manager, shmem_perf_model, cache_block_size,
+              DramPerfModel::createDramPerfModel(memory_manager->getCore()->getId(), cache_block_size),
+              MemComponent::DRAM)
+{ }
+
+/**
+ * Creates a DramCntlr.
+ * Added and slightly modified by Kleber Kruger
+ *
+ * @param memory_manager
+ * @param shmem_perf_model
+ * @param cache_block_size
+ * @param dram_perf_model
+ * @param mem_component
+ */
 DramCntlr::DramCntlr(MemoryManagerBase* memory_manager,
-      ShmemPerfModel* shmem_perf_model,
-      UInt32 cache_block_size)
-   : DramCntlrInterface(memory_manager, shmem_perf_model, cache_block_size)
-   , m_reads(0)
-   , m_writes(0)
+                     ShmemPerfModel* shmem_perf_model,
+                     const UInt32 cache_block_size,
+                     DramPerfModel* dram_perf_model,
+                     const MemComponent::component_t mem_component) :
+    DramCntlrInterface(memory_manager, shmem_perf_model, cache_block_size),
+    m_dram_perf_model(dram_perf_model),
+    m_fault_injector(Sim()->getFaultinjectionManager() ?
+                           Sim()->getFaultinjectionManager()->getFaultInjector(memory_manager->getCore()->getId(), mem_component) :
+                           nullptr),
+    m_mem_component(mem_component),
+    m_reads(0),
+    m_writes(0)
 {
-   m_dram_perf_model = DramCntlrInterface::getTechnology().first == DramCntlrInterface::DRAM
-      ? DramPerfModel::createDramPerfModel(memory_manager->getCore()->getId(), cache_block_size)
-      : NvmPerfModel::createNvmPerfModel(memory_manager->getCore()->getId(), cache_block_size);
+   m_dram_access_count = new AccessCountMap[NUM_ACCESS_TYPES];
 
-   m_fault_injector = Sim()->getFaultinjectionManager()
-      ? Sim()->getFaultinjectionManager()->getFaultInjector(memory_manager->getCore()->getId(), MemComponent::DRAM)
-      : NULL;
-
-   m_dram_access_count = new AccessCountMap[DramCntlrInterface::NUM_ACCESS_TYPES];
    registerStatsMetric("dram", memory_manager->getCore()->getId(), "reads", &m_reads);
    registerStatsMetric("dram", memory_manager->getCore()->getId(), "writes", &m_writes);
 }
@@ -135,6 +161,20 @@ DramCntlr::printDramAccessCount()
          }
       }
    }
+}
+
+DramCntlr*
+DramCntlr::create(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, const UInt32 cache_block_size)
+{
+   const auto [memory, technology] = getTechnology();
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
+   {
+      LOG_ASSERT_ERROR(memory == technology_t::NVM, "Invalid technology to main memory: '%s'", technology);
+      return new donuts::NvmCntlr(memory_manager, shmem_perf_model, cache_block_size);
+   }
+
+   return memory == technology_t::NVM ? new NvmCntlr(memory_manager, shmem_perf_model, cache_block_size) :
+                                        new DramCntlr(memory_manager, shmem_perf_model, cache_block_size);
 }
 
 }

@@ -1,5 +1,7 @@
 #include "simulator.h"
 #include "cache.h"
+#include "last_level_cache.h"
+#include "cache_set_srrip.h"
 #include "log.h"
 
 // Cache class
@@ -17,19 +19,43 @@ Cache::Cache(
    FaultInjector *fault_injector,
    AddressHomeLookup *ahl)
 :
+   Cache(name, num_sets, associativity, cache_block_size, replacement_policy, cache_type, hash, fault_injector, ahl,
+      [&] {
+            const auto policy = CacheSet::parsePolicyType(replacement_policy);
+            const auto num_attempts = CacheSet::getNumQBSAttempts(policy, cfgname, core_id);
+            const auto num_bits = CacheSetSRRIP::getNumBits(policy, cfgname, core_id);
+
+            m_sets = new CacheSet*[num_sets];
+            m_set_info = CacheSet::createCacheSetInfo(name, cfgname, core_id, policy, associativity);
+
+            for (UInt32 i = 0; i < num_sets; i++) {
+               m_sets[i] = CacheSet::createCacheSet(policy, cache_type, associativity, cache_block_size, m_set_info, num_attempts, num_bits);
+            }
+      })
+{ }
+
+Cache::Cache(const String& name,
+             const UInt32 num_sets,
+             const UInt32 associativity,
+             const UInt32 cache_block_size,
+             const String& replacement_policy,
+             const cache_t cache_type,
+             const hash_t hash,
+             FaultInjector *fault_injector,
+             AddressHomeLookup *ahl,
+             const std::function<void()>& createSets)
+:
    CacheBase(name, num_sets, associativity, cache_block_size, hash, ahl),
    m_enabled(false),
    m_num_accesses(0),
    m_num_hits(0),
    m_cache_type(cache_type),
+   m_replacement_policy(CacheSet::parsePolicyType(replacement_policy)),
+   m_sets(nullptr),
+   m_set_info(nullptr),
    m_fault_injector(fault_injector)
 {
-   m_set_info = CacheSet::createCacheSetInfo(name, cfgname, core_id, replacement_policy, m_associativity);
-   m_sets = new CacheSet*[m_num_sets];
-   for (UInt32 i = 0; i < m_num_sets; i++)
-   {
-      m_sets[i] = CacheSet::createCacheSet(cfgname, core_id, replacement_policy, m_cache_type, m_associativity, m_blocksize, m_set_info);
-   }
+   createSets();
 
    #ifdef ENABLE_SET_USAGE_HIST
    m_set_usage_hist = new UInt64[m_num_sets];
@@ -123,6 +149,15 @@ void
 Cache::insertSingleLine(IntPtr addr, Byte* fill_buff,
       bool* eviction, IntPtr* evict_addr,
       CacheBlockInfo* evict_block_info, Byte* evict_buff,
+      SubsecondTime now)
+{
+   insertSingleLine(addr, fill_buff, eviction, evict_addr, evict_block_info, evict_buff, now, nullptr);
+}
+
+void
+Cache::insertSingleLine(IntPtr addr, Byte* fill_buff,
+      bool* eviction, IntPtr* evict_addr,
+      CacheBlockInfo* evict_block_info, Byte* evict_buff,
       SubsecondTime now, CacheCntlr *cntlr)
 {
    IntPtr tag;
@@ -183,4 +218,62 @@ Cache::updateHits(Core::mem_op_t mem_op_type, UInt64 hits)
       m_num_accesses += hits;
       m_num_hits += hits;
    }
+}
+
+/**
+ * Get percentage (0..1) of modified blocks in cache.
+ * Added by Kleber Kruger
+ */
+float
+Cache::getCapacityUsed() const
+{
+   UInt32 count = 0;
+   for (UInt32 i = 0; i < m_num_sets; i++)
+   {
+      for (UInt32 j = 0; j < m_associativity; j++)
+      {
+         if (peekBlock(i, j)->isDirty())
+            count++;
+      }
+   }
+   return static_cast<float>(count) / static_cast<float>(m_num_sets * m_associativity);
+}
+
+/**
+ * Get percentage (0..1) of modified blocks in cache.
+ * Added by Kleber Kruger
+ */
+float
+Cache::getSetCapacityUsed(const UInt32 index) const
+{
+   UInt32 count = 0;
+   for (UInt32 i = 0; i < m_associativity; i++)
+   {
+      if (m_sets[index]->peekBlock(i)->isDirty())
+         count++;
+   }
+   return static_cast<float>(count) / static_cast<float>(m_associativity);
+}
+
+Cache*
+Cache::create(const String& name,
+              const String& cfgname,
+              const core_id_t core_id,
+              const UInt32 num_sets,
+              const UInt32 associativity,
+              const UInt32 cache_block_size,
+              const String& replacement_policy,
+              const cache_t cache_type,
+              const hash_t hash,
+              FaultInjector *fault_injector,
+              AddressHomeLookup *ahl)
+{
+   if (LLCDonuts::isDonutsLLC(cfgname))
+   {
+      return new LLCDonuts(name, cfgname, core_id, num_sets, associativity, cache_block_size,
+                                        replacement_policy, cache_type, hash, fault_injector, ahl);
+   }
+
+   return new Cache(name, cfgname, core_id, num_sets, associativity, cache_block_size,
+                 replacement_policy, cache_type, hash, fault_injector, ahl);
 }

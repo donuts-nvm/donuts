@@ -11,6 +11,8 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <numeric>
+#include <ranges>
 
 class Core;
 
@@ -46,6 +48,16 @@ class CoreManager
       }
 
       Core *getCoreFromID(core_id_t core_id);
+
+      [[nodiscard]] UInt64 getInstructionCount(const std::vector<core_id_t>& cores = {}) const
+      {
+          if (cores.empty()) {
+              return std::accumulate(m_cores.begin(), m_cores.end(), 0L,
+                  [](const UInt64 sum, Core* core) { return sum + core->getInstructionCount(); });
+          }
+          return std::accumulate(cores.begin(), cores.end(), 0L,
+              [this](const UInt64 sum, const core_id_t id) { return sum + m_cores[id]->getInstructionCount(); });
+      }
 
       bool amiUserThread();
       bool amiCoreThread();
