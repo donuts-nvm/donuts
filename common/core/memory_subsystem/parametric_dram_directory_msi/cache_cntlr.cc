@@ -166,7 +166,7 @@ CacheCntlr::CacheCntlr(MemComponent::component_t mem_component,
    {
       /* Master cache */
       m_master = new CacheMasterCntlr(name, core_id, cache_params.outstanding_misses);
-      m_master->m_cache = new Cache(name,
+      m_master->m_cache = Cache::create(name,
             "perf_model/" + cache_params.configName,
             m_core_id,
             cache_params.num_sets,

@@ -71,7 +71,7 @@ void Simulator::createDecoder()
         dlm = dl::DL_MODE_32;
       else
         LOG_PRINT_ERROR("Unknown mode %s, should be 32 or 64 (bits).", mode.c_str());
-      // Get syntax 
+      // Get syntax
       dl::dl_syntax dls;
       String syntax = Sim()->getCfg()->getString("general/syntax");
       if (dla == dl::DL_ARCH_RISCV)
@@ -130,10 +130,10 @@ Simulator::Simulator()
 void Simulator::start()
 {
    LOG_PRINT("In Simulator ctor.");
-   
+
    // create a new Decoder object for this Simulator
    createDecoder();
-   
+
    m_hooks_manager = new HooksManager();
    m_syscall_server = new SyscallServer();
    m_sync_server = new SyncServer();
@@ -316,6 +316,7 @@ void Simulator::printInstModeSummary()
          LOG_PRINT_ERROR("Unknown simulation mode");
    }
    printf(" frontend\n");
+   printf("[SNIPER] Running project [ %s ]\n", m_project.getName());
    switch(getConfig()->getSimulationROI())
    {
       case Config::ROI_FULL:

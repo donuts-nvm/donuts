@@ -4,6 +4,7 @@
 #include "fixed_types.h"
 #include "cache_state.h"
 #include "cache_base.h"
+#include "checkpoint_event.h"
 
 class CacheBlockInfo
 {
@@ -41,6 +42,7 @@ class CacheBlockInfo
       virtual void clone(CacheBlockInfo* cache_block_info);
 
       bool isValid() const { return (m_tag != ((IntPtr) ~0)); }
+      bool isDirty() const { return m_cstate == CacheState::MODIFIED; }
 
       IntPtr getTag() const { return m_tag; }
       CacheState::cstate_t getCState() const { return m_cstate; }
@@ -67,6 +69,8 @@ class CacheCntlr
    public:
       virtual bool isInLowerLevelCache(CacheBlockInfo *block_info) { return false; }
       virtual void incrementQBSLookupCost() {}
+      virtual void checkpoint(CheckpointReason reason) {}
+      virtual void checkpoint(UInt32 cache_index) {}
 };
 
 #endif /* __CACHE_BLOCK_INFO_H__ */
