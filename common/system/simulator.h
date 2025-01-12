@@ -4,9 +4,11 @@
 #include "config.h"
 #include "log.h"
 #include "inst_mode.h"
+#include "epoch_manager.h"
 #include "project.h"
 
 #include <decoder.h>
+#include <optional>
 
 class _Thread;
 class SyscallServer;
@@ -73,6 +75,10 @@ public:
    MemoryTracker *getMemoryTracker() { return m_memory_tracker; }
    void setMemoryTracker(MemoryTracker *memory_tracker) { m_memory_tracker = memory_tracker; }
 
+   [[nodiscard]] const std::optional<EpochManager>& getEpochManager() const { return m_epoch_manager; }
+   [[nodiscard]] ProjectType getProjectType() const { return m_project.getType(); }
+   [[nodiscard]] const char *getProjectName() const { return m_project.getName(); }
+
    bool isRunning() { return m_running; }
    static void enablePerformanceModels();
    static void disablePerformanceModels();
@@ -83,9 +89,6 @@ public:
    // Access to the Decoder library for the simulator run
    void createDecoder();
    dl::Decoder *getDecoder();
-
-   [[nodiscard]] ProjectType getProjectType() const { return m_project.getType(); }
-   [[nodiscard]] const char *getProjectName() const { return m_project.getName(); }
 
 private:
    Config m_config;
@@ -111,10 +114,11 @@ private:
    RoutineTracer *m_rtn_tracer;
    MemoryTracker *m_memory_tracker;
 
+   Project m_project;
+   std::optional<EpochManager> m_epoch_manager;
+
    bool m_running;
    bool m_inst_mode_output;
-
-   Project m_project;
 
    static Simulator *m_singleton;
 

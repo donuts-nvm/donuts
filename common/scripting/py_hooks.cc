@@ -218,6 +218,10 @@ registerHook(PyObject *self, PyObject *args)
       case HookType::HOOK_INSTRUMENT_MODE:
       case HookType::HOOK_APPLICATION_START:
       case HookType::HOOK_APPLICATION_EXIT:
+      case HookType::HOOK_EPOCH_START:
+      case HookType::HOOK_EPOCH_END:
+      case HookType::HOOK_EPOCH_PERSISTED:
+      case HookType::HOOK_EPOCH_TIMEOUT_INS:
          Sim()->getHooksManager()->registerHook(type, hookCallbackInt, (UInt64)pFunc);
          break;
       case HookType::HOOK_PRE_STAT_WRITE:

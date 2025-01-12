@@ -122,6 +122,7 @@ Simulator::Simulator()
    , m_faultinjection_manager(NULL)
    , m_rtn_tracer(NULL)
    , m_memory_tracker(NULL)
+   , m_epoch_manager(std::nullopt)
    , m_running(false)
    , m_inst_mode_output(true)
 {
@@ -150,6 +151,13 @@ void Simulator::start()
    m_fastforward_performance_manager = FastForwardPerformanceManager::create();
    m_rtn_tracer = RoutineTracer::create();
    m_thread_manager = new ThreadManager();
+
+   if (getProjectType() != ProjectType::BASELINE) m_epoch_manager.emplace();
+
+   // getEpochManager().and_then([](auto& epoch_man) {
+   //      printf("epoch manager: %p\n", &epoch_man);
+   //      return std::nullopt;
+   //  });
 
    if (Sim()->getCfg()->getBool("traceinput/enabled"))
       m_trace_manager = new TraceManager();
