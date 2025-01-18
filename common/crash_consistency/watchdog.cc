@@ -13,7 +13,9 @@ Watchdog::Watchdog(const SubsecondTime& timeout, const UInt64 max_instructions, 
 {
    if (m_max_interval_time > SubsecondTime::Zero())
    {
+      const static auto barrier_interval = Sim()->getClockSkewMinimizationServer()->getBarrierInterval();
       LOG_ASSERT_ERROR(m_max_interval_time >= SubsecondTime::US(1), "The max_interval_time is less than 1000ns (1μs)");
+      LOG_ASSERT_ERROR(m_max_interval_time.getFS() % barrier_interval.getFS() == 0, "Invalid value for 'barrier_interval'");
 
       const auto _interrupt = [](const UInt64 self, const UInt64 time) -> SInt64
       {

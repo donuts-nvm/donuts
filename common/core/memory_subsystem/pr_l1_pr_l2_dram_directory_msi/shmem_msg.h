@@ -30,6 +30,9 @@ namespace PrL1PrL2DramDirectoryMSI
             FLUSH_REP,
             WB_REP,
             NULLIFY_REQ,
+            // NVM Checkpoint Support
+            COMMIT,
+            PERSIST,
             // Tag directory > DRAM
             DRAM_READ_REQ,
             DRAM_WRITE_REQ,

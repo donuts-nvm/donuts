@@ -7,8 +7,7 @@
     <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="9" type="long" />
-    <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="10" type="long" />
     <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
   </component>
   <component name="CMakeProjectFlavorService">
@@ -50,11 +49,29 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6722da97-9780-48c8-9c18-233ba443d166" name="Changes" comment="Implementing an epoch system">
+    <list default="true" id="6722da97-9780-48c8-9c18-233ba443d166" name="Changes" comment="Added a new CacheCtrln for DONUTS">
+      <change afterPath="$PROJECT_DIR$/common/crash_consistency/checkpoint_event.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/core.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/core.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/core.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/core.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache_block_info.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache_block_info.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache_block_info.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache_block_info.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache_state.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/cache/cache_state.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/memory_manager_base.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/memory_manager_base.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/memory_manager_fast.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/memory_manager_fast.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/checkpoint_event.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/checkpoint_event.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/cache/cache_cntlr.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/cache/cache_cntlr.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/donuts/cache/cache_cntlr.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/donuts/cache/cache_cntlr.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/epoch_cntlr.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/epoch_cntlr.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/epoch_cntlr.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/epoch_cntlr.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/crash_consistency/epoch_manager.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/epoch_manager.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/crash_consistency/epoch_manager.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/epoch_manager.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/crash_consistency/watchdog.cc" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/watchdog.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/crash_consistency/watchdog.h" beforeDir="false" afterPath="$PROJECT_DIR$/common/crash_consistency/watchdog.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/donuts.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/config/donuts.cfg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +99,61 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache_block_info.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache_block_info.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache_block_info.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache_block_info.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache_block_info.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/cache/cache_block_info.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/parametric_dram_directory_msi/memory_manager.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/dram_directory_cntlr.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/core/memory_subsystem/pr_l1_pr_l2_dram_directory_msi/shmem_msg.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/checkpoint_event.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/cache_cntlr_donuts.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/cache_cntlr_donuts.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/cache_cntlr_donuts.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/cache_cntlr_donuts.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/cache_cntlr_donuts.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/cache_cntlr_donuts.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/last_level_cache.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/last_level_cache.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/last_level_cache.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_lru.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_mru.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_nmru.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_nru.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_plru.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_random.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_round_robin.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/donuts/cache/replacement_policy/cache_set_srrip.cc" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/epoch_manager.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/epoch_manager.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/crash_consistency/epoch_manager.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/kleber.kruger/donuts/common/system/simulator.cc" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MakefileLocalSettings">
     <option name="availableProjects">
@@ -154,31 +225,31 @@
       <window_info id="Commit_Guest" show_stripe_button="false" />
       <window_info id="Pull Requests" />
       <window_info id="Learn" />
-      <window_info content_ui="combo" id="Project" order="0" weight="0.19861111" />
-      <window_info active="true" id="Commit" order="1" visible="true" weight="0.15472221" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.30916667" />
+      <window_info active="true" id="Commit" order="1" visible="true" weight="0.30916667" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Database Changes" />
       <window_info anchor="bottom" id="TypeScript" />
       <window_info anchor="bottom" id="Python Packages" />
       <window_info anchor="bottom" id="File Transfer" />
       <window_info anchor="bottom" id="Vcpkg" />
-      <window_info anchor="bottom" id="Find" />
       <window_info anchor="bottom" id="clangd" />
       <window_info anchor="bottom" id="Version Control" order="0" />
       <window_info anchor="bottom" id="Problems" order="1" />
       <window_info anchor="bottom" id="Problems View" order="2" weight="0.33035713" />
-      <window_info anchor="bottom" id="Terminal" order="3" weight="0.3305" />
+      <window_info anchor="bottom" id="Terminal" order="3" weight="0.3106203" />
       <window_info anchor="bottom" id="Services" order="4" weight="0.33035713" />
       <window_info anchor="bottom" id="CMake" order="5" />
-      <window_info anchor="bottom" id="Build" order="6" weight="0.33035713" />
+      <window_info anchor="bottom" id="Build" order="6" weight="0.3106203" />
       <window_info active="true" anchor="bottom" id="Messages" order="7" visible="true" weight="0.3106203" />
       <window_info anchor="bottom" id="TODO" order="8" weight="0.3106203" />
       <window_info anchor="bottom" id="Run" order="9" weight="0.3106203" />
+      <window_info anchor="bottom" id="Find" order="10" weight="0.33035713" />
       <window_info anchor="right" id="PR AI Assistant" />
       <window_info anchor="right" id="make" side_tool="true" />
       <window_info anchor="right" id="Coverage" side_tool="true" />
       <window_info anchor="right" id="Python Console" />
-      <window_info anchor="right" content_ui="combo" id="Notifications" order="0" weight="0.25" />
+      <window_info anchor="right" id="Notifications" order="0" weight="0.11083333" />
       <window_info anchor="right" id="AIAssistant" order="1" weight="0.3302778" />
       <window_info anchor="right" id="Database" order="2" weight="0.25" />
       <window_info anchor="right" id="Gradle" order="3" weight="0.25" />
@@ -186,7 +257,17 @@
       <window_info anchor="right" id="Meson" order="5" />
     </layout>
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/common/crash_consistency" />
+    </key>
+  </component>
   <component name="RunManager" selected="Native Application.all">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Makefile" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="donuts" TARGET_NAME="Makefile" CONFIG_NAME="Makefile" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -363,7 +444,9 @@
       <workItem from="1736590343830" duration="7865000" />
       <workItem from="1736649505169" duration="9658000" />
       <workItem from="1737008124992" duration="36342000" />
-      <workItem from="1737077994900" duration="381000" />
+      <workItem from="1737077994900" duration="35000000" />
+      <workItem from="1737223785970" duration="810000" />
+      <workItem from="1737245592656" duration="36131000" />
     </task>
     <task id="LOCAL-00001" summary="More one modification">
       <option name="closed" value="true" />
@@ -397,7 +480,31 @@
       <option name="project" value="LOCAL" />
       <updated>1737073851369</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Implemented an epoch system">
+      <option name="closed" value="true" />
+      <created>1737078418429</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1737078418429</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added a new CacheCtrln for DONUTS">
+      <option name="closed" value="true" />
+      <created>1737188885904</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1737188885904</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added a new CacheCtrln for DONUTS">
+      <option name="closed" value="true" />
+      <created>1737221856444</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1737221856444</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -407,7 +514,9 @@
     <MESSAGE value="More one modification" />
     <MESSAGE value="Implemented cache replacement policy" />
     <MESSAGE value="Implementing an epoch system" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implementing an epoch system" />
+    <MESSAGE value="Implemented an epoch system" />
+    <MESSAGE value="Added a new CacheCtrln for DONUTS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a new CacheCtrln for DONUTS" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

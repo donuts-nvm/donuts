@@ -8,6 +8,7 @@
 #include "hooks_manager.h"
 #include "cache_atd.h"
 #include "shmem_perf.h"
+#include "../common/crash_consistency/donuts/cache/cache_cntlr.h"
 
 #include <cstring>
 
@@ -330,7 +331,8 @@ CacheCntlr::processMemOpFromCore(
       IntPtr ca_address, UInt32 offset,
       Byte* data_buf, UInt32 data_length,
       bool modeled,
-      bool count)
+      bool count,
+      IntPtr eip)
 {
    HitWhere::where_t hit_where = HitWhere::MISS;
 
@@ -2305,6 +2307,47 @@ Semaphore*
 CacheCntlr::getNetworkThreadSemaphore()
 {
    return m_network_thread_sem;
+}
+
+/**
+ * Create a CacheCntlr to specified project.
+ * Added by Kleber Kruger
+ *
+ * @param mem_component
+ * @param name
+ * @param core_id
+ * @param memory_manager
+ * @param tag_directory_home_lookup
+ * @param user_thread_sem
+ * @param network_thread_sem
+ * @param cache_block_size
+ * @param cache_params
+ * @param shmem_perf_model
+ * @param is_last_level_cache
+ *
+ * @return the CacheCntlr according to the specified cache configuration
+ */
+CacheCntlr *CacheCntlr::create(const MemComponent::component_t mem_component,
+                               const String& name,
+                               const core_id_t core_id,
+                               MemoryManager *memory_manager,
+                               AddressHomeLookup *tag_directory_home_lookup,
+                               Semaphore *user_thread_sem,
+                               Semaphore *network_thread_sem,
+                               const UInt32 cache_block_size,
+                               CacheParameters &cache_params,
+                               ShmemPerfModel *shmem_perf_model,
+                               const bool is_last_level_cache)
+{
+   if (Sim()->getProjectType() == ProjectType::DONUTS)
+   {
+      return new donuts::CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
+                                  network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache,
+                                  Sim()->getEpochManager().value().getEpochCntlr(core_id));
+   }
+
+   return new CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
+                               network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache);
 }
 
 }

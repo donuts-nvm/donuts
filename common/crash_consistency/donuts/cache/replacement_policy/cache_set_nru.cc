@@ -20,7 +20,7 @@ CacheSetNRU::getReplacementIndex(CacheCntlr* cntlr)
    const auto index = ::CacheSetNRU::getReplacementIndex(cntlr);
 
    if (getAmountDirtyBlocks() >= m_threshold)
-      cntlr->checkpoint(m_index);
+      cntlr->checkpoint(CheckpointReason::CACHE_SET_THRESHOLD, m_index);
 
    return index;
 }

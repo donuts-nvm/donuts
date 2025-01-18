@@ -54,7 +54,10 @@ LastLevelCache::insertSingleLine(const IntPtr addr, Byte* fill_buff, bool* evict
 
    if (getCapacityUsed() >= m_threshold)
    {
-      cntlr->checkpoint(CheckpointReason::CACHE_THRESHOLD);
+      IntPtr tag;
+      UInt32 set_index;
+      splitAddress(addr, tag, set_index);
+      cntlr->checkpoint(CheckpointReason::CACHE_THRESHOLD, set_index);
    }
 }
 

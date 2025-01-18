@@ -145,14 +145,13 @@ void Simulator::start()
    m_thread_stats_manager = new ThreadStatsManager();
    m_clock_skew_minimization_manager = ClockSkewMinimizationManager::create();
    m_clock_skew_minimization_server = ClockSkewMinimizationServer::create();
+   if (getProjectType() != ProjectType::BASELINE) m_epoch_manager.emplace();
    m_core_manager = new CoreManager();
    m_sim_thread_manager = new SimThreadManager();
    m_sampling_manager = new SamplingManager();
    m_fastforward_performance_manager = FastForwardPerformanceManager::create();
    m_rtn_tracer = RoutineTracer::create();
    m_thread_manager = new ThreadManager();
-
-   if (getProjectType() != ProjectType::BASELINE) m_epoch_manager.emplace();
 
    // getEpochManager().and_then([](auto& epoch_man) {
    //      printf("epoch manager: %p\n", &epoch_man);

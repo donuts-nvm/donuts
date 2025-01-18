@@ -48,33 +48,6 @@ EpochManager::start()
       Sim()->getHooksManager()->callHooks(e, 0, false);
    };
    m_watchdog = std::make_unique<Watchdog>(max_interval_time, max_interval_instr, _watchdog_timeout);
-
-   if (m_max_interval_time)
-   {
-      const auto _timeout = [](const UInt64 self, const UInt64 eid) -> SInt64
-      {
-         printf("CHECKPOINTING BY TIMEOUT [%lu]\n", eid);
-         return 0;
-      };
-      Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT, _timeout, reinterpret_cast<UInt64>(this));
-   }
-
-   if (m_max_interval_instr)
-   {
-      const auto _timeout_ins = [](const UInt64 self, const UInt64 eid) -> SInt64
-      {
-         printf("CHECKPOINTING BY INSTRUCTION [%lu]\n", eid);
-         return 0;
-      };
-      Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT_INS, _timeout_ins, reinterpret_cast<UInt64>(this));
-   }
-}
-
-void
-EpochManager::handleWatchdog(WatchdogEvent event)
-{
-   printf("Checkpoint by %i\n", static_cast<int>(event));
-   m_watchdog->refresh();
 }
 
 std::optional<SubsecondTime>

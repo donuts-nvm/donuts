@@ -58,7 +58,7 @@ CacheSetLRU::getReplacementIndex(CacheCntlr* cntlr)
       {
          if (m_lru_bits[i] == max_bits)
          {
-            cntlr->checkpoint(m_index);
+            cntlr->checkpoint(CheckpointReason::CACHE_SET_THRESHOLD, m_index);
             return i;
          }
       }
