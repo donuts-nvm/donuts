@@ -133,8 +133,7 @@ class Core
          m_spin_elapsed_time += elapsed_time;
       }
 
-      [[nodiscard]] IntPtr getProgramCounter() const { return m_program_counter.pc; }
-      [[nodiscard]] IntPtr getLastPCToICache() const { return m_program_counter.i_pc; }
+      [[nodiscard]] IntPtr getProgramCounter() const { return m_program_counter.i_pc; }
       [[nodiscard]] IntPtr getLastPCToDCache() const { return m_program_counter.d_pc; }
 
    private:
@@ -176,9 +175,8 @@ class Core
 
       // Added by Kleber Kruger to get PC
       struct program_counter_t {
-         IntPtr pc;   // last value
-         IntPtr i_pc; // last value sent to i_cache
-         IntPtr d_pc; // last value sent to d_cache
+         IntPtr i_pc { 0 };   // last value sent to i_cache
+         IntPtr d_pc { 0 };   // last value sent to d_cache
       } m_program_counter;
 
    protected:

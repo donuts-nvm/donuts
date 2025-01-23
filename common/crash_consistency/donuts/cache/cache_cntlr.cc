@@ -3,6 +3,8 @@
 #include "hooks_manager.h"
 #include "memory_manager.h"
 
+#include <core_manager.h>
+
 namespace ParametricDramDirectoryMSI::donuts
 {
 
@@ -24,28 +26,31 @@ CacheCntlr::CacheCntlr(const MemComponent::component_t mem_component,
     m_epoch_cntlr(epoch_cntlr),
     m_persistence_policy(getPersistencePolicy())
 {
-   printf("Cache %s (%p) | CacheCntlr (%p) | Core %u/%u\n", getCache()->getName().c_str(), getCache(), this, m_core_id, m_core_id_master);
+   // printf("Cache %s (%p) | CacheCntlr (%p) | Core %u/%u\n", getCache()->getName().c_str(), getCache(), this, m_core_id, m_core_id_master);
 
    if (is_last_level_cache)
    {
       LOG_ASSERT_ERROR(!m_cache_writethrough, "DONUTS does not allow LLC write-through");
 
-      // TODO: Implement for non-unified LLC... Use a Master Controller??
+      // TODO: Implement for non-unified LLC... Use a Master Controller?
       LOG_ASSERT_ERROR(m_core_id_master == 0, "DONUTS does not allow non-unified LLC yet");
 
-      const auto _timeout = [](const UInt64 self, const UInt64 eid) -> SInt64
+      if (isMasterCache())
       {
-         reinterpret_cast<CacheCntlr*>(self)->checkpoint(CheckpointReason::PERIODIC_TIME, 0);
-         return 0;
-      };
-      const auto _timeout_ins = [](const UInt64 self, const UInt64 eid) -> SInt64
-      {
-         reinterpret_cast<CacheCntlr*>(self)->checkpoint(CheckpointReason::PERIODIC_INSTRUCTIONS, 0);
-         return 0;
-      };
+         const auto _timeout = [](const UInt64 self, const UInt64) -> SInt64
+         {
+            reinterpret_cast<CacheCntlr*>(self)->checkpoint(CheckpointReason::PERIODIC_TIME, 0);
+            return 0;
+         };
+         const auto _timeout_ins = [](const UInt64 self, const UInt64) -> SInt64
+         {
+            reinterpret_cast<CacheCntlr*>(self)->checkpoint(CheckpointReason::PERIODIC_INSTRUCTIONS, 0);
+            return 0;
+         };
 
-      Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT, _timeout, reinterpret_cast<UInt64>(this));
-      Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT_INS, _timeout_ins, reinterpret_cast<UInt64>(this));
+         Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT, _timeout, reinterpret_cast<UInt64>(this));
+         Sim()->getHooksManager()->registerHook(HookType::HOOK_EPOCH_TIMEOUT_INS, _timeout_ins, reinterpret_cast<UInt64>(this));
+      }
    }
 }
 
@@ -54,7 +59,10 @@ CacheCntlr::~CacheCntlr() = default;
 void
 CacheCntlr::checkpoint(const CheckpointReason reason, const UInt32 evicted_set_index)
 {
-   printf("CHECKPOINT by %s\n", CheckpointInfo::reasonToString(reason));
+   printf("CHECKPOINT %p by %s\n", this, CheckpointInfo::reasonToString(reason));
+
+   const auto* core = Sim()->getCoreManager()->getCurrentCore();
+   printf("checkpoint with PC: [%lx %lx]\n", core->getProgramCounter(), core->getLastPCToDCache());
 
    if (auto dirty_blocks = selectDirtyBlocks(evicted_set_index); !dirty_blocks.empty())
    {
@@ -69,7 +77,7 @@ CacheCntlr::checkpoint(const CheckpointReason reason, const UInt32 evicted_set_i
 
          dirty_blocks.pop();
       }
-      m_epoch_cntlr.commit();
+      m_epoch_cntlr.commit(reason);
    }
 }
 

@@ -2,29 +2,14 @@
 
 #include "epoch_cntlr.h"
 #include "subsecond_time.h"
-#include "watchdog.h"
+
 #include <memory>
 #include <optional>
-
-class VersionedDomain {
-public:
-   explicit VersionedDomain(UInt32 id) : m_id(id), m_eid(id) {}
-   ~VersionedDomain() = default;
-
-   void increment() { m_eid++; }
-
-   [[nodiscard]] UInt32 getID() const { return m_id; }
-   [[nodiscard]] UInt64 getEpochID() const { return m_eid; }
-
-private:
-   const UInt32 m_id;
-   UInt64 m_eid;
-};
+#include <vector>
 
 class EpochManager
 {
 public:
-   EpochManager();
    ~EpochManager();
 
    EpochManager(const EpochManager&)            = delete;
@@ -32,22 +17,31 @@ public:
    EpochManager& operator=(const EpochManager&) = delete;
    EpochManager& operator=(EpochManager&&)      = delete;
 
-   [[nodiscard]] EpochCntlr& getEpochCntlr(core_id_t core_id) const { return *m_cntlr; }
+   [[nodiscard]] EpochCntlr& getEpochCntlr(const core_id_t core_id) const { return *m_cntlrs[core_id]; }
 
-//   [[nodiscard]] UInt64 getSystemEID() const { return 0; }
-//   [[nodiscard]] UInt64 getSystemEID(core_id_t core_id) const { return 0; }
-
-   friend class EpochCntlr;
+   static std::unique_ptr<EpochManager> create();
 
 private:
-   std::unique_ptr<EpochCntlr> m_cntlr;
-   std::unique_ptr<Watchdog> m_watchdog;
-   std::optional<SubsecondTime> m_max_interval_time;
-   std::optional<UInt64> m_max_interval_instr;
+   explicit EpochManager(bool multi_domains = false);
+
+   struct VDConfig
+   {
+      std::vector<core_id_t> cores{};
+      SubsecondTime max_interval_time{ SubsecondTime::Zero() };
+      UInt64 max_interval_instr{ 0 };
+   };
+
+   std::vector<EpochCntlr*> m_cntlrs;
 
    void start();
    void end();
 
-   static std::optional<SubsecondTime> getMaxIntervalTime();
-   static std::optional<UInt64> getMaxIntervalInstructions();
+   static UInt32 getNumVersionedDomains();
+   static std::vector<UInt32> getSharedCoresByVD();
+   static std::optional<UInt16> getSimilarToLevel();
+   static std::vector<SubsecondTime> getMaxIntervalTime();
+   static std::vector<UInt64> getMaxIntervalInstructions();
+
+   static std::vector<UInt32> getVDRanges(bool multi_domains);
+   static std::vector<VDConfig> getVDConfigs(bool multi_domains);
 };

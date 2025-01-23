@@ -2,6 +2,22 @@
 
 #include "subsecond_time.h"
 #include <functional>
+#include <mutex>
+#include <vector>
+
+class Watchdog;
+
+class WatchdogEventBase
+{
+   static void registerWatchdog(Watchdog* watchdog);
+   static void removeWatchdog(Watchdog* watchdog);
+
+   static inline std::vector<Watchdog*> instances_by_time;
+   static inline std::vector<Watchdog*> instances_by_instr;
+   static inline std::mutex mutex;
+
+   friend class Watchdog;
+};
 
 class Watchdog
 {
@@ -11,15 +27,23 @@ public:
       TIMEOUT,
       TIMEOUT_INS
    };
-   using WatchdogCallback = std::function<void(Event)>;
+   using WatchdogCallback = std::function<void(Event, UInt64 arg)>;
 
-   Watchdog(const SubsecondTime& timeout, const WatchdogCallback& subscribe) :
-       Watchdog(timeout, 0, subscribe) {}
+   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout) :
+       Watchdog(callback_func, timeout, 0, std::vector<core_id_t>{}) {}
 
-   Watchdog(const UInt64 max_instructions, const WatchdogCallback& subscribe) :
-       Watchdog(SubsecondTime::Zero(), max_instructions, subscribe) {}
+   template<typename... Cores>
+   Watchdog(const WatchdogCallback& callback_func, const UInt64 max_instructions, Cores... cores) :
+       Watchdog(callback_func, SubsecondTime::Zero(), max_instructions, std::vector<core_id_t>{ cores... }) {}
 
-   Watchdog(const SubsecondTime& timeout, UInt64 max_instructions, WatchdogCallback subscribe);
+   Watchdog(const WatchdogCallback& callback_func, const UInt64 max_instructions, const std::vector<core_id_t>& cores) :
+       Watchdog(callback_func, SubsecondTime::Zero(), max_instructions, cores) {}
+
+   template<typename... Cores>
+   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout, const UInt64 max_instructions, Cores... cores) :
+       Watchdog(callback_func, timeout, max_instructions, std::vector<core_id_t>{ cores... }) {}
+
+   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout, UInt64 max_instructions, const std::vector<core_id_t>& cores);
 
    ~Watchdog();
 
@@ -39,7 +63,8 @@ private:
 
    SubsecondTime m_max_interval_time;
    UInt64 m_max_interval_instr;
-   const std::function<void(Event)> m_subscribe;
+   std::vector<core_id_t> m_cores;
+   WatchdogCallback m_callback_func;
 
    instant_t m_last, m_current;
 
@@ -51,6 +76,9 @@ private:
    {
       return current >= last ? current - last : last - current;
    }
+
+   friend class WatchdogEventBase;
+   static inline WatchdogEventBase event_base;
 };
 
 using WatchdogEvent = Watchdog::Event;

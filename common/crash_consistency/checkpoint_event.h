@@ -30,6 +30,8 @@ public:
       LOG_PRINT_ERROR("Unknown reason");
    }
 
+   virtual ~CheckpointInfo() = default;
+
    /**
     * @return address of the epoch's first instruction in the checkpoint
     */
@@ -79,16 +81,17 @@ public:
    [[nodiscard]] virtual UInt64 getNumWrites() const = 0;
 
    /**
-    * @return the write amplification rate
-    */
-   [[nodiscard]] virtual float getWriteAmplification() const {
-      return getNumLogs() / getNumWrites();
-   }
-
-   /**
     * @return number of performed logs in the checkpoint
     */
    [[nodiscard]] virtual UInt64 getNumLogs() const = 0;
+
+   /**
+    * @return the write amplification rate
+    */
+   [[nodiscard]] virtual float getWriteAmplification() const
+   {
+      return getNumLogs() / getNumWrites();
+   }
 
    /**
     * @return the epoch length of this checkpoint
@@ -108,7 +111,7 @@ public:
 
 using CheckpointReason = CheckpointInfo::Reason;
 
-class CheckpointEvent : CheckpointInfo
+class CheckpointEvent final : CheckpointInfo
 {
 public:
    explicit CheckpointEvent(const CheckpointReason reason) :

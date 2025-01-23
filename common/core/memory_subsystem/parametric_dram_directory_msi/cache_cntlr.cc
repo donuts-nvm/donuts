@@ -8,6 +8,7 @@
 #include "hooks_manager.h"
 #include "cache_atd.h"
 #include "shmem_perf.h"
+#include "epoch_manager.h"
 #include "../common/crash_consistency/donuts/cache/cache_cntlr.h"
 
 #include <cstring>
@@ -2343,7 +2344,7 @@ CacheCntlr *CacheCntlr::create(const MemComponent::component_t mem_component,
    {
       return new donuts::CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,
                                   network_thread_sem, cache_block_size, cache_params, shmem_perf_model, is_last_level_cache,
-                                  Sim()->getEpochManager().value().getEpochCntlr(core_id));
+                                  Sim()->getEpochManager().getEpochCntlr(core_id));
    }
 
    return new CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup, user_thread_sem,

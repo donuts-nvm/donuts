@@ -27,6 +27,7 @@
 #include "instruction_tracer.h"
 #include "memory_tracker.h"
 #include "circular_log.h"
+#include "epoch_manager.h"
 
 #include <sstream>
 
@@ -122,7 +123,6 @@ Simulator::Simulator()
    , m_faultinjection_manager(NULL)
    , m_rtn_tracer(NULL)
    , m_memory_tracker(NULL)
-   , m_epoch_manager(std::nullopt)
    , m_running(false)
    , m_inst_mode_output(true)
 {
@@ -145,18 +145,13 @@ void Simulator::start()
    m_thread_stats_manager = new ThreadStatsManager();
    m_clock_skew_minimization_manager = ClockSkewMinimizationManager::create();
    m_clock_skew_minimization_server = ClockSkewMinimizationServer::create();
-   if (getProjectType() != ProjectType::BASELINE) m_epoch_manager.emplace();
+   m_epoch_manager = EpochManager::create();
    m_core_manager = new CoreManager();
    m_sim_thread_manager = new SimThreadManager();
    m_sampling_manager = new SamplingManager();
    m_fastforward_performance_manager = FastForwardPerformanceManager::create();
    m_rtn_tracer = RoutineTracer::create();
    m_thread_manager = new ThreadManager();
-
-   // getEpochManager().and_then([](auto& epoch_man) {
-   //      printf("epoch manager: %p\n", &epoch_man);
-   //      return std::nullopt;
-   //  });
 
    if (Sim()->getCfg()->getBool("traceinput/enabled"))
       m_trace_manager = new TraceManager();
@@ -335,7 +330,7 @@ void Simulator::printInstModeSummary()
          printf("[SNIPER] Running post-ROI region in %s mode\n", inst_mode_names[InstMode::inst_mode_end]);
          break;
       case Config::ROI_SCRIPT:
-         printf("[SNIPER] Running in script-driven instrumenation mode (--roi-script)\n");
+         printf("[SNIPER] Running in script-driven instrumentation mode (--roi-script)\n");
          printf("[SNIPER] Using %s mode for warmup\n", inst_mode_names[InstMode::inst_mode_init]);
          printf("[SNIPER] Using %s mode for detailed\n", inst_mode_names[InstMode::inst_mode_roi]);
          // Script should print something here...

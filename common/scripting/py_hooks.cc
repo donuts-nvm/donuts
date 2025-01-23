@@ -201,6 +201,7 @@ registerHook(PyObject *self, PyObject *args)
    HookType::hook_type_t type = HookType::hook_type_t(hook);
    switch(type) {
       case HookType::HOOK_PERIODIC:
+      case HookType::HOOK_EPOCH_TIMEOUT:
          Sim()->getHooksManager()->registerHook(type, hookCallbackSubsecondTime, (UInt64)pFunc);
          break;
       case HookType::HOOK_SIM_START:

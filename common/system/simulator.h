@@ -4,11 +4,10 @@
 #include "config.h"
 #include "log.h"
 #include "inst_mode.h"
-#include "epoch_manager.h"
 #include "project.h"
 
 #include <decoder.h>
-#include <optional>
+#include <memory>
 
 class _Thread;
 class SyscallServer;
@@ -32,6 +31,7 @@ class FaultinjectionManager;
 class TagsManager;
 class RoutineTracer;
 class MemoryTracker;
+class EpochManager;
 namespace config { class Config; }
 
 class Simulator
@@ -75,9 +75,12 @@ public:
    MemoryTracker *getMemoryTracker() { return m_memory_tracker; }
    void setMemoryTracker(MemoryTracker *memory_tracker) { m_memory_tracker = memory_tracker; }
 
-   [[nodiscard]] const std::optional<EpochManager>& getEpochManager() const { return m_epoch_manager; }
    [[nodiscard]] ProjectType getProjectType() const { return m_project.getType(); }
    [[nodiscard]] const char *getProjectName() const { return m_project.getName(); }
+   [[nodiscard]] EpochManager& getEpochManager() const {
+      LOG_ASSERT_ERROR(m_epoch_manager, "The EpochManager is null to the specified project '%s'", getProjectName());
+      return *m_epoch_manager;
+   }
 
    bool isRunning() { return m_running; }
    static void enablePerformanceModels();
@@ -115,7 +118,7 @@ private:
    MemoryTracker *m_memory_tracker;
 
    Project m_project;
-   std::optional<EpochManager> m_epoch_manager;
+   std::unique_ptr<EpochManager> m_epoch_manager;
 
    bool m_running;
    bool m_inst_mode_output;

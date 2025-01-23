@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common/core/memory_subsystem/parametric_dram_directory_msi/cache_cntlr.h"
+#include "epoch_cntlr.h"
 
 namespace ParametricDramDirectoryMSI::donuts
 {
