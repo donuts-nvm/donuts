@@ -33,17 +33,17 @@ public:
        Watchdog(callback_func, timeout, 0, std::vector<core_id_t>{}) {}
 
    template<typename... Cores>
-   Watchdog(const WatchdogCallback& callback_func, const UInt64 max_instructions, Cores... cores) :
-       Watchdog(callback_func, SubsecondTime::Zero(), max_instructions, std::vector<core_id_t>{ cores... }) {}
+   Watchdog(const WatchdogCallback& callback_func, const UInt64 instruction_threshold, Cores... cores) :
+       Watchdog(callback_func, SubsecondTime::Zero(), instruction_threshold, std::vector<core_id_t>{ cores... }) {}
 
-   Watchdog(const WatchdogCallback& callback_func, const UInt64 max_instructions, const std::vector<core_id_t>& cores) :
-       Watchdog(callback_func, SubsecondTime::Zero(), max_instructions, cores) {}
+   Watchdog(const WatchdogCallback& callback_func, const UInt64 instruction_threshold, const std::vector<core_id_t>& cores) :
+       Watchdog(callback_func, SubsecondTime::Zero(), instruction_threshold, cores) {}
 
    template<typename... Cores>
-   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout, const UInt64 max_instructions, Cores... cores) :
-       Watchdog(callback_func, timeout, max_instructions, std::vector<core_id_t>{ cores... }) {}
+   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout, const UInt64 instruction_threshold, Cores... cores) :
+       Watchdog(callback_func, timeout, instruction_threshold, std::vector<core_id_t>{ cores... }) {}
 
-   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout, UInt64 max_instructions, const std::vector<core_id_t>& cores);
+   Watchdog(const WatchdogCallback& callback_func, const SubsecondTime& timeout, UInt64 instruction_threshold, const std::vector<core_id_t>& cores);
 
    ~Watchdog();
 
@@ -52,7 +52,8 @@ public:
    Watchdog& operator=(const Watchdog&) = delete;
    Watchdog& operator=(Watchdog&&)      = delete;
 
-   void refresh() { m_last = m_current; }
+   // void refresh() { m_last = m_current; }
+   void refresh();
 
 private:
    struct instant_t
@@ -70,6 +71,10 @@ private:
 
    void interrupt(const SubsecondTime& now);
    void interrupt(UInt64 instr);
+   void check() const;
+
+   [[nodiscard]] bool timeoutEnabled() const { return m_max_interval_time > SubsecondTime::Zero(); }
+   [[nodiscard]] bool instructionThresholdEnabled() const { return m_max_interval_instr > 0; }
 
    template<typename T>
    static T periodBetween(T last, T current)

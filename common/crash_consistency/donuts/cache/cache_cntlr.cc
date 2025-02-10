@@ -61,8 +61,8 @@ CacheCntlr::checkpoint(const CheckpointReason reason, const UInt32 evicted_set_i
 {
    printf("CHECKPOINT %p by %s\n", this, CheckpointInfo::reasonToString(reason));
 
-   const auto* core = Sim()->getCoreManager()->getCurrentCore();
-   printf("checkpoint with PC: [%lx %lx]\n", core->getProgramCounter(), core->getLastPCToDCache());
+   // const auto* core = Sim()->getCoreManager()->getCurrentCore();
+   // printf("checkpoint with PC: [%lx %lx]\n", core->getProgramCounter(), core->getLastPCToDCache());
 
    if (auto dirty_blocks = selectDirtyBlocks(evicted_set_index); !dirty_blocks.empty())
    {

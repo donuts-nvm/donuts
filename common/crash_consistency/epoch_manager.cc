@@ -5,6 +5,7 @@
 #include "watchdog.h"
 
 #include <algorithm>
+#include <core_manager.h>
 #include <format>
 #include <numeric>
 

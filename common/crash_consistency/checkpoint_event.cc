@@ -1,5 +1,4 @@
 #include "checkpoint_event.h"
-#include "subsecond_time.h"
 #include "simulator.h"
 #include "core_manager.h"
 #include "performance_model.h"

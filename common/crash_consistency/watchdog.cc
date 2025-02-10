@@ -3,6 +3,7 @@
 #include "hooks_manager.h"
 #include "simulator.h"
 
+#include <core_manager.h>
 #include <utility>
 
 void
@@ -21,7 +22,7 @@ WatchdogEventBase::registerWatchdog(Watchdog* watchdog)
    //    container.push_back(wg);
    // };
 
-   if (watchdog->m_max_interval_time > SubsecondTime::Zero())
+   if (watchdog->timeoutEnabled())
    {
       const static auto barrier_interval = Sim()->getClockSkewMinimizationServer()->getBarrierInterval();
       LOG_ASSERT_ERROR(watchdog->m_max_interval_time >= SubsecondTime::US(1), "The max_interval_time is less than 1000ns (1μs)");
@@ -42,7 +43,7 @@ WatchdogEventBase::registerWatchdog(Watchdog* watchdog)
       //                     { return SubsecondTime::FS(time); });
    }
 
-   if (watchdog->m_max_interval_instr > 0)
+   if (watchdog->instructionThresholdEnabled())
    {
       const static auto ins_per_core = Sim()->getConfig()->getHPIInstructionsPerCore();
       const static auto ins_global   = Sim()->getConfig()->getHPIInstructionsGlobal();
@@ -94,9 +95,10 @@ WatchdogEventBase::removeWatchdog(Watchdog* watchdog)
 }
 
 Watchdog::Watchdog(const std::function<void(Event, UInt64)>& callback_func,
-                   const SubsecondTime& timeout, const UInt64 max_instructions, const std::vector<core_id_t>& cores) :
+                   const SubsecondTime& timeout, const UInt64 instruction_threshold, const std::vector<core_id_t>& cores) :
     m_max_interval_time(timeout),
-    m_max_interval_instr(max_instructions),
+    m_max_interval_instr(instruction_threshold),
+    m_cores(cores),
     m_callback_func(callback_func)
 {
    WatchdogEventBase::registerWatchdog(this);
@@ -110,23 +112,62 @@ void
 Watchdog::interrupt(const SubsecondTime& now)
 {
    m_current.time = now;
+   if (instructionThresholdEnabled()) m_current.instr = Sim()->getCoreManager()->getInstructionCount(m_cores);
 
-   if (const auto gap = periodBetween(m_last.time, m_current.time);
-       gap >= m_max_interval_time)
-   {
-      printf("now: %lu | last: [t: %lu i: %lu] | gap: %lu\n", now.getNS(), m_last.time.getNS(), m_last.instr, gap.getNS());
-      m_callback_func(Event::TIMEOUT, static_cast<subsecond_time_t>(gap).m_time);
-   }
+   // if (const auto gap = periodBetween(m_last.time, m_current.time);
+   //     gap >= m_max_interval_time)
+   // {
+   //    printf("now: %lu | last: [t: %lu i: %lu] | gap: %lu\n", now.getNS(), m_last.time.getNS(), m_last.instr, gap.getNS());
+   //    m_callback_func(Event::TIMEOUT, static_cast<subsecond_time_t>(gap).m_time);
+   // }
+   check();
 }
 
 void
 Watchdog::interrupt(const UInt64 instr)
 {
    m_current.instr = instr;
-   if (const auto gap = periodBetween(m_last.instr, m_current.instr);
-       gap >= m_max_interval_instr)
+   if (timeoutEnabled()) m_current.time = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
+
+   // if (const auto gap = periodBetween(m_last.instr, m_current.instr);
+   //     gap >= m_max_interval_instr)
+   // {
+   //    printf("ins: %lu | last: [t: %lu i: %lu] | gap: %lu\n", instr, m_last.time.getNS(), m_last.instr, gap);
+   //    m_callback_func(Event::TIMEOUT_INS, gap);
+   // }
+   check();
+}
+
+void
+Watchdog::check() const
+{
+   printf("current { time: %lu, instr: %lu } --- last: { time: %lu, instr: %lu }\n", m_current.time.getNS(), m_current.instr, m_last.time.getNS(), m_last.instr);
+
+   if (timeoutEnabled())
    {
-      printf("ins: %lu | last: [t: %lu i: %lu] | gap: %lu\n", instr, m_last.time.getNS(), m_last.instr, gap);
-      m_callback_func(Event::TIMEOUT_INS, gap);
+      if (const auto gap = periodBetween(m_last.time, m_current.time);
+          gap >= m_max_interval_time)
+      {
+         printf("NOW: %lu --- last { time: %lu instr: %lu } --- GAP: %lu\n", m_current.time.getNS(), m_last.time.getNS(), m_last.instr, gap.getNS());
+         m_callback_func(Event::TIMEOUT, static_cast<subsecond_time_t>(gap).m_time);
+      }
    }
+   if (instructionThresholdEnabled())
+   {
+      if (const auto gap = periodBetween(m_last.instr, m_current.instr);
+          gap >= m_max_interval_instr)
+      {
+         printf("INS: %lu --- last { time: %lu, instr: %lu } --- GAP: %lu\n", m_current.instr, m_last.time.getNS(), m_last.instr, gap);
+         m_callback_func(Event::TIMEOUT_INS, gap);
+      }
+   }
+}
+
+void
+Watchdog::refresh()
+{
+   m_current.time  = Sim()->getClockSkewMinimizationServer()->getGlobalTime();
+   m_current.instr = Sim()->getCoreManager()->getInstructionCount(m_cores);
+   printf("m_current UPDATED to { time: %lu, instr: %lu }\n", m_current.time.getNS(), m_current.instr);
+   m_last = m_current;
 }

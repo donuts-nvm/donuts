@@ -10,7 +10,9 @@ EpochCntlr::EpochCntlr(EpochManager& epoch_manager,
                        const SubsecondTime& max_interval_time,
                        const UInt64 max_interval_instr,
                        const std::vector<core_id_t>& cores) :
-    m_epoch_manager(epoch_manager), m_vd(vd_id),
+    m_epoch_manager(epoch_manager),
+    m_vd(vd_id),
+    m_cores(cores),
     m_watchdog(&EpochCntlr::notifyEpochEnding, max_interval_time, max_interval_instr, cores)
 {
    const auto _start = [](auto, const UInt64 eid) -> SInt64
@@ -47,11 +49,18 @@ EpochCntlr::newEpoch()
     * - UInt64 getTotalInstructionsStart(); ???
     * - UInt64 getTotalVDInstructionsStart(); ???
     */
-   if (m_vd.getEpochID() > 0)
-   {
-      const auto* core = Sim()->getCoreManager()->getCurrentCore();
-      printf("[ New Epoch ] PCs: [%lx %lx]\n", core->getProgramCounter(), core->getLastPCToDCache());
-   }
+
+   const auto core_manager = Sim()->getCoreManager();
+   const auto core         = m_vd.getEpochID() == 0 ? core_manager->getCoreFromID(m_cores[0]) : core_manager->getCurrentCore();
+   // printf("[ New Epoch ] PCs: [%lx %lx]\n", core->getProgramCounter(), core->getLastPCToDCache());
+
+   printf("[ New Epoch ]\n"
+          "- PC: %lx %lx\n"
+          "- Time: %lu\n"
+          "- Instruction: %lu %lu\n",
+          core->getProgramCounter(), core->getLastPCToDCache(),
+          Sim()->getClockSkewMinimizationServer()->getGlobalTime().getNS(),
+          Sim()->getCoreManager()->getInstructionCount(), Sim()->getCoreManager()->getInstructionCount(m_cores));
 
    Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_START, m_vd.increment(), false);
 }
@@ -68,6 +77,15 @@ EpochCntlr::commit(const CheckpointReason reason)
     * - UInt32 getCheckpointSize();
     * - SubsecondTime getEstimatedPersistenceTime();
     */
+
+   printf("[ Ending an Epoch ]\n"
+          "- Number of Instructions: %lu\n"
+          "- Number of Writes: %lu\n"
+          "- Number of Logs: %lu\n"
+          "- Duration: %lu ns\n"
+          "- Checkpoint Size: %lu B\n"
+          "- Persistence Time: %lu ns\n",
+          0L, 0L, 0L, SubsecondTime::Zero().getNS(), 0L, SubsecondTime::Zero().getNS());
 
    Sim()->getHooksManager()->callHooks(HookType::HOOK_EPOCH_END, m_vd.getEpochID(), false);
    m_watchdog.refresh();

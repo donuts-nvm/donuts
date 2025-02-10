@@ -50,6 +50,7 @@ public:
 private:
    EpochManager& m_epoch_manager;
    VersionedDomain m_vd;
+   std::vector<core_id_t> m_cores;
    Watchdog m_watchdog;
    // std::unordered_map<UInt64, CheckpointInfo> m_checkpoints;
 

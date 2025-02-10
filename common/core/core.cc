@@ -231,7 +231,7 @@ Core::readInstructionMemory(IntPtr address, UInt32 instruction_size)
    LOG_PRINT("Instruction: Address(0x%x), Size(%u), Start READ",
            address, instruction_size);
 
-   printf("readInstructionMemory [eip: %lx]\n", address);
+   // printf("readInstructionMemory [eip: %lx]\n", address);
 
    // Added by Kleber Kruger to track PC
    m_program_counter.i_pc = address;
@@ -472,7 +472,7 @@ Core::initiateMemoryAccess(MemComponent::component_t mem_component,
 MemoryResult
 Core::accessMemory(lock_signal_t lock_signal, mem_op_t mem_op_type, IntPtr d_addr, char* data_buffer, UInt32 data_size, MemModeled modeled, IntPtr eip, SubsecondTime now, bool is_fault_mask)
 {
-   printf("accessMemory [d_addr: %lx eip: %lx]\n", d_addr, eip);
+   // printf("accessMemory [d_addr: %lx eip: %lx]\n", d_addr, eip);
 
    // In PINTOOL mode, if the data is requested, copy it to/from real memory
    if (data_buffer && !is_fault_mask)
