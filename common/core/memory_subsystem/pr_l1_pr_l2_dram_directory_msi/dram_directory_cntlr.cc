@@ -170,6 +170,12 @@ DramDirectoryCntlr::handleMsgFromL2Cache(core_id_t sender, ShmemMsg* shmem_msg)
          processWbRepFromL2Cache(sender, shmem_msg);
          break;
 
+      // NVM Checkpoint Support (Added by Kleber Kruger)
+      case ShmemMsg::COMMIT_REQ:
+         MYLOG("COMMIT<%u @ %lx", sender, address);
+         processCommitFromLLC(sender, shmem_msg);
+         break;
+
       default:
          LOG_PRINT_ERROR("Unrecognized Shmem Msg Type: %u", shmem_msg_type);
          break;
@@ -1193,6 +1199,103 @@ DramDirectoryCntlr::processWbRepFromL2Cache(core_id_t sender, ShmemMsg* shmem_ms
    {
       LOG_PRINT_ERROR("Should not reach here");
    }
+   MYLOG("End @ %lx", address);
+}
+
+// void DramDirectoryCntlr::processCommitReqFromLLC(const core_id_t sender, ShmemMsg *shmem_msg)
+// {
+//    const auto address = shmem_msg->getAddress();
+//    const auto now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD);
+//
+//    MYLOG("Start @ %lx", address);
+//
+//    printf("[%lu]: Sending to DRAM [%lx]\n", now.getNS(), address);
+//    sendDataToDram(address, shmem_msg->getRequester(), shmem_msg->getDataBuf(), now);
+//
+//    MYLOG("End @ %lx", address);
+// }
+
+// void
+// DramDirectoryCntlr::processCommitRepFromLLC(const core_id_t sender, ShmemMsg* shmem_msg)
+// {
+//    const auto address = shmem_msg->getAddress();
+//
+//    MYLOG("Start @ %lx", address);
+//
+//    auto* directory_entry = m_dram_directory_cache->getDirectoryEntry(address);
+//    assert(directory_entry);
+//    assert(directory_entry->hasSharer(sender));
+//    directory_entry->setOwner(INVALID_CORE_ID);
+//
+//    auto* directory_block_info = directory_entry->getDirectoryBlockInfo();
+//    const auto old_state = DStateString(directory_block_info->getDState());
+//    directory_block_info->setDState(DirectoryState::SHARED);
+//    // shmem_msg->getPerf()->updateTime(getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD));
+//    printf("[%lu]: Endereco [%lx] [%c->%c] %p\n", getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD).getNS(),
+//           address, old_state, DStateString(directory_block_info->getDState()), shmem_msg->getPerf());
+//
+//    MYLOG("End @ %lx", address);
+// }
+
+void DramDirectoryCntlr::processCommitFromLLC(const core_id_t sender, ShmemMsg *shmem_msg)
+{
+   const auto address = shmem_msg->getAddress();
+   const auto now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD);
+
+   MYLOG("Start @ %lx", address);
+
+   printf("[%lu]: Sending to DRAM [%lx]\n", now.getNS(), address);
+   sendDataToDram(address, shmem_msg->getRequester(), shmem_msg->getDataBuf(), now);
+
+   auto* directory_entry = m_dram_directory_cache->getDirectoryEntry(address);
+   assert(directory_entry);
+   assert(directory_entry->hasSharer(sender));
+   directory_entry->setOwner(INVALID_CORE_ID);
+
+   auto* directory_block_info = directory_entry->getDirectoryBlockInfo();
+   const auto old_state = DStateString(directory_block_info->getDState());
+   directory_block_info->setDState(DirectoryState::SHARED);
+   // shmem_msg->getPerf()->updateTime(getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD));
+   printf("[%lu]: Endereco [%lx] [%c->%c] %p\n", getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD).getNS(),
+          address, old_state, DStateString(directory_block_info->getDState()), shmem_msg->getPerf());
+
+   MYLOG("End @ %lx", address);
+
+   // const auto address = shmem_msg->getAddress();
+   // const auto now = getShmemPerfModel()->getElapsedTime(ShmemPerfModel::_SIM_THREAD);
+   // const auto directory_entry = m_dram_directory_cache->getDirectoryEntry(address);
+   //
+   // MYLOG("Start @ %lx from sender %d", address, sender);
+   //
+   // assert(directory_entry);
+   // assert(directory_entry->hasSharer(sender));
+   //
+   // const auto directory_block_info   = directory_entry->getDirectoryBlockInfo();
+   // const auto curr_dstate = directory_block_info->getDState();
+   //
+   // LOG_ASSERT_ERROR(curr_dstate == DirectoryState::MODIFIED || curr_dstate == DirectoryState::EXCLUSIVE,
+   //                  "COMMIT_REQ for address %lx in wrong state %d", address, curr_dstate);
+   // LOG_ASSERT_ERROR(directory_entry->getOwner() == sender,
+   //                  "COMMIT_REQ for address %lx from non-owner %d (owner is %d)", address, sender, directory_entry->getOwner());
+   //
+   // sendDataToDram(address, shmem_msg->getRequester(), shmem_msg->getDataBuf(), now);
+   //
+   // directory_block_info->setDState(DirectoryState::SHARED);
+   // directory_entry->setOwner(INVALID_CORE_ID);
+   //
+   // getMemoryManager()->sendMsg(ShmemMsg::COMMIT_REP,
+   //                             MemComponent::TAG_DIR, MemComponent::L2_CACHE,
+   //                             shmem_msg->getRequester(),// requester
+   //                             sender,                   // receiver
+   //                             address,
+   //                             nullptr, 0,
+   //                             HitWhere::UNKNOWN, shmem_msg->getPerf(), ShmemPerfModel::_SIM_THREAD);
+
+   // If there was a pending request for this address, it may have been blocked because this block
+   // was in state M. Now that it's in state S, we can try reprocessing it. This part is optional
+   // and depends on the desired complexity. For simplicity, we can assume there are no pending
+   // requests for this use case.
+
    MYLOG("End @ %lx", address);
 }
 

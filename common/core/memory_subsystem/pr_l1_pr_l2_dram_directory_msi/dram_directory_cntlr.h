@@ -53,6 +53,9 @@ namespace PrL1PrL2DramDirectoryMSI
 
          void processUpgradeReqFromL2Cache(ShmemReq* shmem_req, Byte* cached_data_buf = NULL);
 
+         // NVM Checkpoint Support (Added by Kleber Kruger)
+         void processCommitFromLLC(core_id_t sender, ShmemMsg *shmem_msg);
+
          void processInvRepFromL2Cache(core_id_t sender, ShmemMsg* shmem_msg);
          void processFlushRepFromL2Cache(core_id_t sender, ShmemMsg* shmem_msg);
          void processWbRepFromL2Cache(core_id_t sender, ShmemMsg* shmem_msg);

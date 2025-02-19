@@ -86,6 +86,7 @@ public:
 protected:
    friend class SpawnInstruction;
    friend class FastforwardPerformanceModel;
+   friend class DramCntlrInterface;
 
    void setElapsedTime(SubsecondTime time);
    void incrementElapsedTime(SubsecondTime time) { m_elapsed_time.addLatency(time); }

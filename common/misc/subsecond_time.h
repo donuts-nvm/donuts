@@ -153,6 +153,7 @@ public:
    friend inline bool operator<=(const SubsecondTime& lhs, const SubsecondTime& rhs);
    friend inline bool operator>=(const SubsecondTime& lhs, const SubsecondTime& rhs);
    friend inline bool operator> (const SubsecondTime& lhs, const SubsecondTime& rhs);
+   friend inline auto operator<=>(const SubsecondTime& lhs, const SubsecondTime& rhs);
    friend inline void atomic_add_subsecondtime(SubsecondTime &src_dest, const SubsecondTime &src);
 
    // Output stream operators
@@ -283,6 +284,10 @@ inline bool operator>=(const SubsecondTime& lhs, const SubsecondTime& rhs)
 inline bool operator> (const SubsecondTime& lhs, const SubsecondTime& rhs)
 {
    return  operator< (rhs,lhs);
+}
+inline auto operator<=>(const SubsecondTime& lhs, const SubsecondTime& rhs)
+{
+   return lhs.m_time <=> rhs.m_time;
 }
 
 inline void atomic_add_subsecondtime(SubsecondTime &src_dest, const SubsecondTime &src)

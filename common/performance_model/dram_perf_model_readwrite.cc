@@ -10,13 +10,13 @@ DramPerfModelReadWrite::DramPerfModelReadWrite(core_id_t core_id,
    DramPerfModel(core_id, cache_block_size),
    m_queue_model_read(NULL),
    m_queue_model_write(NULL),
-   m_dram_bandwidth(8 * Sim()->getCfg()->getFloat("perf_model/dram/per_controller_bandwidth")), // Convert bytes to bits
+   m_dram_bandwidth(loadBandwidth()),
    m_shared_readwrite(Sim()->getCfg()->getBool("perf_model/dram/readwrite/shared")),
    m_total_read_queueing_delay(SubsecondTime::Zero()),
    m_total_write_queueing_delay(SubsecondTime::Zero()),
    m_total_access_latency(SubsecondTime::Zero())
 {
-   m_dram_access_cost = SubsecondTime::FS() * static_cast<uint64_t>(TimeConverter<float>::NStoFS(Sim()->getCfg()->getFloat("perf_model/dram/latency"))); // Operate in fs for higher precision before converting to uint64_t/SubsecondTime
+   m_dram_access_cost = loadLatency();
 
    if (Sim()->getCfg()->getBool("perf_model/dram/queue_model/enabled"))
    {

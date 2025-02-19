@@ -3,7 +3,7 @@
 
 #include "cache_set.h"
 
-class CacheSetRoundRobin : public CacheSet
+class CacheSetRoundRobin : public virtual CacheSet
 {
    public:
       CacheSetRoundRobin(CacheBase::cache_t cache_type,

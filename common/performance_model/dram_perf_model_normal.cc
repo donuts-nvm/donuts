@@ -9,11 +9,11 @@ DramPerfModelNormal::DramPerfModelNormal(core_id_t core_id,
       UInt32 cache_block_size):
    DramPerfModel(core_id, cache_block_size),
    m_queue_model(NULL),
-   m_dram_bandwidth(8 * Sim()->getCfg()->getFloat("perf_model/dram/per_controller_bandwidth")), // Convert bytes to bits
+   m_dram_bandwidth(loadBandwidth()),
    m_total_queueing_delay(SubsecondTime::Zero()),
    m_total_access_latency(SubsecondTime::Zero())
 {
-   SubsecondTime dram_latency = SubsecondTime::FS() * static_cast<uint64_t>(TimeConverter<float>::NStoFS(Sim()->getCfg()->getFloat("perf_model/dram/latency"))); // Operate in fs for higher precision before converting to uint64_t/SubsecondTime
+   SubsecondTime dram_latency = loadLatency();
    SubsecondTime dram_latency_stddev = SubsecondTime::FS() * static_cast<uint64_t>(TimeConverter<float>::NStoFS(Sim()->getCfg()->getFloat("perf_model/dram/normal/standard_deviation")));
 
    m_dram_access_cost = new NormalTimeDistribution(dram_latency, dram_latency_stddev);

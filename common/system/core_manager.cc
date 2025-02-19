@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <algorithm>
 #include <vector>
+#include <numeric>
 
 #include "core_manager.h"
 #include "core.h"

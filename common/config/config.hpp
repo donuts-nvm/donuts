@@ -139,6 +139,8 @@ namespace config
             double getFloat(const String & path) { return getFloatArray(path, UINT64_MAX); }
             double getFloatArray(const String & path, UInt64 index);
 
+            std::size_t getArraySize(const String & path);
+
             /*! \brief Returns a string representation of the tree starting at the specified section
              * \param current The root of the tree for which we are creating a string representation.
              */
