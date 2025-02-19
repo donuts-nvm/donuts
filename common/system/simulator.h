@@ -4,8 +4,10 @@
 #include "config.h"
 #include "log.h"
 #include "inst_mode.h"
+#include "project.h"
 
 #include <decoder.h>
+#include <memory>
 
 class _Thread;
 class SyscallServer;
@@ -29,6 +31,7 @@ class FaultinjectionManager;
 class TagsManager;
 class RoutineTracer;
 class MemoryTracker;
+class EpochManager;
 namespace config { class Config; }
 
 class Simulator
@@ -72,6 +75,13 @@ public:
    MemoryTracker *getMemoryTracker() { return m_memory_tracker; }
    void setMemoryTracker(MemoryTracker *memory_tracker) { m_memory_tracker = memory_tracker; }
 
+   [[nodiscard]] ProjectType getProjectType() const { return m_project.getType(); }
+   [[nodiscard]] const char *getProjectName() const { return m_project.getName(); }
+   [[nodiscard]] EpochManager& getEpochManager() const {
+      LOG_ASSERT_ERROR(m_epoch_manager, "The EpochManager is null to the specified project '%s'", getProjectName());
+      return *m_epoch_manager;
+   }
+
    bool isRunning() { return m_running; }
    static void enablePerformanceModels();
    static void disablePerformanceModels();
@@ -82,7 +92,7 @@ public:
    // Access to the Decoder library for the simulator run
    void createDecoder();
    dl::Decoder *getDecoder();
-   
+
 private:
    Config m_config;
    Log m_log;
@@ -107,6 +117,9 @@ private:
    RoutineTracer *m_rtn_tracer;
    MemoryTracker *m_memory_tracker;
 
+   Project m_project;
+   std::unique_ptr<EpochManager> m_epoch_manager;
+
    bool m_running;
    bool m_inst_mode_output;
 
@@ -115,7 +128,7 @@ private:
    static config::Config *m_config_file;
    static bool m_config_file_allowed;
    static Config::SimulationMode m_mode;
-   
+
    // Object to access the decoder library with the correct configuration
    static dl::Decoder *m_decoder;
    // Surrogate to create a Decoder object for a specific architecture

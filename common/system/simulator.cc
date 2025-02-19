@@ -27,6 +27,7 @@
 #include "instruction_tracer.h"
 #include "memory_tracker.h"
 #include "circular_log.h"
+#include "epoch_manager.h"
 
 #include <sstream>
 
@@ -71,7 +72,7 @@ void Simulator::createDecoder()
         dlm = dl::DL_MODE_32;
       else
         LOG_PRINT_ERROR("Unknown mode %s, should be 32 or 64 (bits).", mode.c_str());
-      // Get syntax 
+      // Get syntax
       dl::dl_syntax dls;
       String syntax = Sim()->getCfg()->getString("general/syntax");
       if (dla == dl::DL_ARCH_RISCV)
@@ -130,10 +131,10 @@ Simulator::Simulator()
 void Simulator::start()
 {
    LOG_PRINT("In Simulator ctor.");
-   
+
    // create a new Decoder object for this Simulator
    createDecoder();
-   
+
    m_hooks_manager = new HooksManager();
    m_syscall_server = new SyscallServer();
    m_sync_server = new SyncServer();
@@ -144,6 +145,7 @@ void Simulator::start()
    m_thread_stats_manager = new ThreadStatsManager();
    m_clock_skew_minimization_manager = ClockSkewMinimizationManager::create();
    m_clock_skew_minimization_server = ClockSkewMinimizationServer::create();
+   m_epoch_manager = EpochManager::create();
    m_core_manager = new CoreManager();
    m_sim_thread_manager = new SimThreadManager();
    m_sampling_manager = new SamplingManager();
@@ -316,6 +318,7 @@ void Simulator::printInstModeSummary()
          LOG_PRINT_ERROR("Unknown simulation mode");
    }
    printf(" frontend\n");
+   printf("[SNIPER] Running project [ %s ]\n", m_project.getName());
    switch(getConfig()->getSimulationROI())
    {
       case Config::ROI_FULL:
@@ -327,7 +330,7 @@ void Simulator::printInstModeSummary()
          printf("[SNIPER] Running post-ROI region in %s mode\n", inst_mode_names[InstMode::inst_mode_end]);
          break;
       case Config::ROI_SCRIPT:
-         printf("[SNIPER] Running in script-driven instrumenation mode (--roi-script)\n");
+         printf("[SNIPER] Running in script-driven instrumentation mode (--roi-script)\n");
          printf("[SNIPER] Using %s mode for warmup\n", inst_mode_names[InstMode::inst_mode_init]);
          printf("[SNIPER] Using %s mode for detailed\n", inst_mode_names[InstMode::inst_mode_roi]);
          // Script should print something here...
