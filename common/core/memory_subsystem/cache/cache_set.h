@@ -23,10 +23,13 @@ class CacheSet
 {
    public:
 
-      static CacheSet* createCacheSet(String cfgname, core_id_t core_id, String replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info = NULL);
-      static CacheSetInfo* createCacheSetInfo(String name, String cfgname, core_id_t core_id, String replacement_policy, UInt32 associativity);
-      static CacheBase::ReplacementPolicy parsePolicyType(String policy);
-      static UInt8 getNumQBSAttempts(CacheBase::ReplacementPolicy, String cfgname, core_id_t core_id);
+      static CacheSet* createCacheSet(const String& cfgname, core_id_t core_id, CacheBase::ReplacementPolicy replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize,
+                                      CacheSetInfo* set_info = nullptr);
+      static CacheSet* createCacheSet(CacheBase::ReplacementPolicy replacement_policy, CacheBase::cache_t cache_type, UInt32 associativity, UInt32 blocksize,
+                                      CacheSetInfo* set_info, UInt8 num_attempts, UInt8 rrip_numbits);
+      static CacheSetInfo* createCacheSetInfo(const String& name, const String& cfgname, core_id_t core_id, CacheBase::ReplacementPolicy replacement_policy, UInt32 associativity);
+      static CacheBase::ReplacementPolicy parsePolicyType(const String& policy);
+      static UInt8 getNumQBSAttempts(CacheBase::ReplacementPolicy policy, const String& cfgname, core_id_t core_id);
 
    protected:
       CacheBlockInfo** m_cache_block_info_array;
@@ -59,7 +62,7 @@ class CacheSet
       virtual UInt32 getReplacementIndex(CacheCntlr *cntlr) = 0;
       virtual void updateReplacementIndex(UInt32) = 0;
 
-      bool isValidReplacement(UInt32 index);
+      virtual bool isValidReplacement(UInt32 index);
 };
 
 #endif /* CACHE_SET_H */

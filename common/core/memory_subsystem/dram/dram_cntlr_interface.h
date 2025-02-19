@@ -28,8 +28,13 @@ class DramCntlrInterface
       {
          READ = 0,
          WRITE,
+         LOG,
          NUM_ACCESS_TYPES
       } access_t;
+
+      enum class technology_t { DRAM, NVM };
+
+      static std::pair<technology_t, String> getTechnology();
 
       DramCntlrInterface(MemoryManagerBase* memory_manager, ShmemPerfModel* shmem_perf_model, UInt32 cache_block_size)
          : m_memory_manager(memory_manager)

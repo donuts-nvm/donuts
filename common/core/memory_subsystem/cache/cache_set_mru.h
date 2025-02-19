@@ -3,7 +3,7 @@
 
 #include "cache_set.h"
 
-class CacheSetMRU : public CacheSet
+class CacheSetMRU : public virtual CacheSet
 {
    public:
       CacheSetMRU(CacheBase::cache_t cache_type,

@@ -105,6 +105,7 @@ namespace PrL1PrL2DramDirectoryMSI
          case SH_REP:
          case FLUSH_REP:
          case WB_REP:
+         case COMMIT_REQ:
          case DRAM_WRITE_REQ:
          case DRAM_READ_REP:
             // msg_type + address + cache_block

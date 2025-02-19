@@ -118,7 +118,7 @@ CacheBase::splitAddress(const IntPtr addr, IntPtr& tag, UInt32& set_index,
 }
 
 IntPtr
-CacheBase::tagToAddress(const IntPtr tag)
+CacheBase::tagToAddress(const IntPtr tag) const
 {
    return tag << m_log_blocksize;
 }

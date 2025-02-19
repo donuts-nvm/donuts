@@ -133,6 +133,9 @@ class Core
          m_spin_elapsed_time += elapsed_time;
       }
 
+      [[nodiscard]] IntPtr getProgramCounter() const { return m_program_counter.i_pc; }
+      [[nodiscard]] IntPtr getLastPCToDCache() const { return m_program_counter.d_pc; }
+
    private:
       core_id_t m_core_id;
       const ComponentPeriod* m_dvfs_domain;
@@ -169,6 +172,12 @@ class Core
       UInt64 m_spin_loops;
       UInt64 m_spin_instructions;
       SubsecondTime m_spin_elapsed_time;
+
+      // Added by Kleber Kruger to track PC
+      struct program_counter_t {
+         IntPtr i_pc { 0 };   // last value sent to i_cache
+         IntPtr d_pc { 0 };   // last value sent to d_cache
+      } m_program_counter;
 
    protected:
       // Optimized version of countInstruction has direct access to m_instructions and m_instructions_callback

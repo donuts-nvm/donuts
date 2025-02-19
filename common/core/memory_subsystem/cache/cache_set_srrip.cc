@@ -9,8 +9,14 @@ CacheSetSRRIP::CacheSetSRRIP(
       String cfgname, core_id_t core_id,
       CacheBase::cache_t cache_type,
       UInt32 associativity, UInt32 blocksize, CacheSetInfoLRU* set_info, UInt8 num_attempts)
+   : CacheSetSRRIP(cache_type, associativity, blocksize, set_info, num_attempts,
+         getNumBits(CacheBase::SRRIP, cfgname, core_id))
+{ }
+
+CacheSetSRRIP::CacheSetSRRIP(const CacheBase::cache_t cache_type, const UInt32 associativity, const UInt32 blocksize,
+                             CacheSetInfoLRU* set_info, const UInt8 num_attempts, const UInt8 rrip_numbits)
    : CacheSet(cache_type, associativity, blocksize)
-   , m_rrip_numbits(Sim()->getCfg()->getIntArray(cfgname + "/srrip/bits", core_id))
+   , m_rrip_numbits(rrip_numbits)
    , m_rrip_max((1 << m_rrip_numbits) - 1)
    , m_rrip_insert(m_rrip_max - 1)
    , m_num_attempts(num_attempts)
@@ -102,4 +108,11 @@ CacheSetSRRIP::updateReplacementIndex(UInt32 accessed_index)
 
    if (m_rrip_bits[accessed_index] > 0)
       m_rrip_bits[accessed_index]--;
+}
+
+UInt8
+CacheSetSRRIP::getNumBits(const CacheBase::ReplacementPolicy policy, const String& cfgname, const core_id_t core_id)
+{
+   const auto key = cfgname + "/srrip/bits";
+   return policy == CacheBase::SRRIP ? Sim()->getCfg()->getIntArray(key, core_id) : 0;
 }

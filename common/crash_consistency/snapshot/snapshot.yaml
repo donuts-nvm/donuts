@@ -1,0 +1,68 @@
+system_snapshot:
+  global_time: 1404200
+  cores_snapshot:
+    cores:
+      - id: 0
+        pc: 0x7b0a6e6b326e
+        pc_dcache: 0x7b0a6e6b326e
+        instructions: 1532635
+        cycles: 3735180
+        epoch_id: 33
+      - id: 1
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 1404200
+        epoch_id: 33
+      - id: 2
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 3735180
+        epoch_id: 33
+      - id: 3
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 2808400
+        epoch_id: 33
+      - id: 4
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 3735180
+        epoch_id: 33
+      - id: 5
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 3735180
+        epoch_id: 33
+      - id: 6
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 3735180
+        epoch_id: 33
+      - id: 7
+        pc: 0x0
+        pc_dcache: 0x0
+        instructions: 0
+        cycles: 3735180
+        epoch_id: 33
+    total_instructions: 1532635
+  memory_snapshot:
+    reads: 18779
+    writes: 3949
+    accesses: 22728
+    devices:
+      - dram:
+          reads: 18779
+          writes: 3949
+          accesses: 22728
+      - nvm:
+          reads: 0
+          writes: 0
+          logs: 0
+          accesses: 0
+          log_flushes: 0
