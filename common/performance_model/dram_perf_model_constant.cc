@@ -9,11 +9,12 @@ DramPerfModelConstant::DramPerfModelConstant(core_id_t core_id,
       UInt32 cache_block_size):
    DramPerfModel(core_id, cache_block_size),
    m_queue_model(NULL),
-   m_dram_bandwidth(8 * Sim()->getCfg()->getFloat("perf_model/dram/per_controller_bandwidth")), // Convert bytes to bits
+   m_dram_bandwidth(loadBandwidth()),
    m_total_queueing_delay(SubsecondTime::Zero()),
    m_total_access_latency(SubsecondTime::Zero())
 {
-   m_dram_access_cost = SubsecondTime::FS() * static_cast<uint64_t>(TimeConverter<float>::NStoFS(Sim()->getCfg()->getFloat("perf_model/dram/latency"))); // Operate in fs for higher precision before converting to uint64_t/SubsecondTime
+   m_dram_access_cost = loadLatency();
+   printf("DramPerfModelConstant [%p]: %.1f\n", this, loadBandwidth() / 8);
 
    if (Sim()->getCfg()->getBool("perf_model/dram/queue_model/enabled"))
    {

@@ -1,0 +1,95 @@
+{
+  "global_time": 2006000,
+  "cores_snapshot": {
+    "cores": [
+      {
+        "id": 0,
+        "pc": "5e0a28455fe4",
+        "pc_dcache": "5e0a28455fe4",
+        "instructions": 2346328,
+        "cycles": 5335972,
+        "epoch_id": 50
+      },
+      {
+        "id": 1,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 2006000,
+        "epoch_id": 50
+      },
+      {
+        "id": 2,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 5335972,
+        "epoch_id": 50
+      },
+      {
+        "id": 3,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 4012000,
+        "epoch_id": 50
+      },
+      {
+        "id": 4,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 5335972,
+        "epoch_id": 50
+      },
+      {
+        "id": 5,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 5335972,
+        "epoch_id": 50
+      },
+      {
+        "id": 6,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 5335972,
+        "epoch_id": 50
+      },
+      {
+        "id": 7,
+        "pc": 0,
+        "pc_dcache": 0,
+        "instructions": 0,
+        "cycles": 5335972,
+        "epoch_id": 50
+      }
+    ],
+    "total_instructions": 2346328
+  },
+  "memory_snapshot": {
+    "reads": 30995,
+    "writes": 4829,
+    "accesses": 35824,
+    "devices": [
+      {
+        "dram": {
+          "reads": 30995,
+          "writes": 4829,
+          "accesses": 35824
+        }
+      },
+      {
+        "nvm": {
+          "reads": 0,
+          "writes": 0,
+          "logs": 0,
+          "log_flushes": 0,
+          "accesses": 0
+        }
+      }
+    ]
+  }
+}

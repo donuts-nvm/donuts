@@ -240,4 +240,16 @@ namespace config
         return getKey(path,index).getFloat();
     }
 
+    std::size_t Config::getArraySize(const String & path) {
+        auto [parent_path, key] = splitPath(path);
+        const auto& section = getSection_unsafe(parent_path);
+
+        if (section.getKeys().contains(key))
+            return 1;
+        if (section.getArrayKeys().contains(key))
+            return section.getArrayKeys().at(key).size();
+
+        Error("Configuration value %s not found.", path.c_str());
+    }
+
 }//end of namespace config

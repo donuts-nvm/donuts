@@ -229,9 +229,8 @@ MemoryManager::MemoryManager(Core* core,
    {
       m_dram_cntlr_present = true;
 
-      m_dram_cntlr = new PrL1PrL2DramDirectoryMSI::DramCntlr(this,
-            getShmemPerfModel(),
-            getCacheBlockSize());
+      m_dram_cntlr = PrL1PrL2DramDirectoryMSI::DramCntlr::create(this, getShmemPerfModel(), getCacheBlockSize());
+
       Sim()->getStatsManager()->logTopology("dram-cntlr", core->getId(), core->getId());
 
       if (Sim()->getCfg()->getBoolArray("perf_model/dram/cache/enabled", core->getId()))
@@ -275,7 +274,7 @@ MemoryManager::MemoryManager(Core* core,
    }
 
    for(UInt32 i = MemComponent::FIRST_LEVEL_CACHE; i <= (UInt32)m_last_level_cache; ++i) {
-      CacheCntlr* cache_cntlr = new CacheCntlr(
+      CacheCntlr* cache_cntlr = CacheCntlr::create(
          (MemComponent::component_t)i,
          cache_names[(MemComponent::component_t)i],
          getCore()->getId(),

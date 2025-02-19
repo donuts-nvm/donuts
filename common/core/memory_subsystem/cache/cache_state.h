@@ -38,6 +38,23 @@ class CacheState
          return (cstate == MODIFIED);
       }
 
+      char toChar()
+      {
+            switch(cstate)
+            {
+               case INVALID:           return 'I';
+               case SHARED:            return 'S';
+               case SHARED_UPGRADING:  return 'u';
+               case MODIFIED:          return 'M';
+               case EXCLUSIVE:         return 'E';
+               case OWNED:             return 'O';
+               case INVALID_COLD:      return '_';
+               case INVALID_EVICT:     return 'e';
+               case INVALID_COHERENCY: return 'c';
+               default:                return '?';
+            }
+      }
+
    private:
       cstate_t cstate;
 

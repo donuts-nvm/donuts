@@ -25,6 +25,10 @@ class DramPerfModel
       bool m_enabled;
       UInt64 m_num_accesses;
 
+   static float loadDramConfig(const String &param);
+   static float loadBandwidth();
+   static SubsecondTime loadLatency();
+
    public:
       static DramPerfModel* createDramPerfModel(core_id_t core_id, UInt32 cache_block_size);
 

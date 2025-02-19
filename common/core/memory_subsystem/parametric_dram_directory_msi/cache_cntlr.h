@@ -38,6 +38,9 @@ namespace ParametricDramDirectoryMSI
 class FaultInjector;
 class ShmemPerf;
 
+// Added by Kleber Kruger to support other cache controllers
+namespace donuts { class CacheCntlr; }
+
 // Maximum size of the list of addresses to prefetch
 #define PREFETCH_MAX_QUEUE_LENGTH 32
 // Time between prefetches
@@ -196,11 +199,12 @@ namespace ParametricDramDirectoryMSI
          ~CacheMasterCntlr();
 
          friend class CacheCntlr;
+         friend class donuts::CacheCntlr;
    };
 
    class CacheCntlr : ::CacheCntlr
    {
-      private:
+      protected:
          // Data Members
          MemComponent::component_t m_mem_component;
          MemoryManager* m_memory_manager;
@@ -406,8 +410,21 @@ namespace ParametricDramDirectoryMSI
          void enable() { m_master->m_cache->enable(); }
          void disable() { m_master->m_cache->disable(); }
 
+         static CacheCntlr *create(MemComponent::component_t mem_component,
+                                   const String& name,
+                                   core_id_t core_id,
+                                   MemoryManager *memory_manager,
+                                   AddressHomeLookup *tag_directory_home_lookup,
+                                   Semaphore *user_thread_sem,
+                                   Semaphore *network_thread_sem,
+                                   UInt32 cache_block_size,
+                                   CacheParameters &cache_params,
+                                   ShmemPerfModel *shmem_perf_model,
+                                   bool is_last_level_cache);
+
          friend class CacheCntlrList;
          friend class MemoryManager;
+         friend class donuts::CacheCntlr;
    };
 
 }

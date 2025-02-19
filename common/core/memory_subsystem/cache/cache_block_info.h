@@ -26,6 +26,7 @@ class CacheBlockInfo
       UInt64 m_owner;
       BitsUsedType m_used;
       UInt8 m_options;  // large enough to hold a bitfield for all available option_t's
+      UInt64 m_eid;
 
       static const char* option_names[];
 
@@ -41,15 +42,20 @@ class CacheBlockInfo
       virtual void clone(CacheBlockInfo* cache_block_info);
 
       bool isValid() const { return (m_tag != ((IntPtr) ~0)); }
+      bool isDirty() const { return m_cstate == CacheState::MODIFIED; }
 
       IntPtr getTag() const { return m_tag; }
       CacheState::cstate_t getCState() const { return m_cstate; }
+      [[nodiscard]] char getCStateString() const { return CacheState(m_cstate).toChar(); }
 
       void setTag(IntPtr tag) { m_tag = tag; }
-      void setCState(CacheState::cstate_t cstate) { m_cstate = cstate; }
+      void setCState(CacheState::cstate_t cstate);
 
       UInt64 getOwner() const { return m_owner; }
       void setOwner(UInt64 owner) { m_owner = owner; }
+
+      [[nodiscard]] UInt64 getEpochID() const { return m_eid; }
+      void setEpochID(const UInt64 eid) { m_eid = eid; }
 
       bool hasOption(option_t option) { return m_options & (1 << option); }
       void setOption(option_t option) { m_options |= (1 << option); }
@@ -62,11 +68,14 @@ class CacheBlockInfo
       static const char* getOptionName(option_t option);
 };
 
+enum class CheckpointReason;
+
 class CacheCntlr
 {
    public:
       virtual bool isInLowerLevelCache(CacheBlockInfo *block_info) { return false; }
       virtual void incrementQBSLookupCost() {}
+      virtual void checkpoint(const CheckpointReason reason, const UInt32 evicted_set_index) {}
 };
 
 #endif /* __CACHE_BLOCK_INFO_H__ */
