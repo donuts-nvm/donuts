@@ -3,8 +3,8 @@
 #include "subsecond_time.h"
 #include "thread_manager.h"
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 #include <functional>
 
 class HookType
@@ -101,16 +101,16 @@ public:
    };
 
    using HookCallbackFunc    = SInt64 (*)(UInt64, UInt64);
-   using HookNewCallbackFunc = std::function<SInt64(UInt64, UInt64)>;
+   using HookNewCallbackFunc = std::function<SInt64(UInt64)>;
 
    struct HookCallback
    {
       HookNewCallbackFunc func{};
-      UInt64 arg{};
+      UInt64 obj{};
       HookCallbackOrder order;
 
-      HookCallback(HookCallbackFunc _func, const UInt64 _arg, const HookCallbackOrder _order) :
-          func(std::function(_func)), arg(_arg), order(_order) {}
+      HookCallback(HookCallbackFunc _func, const UInt64 _obj, const HookCallbackOrder _order) :
+          func([_func, _obj](const UInt64 arg2) { return _func(_obj, arg2); }), obj(_obj), order(_order) {}
 
       HookCallback(const HookNewCallbackFunc& _func, const HookCallbackOrder _order) :
           func(_func), order(_order) {}

@@ -18,7 +18,7 @@ SInt64 HooksManager::callHooks(const HookType::hook_type_t type, const UInt64 ar
       {
          if (callback.order == static_cast<HookCallbackOrder>(order))
          {
-            if (const auto result = callback.func(callback.arg, argument); expect_return && result != -1)
+            if (const auto result = callback.func(argument); expect_return && result != -1)
                return result;
          }
       }
