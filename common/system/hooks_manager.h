@@ -78,7 +78,7 @@ public:
       "HOOK_EPOCH_TIMEOUT_INS"
    };
 
-   static_assert(std::size(hook_type_names) == static_cast<std::size_t>(hook_type_t::HOOK_TYPES_MAX),
+   static_assert(std::size(hook_type_names) == static_cast<std::size_t>(HOOK_TYPES_MAX),
                  "Mismatch in HookType::hook_type_t and HookType::hook_type_names");
 };
 
@@ -146,8 +146,36 @@ public:
    void fini();
 
    void registerHook(HookType::hook_type_t type, HookCallbackFunc func, UInt64 argument, HookCallbackOrder order = ORDER_NOTIFY_PRE);
-   void registerHook(HookType::hook_type_t type, const HookNewCallbackFunc& func, HookCallbackOrder order = ORDER_NOTIFY_PRE);
+   // void registerHook(HookType::hook_type_t type, const HookNewCallbackFunc& func, HookCallbackOrder order = ORDER_NOTIFY_PRE);
+   void registerHook(HookType::hook_type_t type, std::invocable<UInt64> auto func, HookCallbackOrder order = ORDER_NOTIFY_PRE)
+      requires(std::convertible_to<std::invoke_result_t<decltype(func), UInt64>, SInt64> ||
+               std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>)
+   {
+      auto wrapper = [func](UInt64 arg) -> SInt64 {
+         if constexpr (std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>) {
+            func(arg);
+            return -1L;
+         } else {
+            return static_cast<SInt64>(func(arg));
+         }
+      };
+      m_registry[type].emplace_back(std::move(wrapper), order);
+   }
+
    SInt64 callHooks(HookType::hook_type_t type, UInt64 argument, bool expect_return = false);
+
+   // void registerHook2(HookType::hook_type_t type, std::invocable<UInt64> auto func)
+   //    requires (std::convertible_to<std::invoke_result_t<decltype(func), UInt64>, SInt64> ||
+   //        std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>)
+   // {
+   //    registerHook2(type, ORDER_NOTIFY_PRE, std::move(func));
+   // }
+   //
+   // void registerHook2(HookType::hook_type_t type, HookCallbackOrder order, std::invocable<UInt64> auto func)
+   //    requires (std::convertible_to<std::invoke_result_t<decltype(func), UInt64>, SInt64> ||
+   //           std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>)
+   // {
+   // }
 
 private:
    std::unordered_map<HookType::hook_type_t, std::vector<HookCallback>> m_registry{};

@@ -5,10 +5,10 @@ void HooksManager::registerHook(const HookType::hook_type_t type, const HookCall
    m_registry[type].emplace_back(func, argument, order);
 }
 
-void HooksManager::registerHook(const HookType::hook_type_t type, const HookNewCallbackFunc& func, const HookCallbackOrder order)
-{
-   m_registry[type].emplace_back(func, order);
-}
+// void HooksManager::registerHook(const HookType::hook_type_t type, const HookNewCallbackFunc& func, const HookCallbackOrder order)
+// {
+//    m_registry[type].emplace_back(func, order);
+// }
 
 SInt64 HooksManager::callHooks(const HookType::hook_type_t type, const UInt64 argument, const bool expect_return)
 {
