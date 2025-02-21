@@ -105,15 +105,12 @@ public:
 
    struct HookCallback
    {
-      HookNewCallbackFunc func{};
-      UInt64 obj{};
+      HookNewCallbackFunc func;
+      UInt64 obj;
       HookCallbackOrder order;
 
-      HookCallback(HookCallbackFunc _func, const UInt64 _obj, const HookCallbackOrder _order) :
-          func([_func, _obj](const UInt64 arg2) { return _func(_obj, arg2); }), obj(_obj), order(_order) {}
-
-      HookCallback(const HookNewCallbackFunc& _func, const HookCallbackOrder _order) :
-          func(_func), order(_order) {}
+      HookCallback(HookCallbackFunc _func, UInt64 _obj, HookCallbackOrder _order);
+      HookCallback(const HookNewCallbackFunc& _func, HookCallbackOrder _order);
    };
 
    struct ThreadCreate {
@@ -140,42 +137,27 @@ public:
       subsecond_time_t time{};
    };
 
-   HooksManager() = default;
-
    void init();
    void fini();
 
    void registerHook(HookType::hook_type_t type, HookCallbackFunc func, UInt64 argument, HookCallbackOrder order = ORDER_NOTIFY_PRE);
-   // void registerHook(HookType::hook_type_t type, const HookNewCallbackFunc& func, HookCallbackOrder order = ORDER_NOTIFY_PRE);
-   void registerHook(HookType::hook_type_t type, std::invocable<UInt64> auto func, HookCallbackOrder order = ORDER_NOTIFY_PRE)
+
+   void registerHook(HookType::hook_type_t type, std::invocable<UInt64> auto&& func, HookCallbackOrder order = ORDER_NOTIFY_PRE)
       requires(std::convertible_to<std::invoke_result_t<decltype(func), UInt64>, SInt64> ||
                std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>)
    {
-      auto wrapper = [func](UInt64 arg) -> SInt64 {
-         if constexpr (std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>) {
-            func(arg);
+      auto wrapper = [f = std::forward<decltype(func)>(func)](UInt64 arg) -> SInt64 {
+         if constexpr (std::same_as<std::invoke_result_t<decltype(f), UInt64>, void>) {
+            f(arg);
             return -1L;
          } else {
-            return static_cast<SInt64>(func(arg));
+            return static_cast<SInt64>(f(arg));
          }
       };
       m_registry[type].emplace_back(std::move(wrapper), order);
    }
 
    SInt64 callHooks(HookType::hook_type_t type, UInt64 argument, bool expect_return = false);
-
-   // void registerHook2(HookType::hook_type_t type, std::invocable<UInt64> auto func)
-   //    requires (std::convertible_to<std::invoke_result_t<decltype(func), UInt64>, SInt64> ||
-   //        std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>)
-   // {
-   //    registerHook2(type, ORDER_NOTIFY_PRE, std::move(func));
-   // }
-   //
-   // void registerHook2(HookType::hook_type_t type, HookCallbackOrder order, std::invocable<UInt64> auto func)
-   //    requires (std::convertible_to<std::invoke_result_t<decltype(func), UInt64>, SInt64> ||
-   //           std::same_as<std::invoke_result_t<decltype(func), UInt64>, void>)
-   // {
-   // }
 
 private:
    std::unordered_map<HookType::hook_type_t, std::vector<HookCallback>> m_registry{};
