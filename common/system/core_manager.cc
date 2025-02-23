@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <algorithm>
 #include <vector>
+#include <numeric>
 
 #include "core_manager.h"
 #include "core.h"
@@ -77,6 +78,16 @@ Core *CoreManager::getCoreFromID(core_id_t id)
 {
    LOG_ASSERT_ERROR(id < (core_id_t)Config::getSingleton()->getTotalCores(), "Illegal index in getCoreFromID!");
    return m_cores.at(id);
+}
+
+UInt64 CoreManager::getInstructionCount(const std::vector<core_id_t>& cores) const
+{
+   if (cores.empty()) {
+      return std::accumulate(m_cores.begin(), m_cores.end(), 0,
+                  [](const UInt64 sum, Core* core) { return sum + core->getInstructionCount(); });
+   }
+   return std::accumulate(cores.begin(), cores.end(), 0,
+               [this](const UInt64 sum, const core_id_t id) { return sum + m_cores[id]->getInstructionCount(); });
 }
 
 core_id_t CoreManager::registerSimThread(ThreadType type)

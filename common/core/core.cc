@@ -76,6 +76,7 @@ Core::Core(SInt32 id)
    , m_spin_loops(0)
    , m_spin_instructions(0)
    , m_spin_elapsed_time(SubsecondTime::Zero())
+   , m_program_counter({0, 0})
    , m_instructions(0)
    , m_instructions_callback(UINT64_MAX)
    , m_instructions_hpi_callback(0)
@@ -230,6 +231,9 @@ Core::readInstructionMemory(IntPtr address, UInt32 instruction_size)
    LOG_PRINT("Instruction: Address(0x%x), Size(%u), Start READ",
            address, instruction_size);
 
+   // Added by Kleber Kruger to track PC
+   m_program_counter.i_pc = address;
+
    UInt64 blockmask = ~(getMemoryManager()->getCacheBlockSize() - 1);
    bool single_cache_line = ((address & blockmask) == ((address + instruction_size - 1) & blockmask));
 
@@ -257,7 +261,7 @@ Core::readInstructionMemory(IntPtr address, UInt32 instruction_size)
 
    // Cases with multiple cache lines or when we are not sure that it will be a hit call into the caches
    return initiateMemoryAccess(MemComponent::L1_ICACHE,
-             Core::NONE, Core::READ, address & blockmask, NULL, getMemoryManager()->getCacheBlockSize(), MEM_MODELED_COUNT_TLBTIME, 0, SubsecondTime::MaxTime());
+             Core::NONE, Core::READ, address & blockmask, NULL, getMemoryManager()->getCacheBlockSize(), MEM_MODELED_COUNT_TLBTIME, address, SubsecondTime::MaxTime());
 }
 
 void Core::accessMemoryFast(bool icache, mem_op_t mem_op_type, IntPtr address)
@@ -361,6 +365,9 @@ Core::initiateMemoryAccess(MemComponent::component_t mem_component,
 
       if (m_cheetah_manager)
          m_cheetah_manager->access(mem_op_type, curr_addr_aligned);
+
+      // Added by Kleber Kruger to track last PC sent to DCache
+      if (mem_component == MemComponent::L1_DCACHE) m_program_counter.d_pc = eip;
 
       HitWhere::where_t this_hit_where = getMemoryManager()->coreInitiateMemoryAccess(
                mem_component,

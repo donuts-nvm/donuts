@@ -47,6 +47,8 @@ class CoreManager
 
       Core *getCoreFromID(core_id_t core_id);
 
+      [[nodiscard]] UInt64 getInstructionCount(const std::vector<core_id_t>& cores = {}) const;
+
       bool amiUserThread();
       bool amiCoreThread();
       bool amiSimThread();
