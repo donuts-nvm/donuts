@@ -132,20 +132,30 @@ CacheSet::getDataPtr(UInt32 line_index, UInt32 offset)
 }
 
 CacheSet*
-CacheSet::createCacheSet(String cfgname, core_id_t core_id,
-      String replacement_policy,
-      CacheBase::cache_t cache_type,
-      UInt32 associativity, UInt32 blocksize, CacheSetInfo* set_info)
+CacheSet::createCacheSet(const String& cfgname, const core_id_t core_id,
+      const CacheBase::ReplacementPolicy replacement_policy,
+      const CacheBase::cache_t cache_type,
+      const UInt32 associativity, const UInt32 blocksize, CacheSetInfo* set_info)
 {
-   CacheBase::ReplacementPolicy policy = parsePolicyType(replacement_policy);
-   switch(policy)
+   return createCacheSet(replacement_policy, cache_type, associativity, blocksize, set_info,
+                         getNumQBSAttempts(replacement_policy, cfgname, core_id),
+                         CacheSetSRRIP::getNumBits(replacement_policy, cfgname, core_id));
+}
+
+CacheSet*
+CacheSet::createCacheSet(const CacheBase::ReplacementPolicy replacement_policy,
+      const CacheBase::cache_t cache_type,
+      const UInt32 associativity, const UInt32 blocksize, CacheSetInfo* set_info,
+      const UInt8 num_attempts, const UInt8 rrip_numbits)
+{
+   switch (replacement_policy)
    {
       case CacheBase::ROUND_ROBIN:
          return new CacheSetRoundRobin(cache_type, associativity, blocksize);
 
       case CacheBase::LRU:
       case CacheBase::LRU_QBS:
-         return new CacheSetLRU(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetLRU(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), num_attempts);
 
       case CacheBase::NRU:
          return new CacheSetNRU(cache_type, associativity, blocksize);
@@ -161,38 +171,33 @@ CacheSet::createCacheSet(String cfgname, core_id_t core_id,
 
       case CacheBase::SRRIP:
       case CacheBase::SRRIP_QBS:
-         return new CacheSetSRRIP(cfgname, core_id, cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetSRRIP(cache_type, associativity, blocksize, dynamic_cast<CacheSetInfoLRU*>(set_info), num_attempts, rrip_numbits);
 
       case CacheBase::RANDOM:
          return new CacheSetRandom(cache_type, associativity, blocksize);
 
       default:
-         LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i",
-               policy);
-         break;
+         LOG_PRINT_ERROR("Unrecognized Cache Replacement Policy: %i", replacement_policy);
    }
-
-   return (CacheSet*) NULL;
 }
 
 CacheSetInfo*
-CacheSet::createCacheSetInfo(String name, String cfgname, core_id_t core_id, String replacement_policy, UInt32 associativity)
+CacheSet::createCacheSetInfo(const String& name, const String& cfgname, const core_id_t core_id, const CacheBase::ReplacementPolicy replacement_policy, const UInt32 associativity)
 {
-   CacheBase::ReplacementPolicy policy = parsePolicyType(replacement_policy);
-   switch(policy)
+   switch(replacement_policy)
    {
       case CacheBase::LRU:
       case CacheBase::LRU_QBS:
       case CacheBase::SRRIP:
       case CacheBase::SRRIP_QBS:
-         return new CacheSetInfoLRU(name, cfgname, core_id, associativity, getNumQBSAttempts(policy, cfgname, core_id));
+         return new CacheSetInfoLRU(name, cfgname, core_id, associativity, getNumQBSAttempts(replacement_policy, cfgname, core_id));
       default:
          return NULL;
    }
 }
 
 UInt8
-CacheSet::getNumQBSAttempts(CacheBase::ReplacementPolicy policy, String cfgname, core_id_t core_id)
+CacheSet::getNumQBSAttempts(const CacheBase::ReplacementPolicy policy, const String& cfgname, const core_id_t core_id)
 {
    switch(policy)
    {
@@ -205,7 +210,7 @@ CacheSet::getNumQBSAttempts(CacheBase::ReplacementPolicy policy, String cfgname,
 }
 
 CacheBase::ReplacementPolicy
-CacheSet::parsePolicyType(String policy)
+CacheSet::parsePolicyType(const String& policy)
 {
    if (policy == "round_robin")
       return CacheBase::ROUND_ROBIN;
@@ -233,12 +238,5 @@ CacheSet::parsePolicyType(String policy)
 
 bool CacheSet::isValidReplacement(UInt32 index)
 {
-   if (m_cache_block_info_array[index]->getCState() == CacheState::SHARED_UPGRADING)
-   {
-      return false;
-   }
-   else
-   {
-      return true;
-   }
+   return m_cache_block_info_array[index]->getCState() != CacheState::SHARED_UPGRADING;
 }
