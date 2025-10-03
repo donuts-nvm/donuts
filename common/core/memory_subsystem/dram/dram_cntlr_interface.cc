@@ -12,7 +12,6 @@ DramCntlrInterface::DramCntlrInterface(MemoryManagerBase* memory_manager, ShmemP
     m_memory_manager(memory_manager),
     m_shmem_perf_model(shmem_perf_model),
     m_cache_block_size(cache_block_size),
-    m_write_buffer("llc", memory_manager->getCore()->getId(), 32, true),
     m_write_queue_perf_model(DramWriteQueuePerfModel::create(memory_manager->getCore()->getId())) {}
 
 void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2DramDirectoryMSI::ShmemMsg* shmem_msg)
@@ -49,11 +48,12 @@ void DramCntlrInterface::handleMsgFromTagDirectory(core_id_t sender, PrL1PrL2Dra
 
       case PrL1PrL2DramDirectoryMSI::ShmemMsg::DRAM_WRITE_REQ:
       {
-         const auto [dram_latency, _] = putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
+         putDataToDram(shmem_msg->getAddress(), shmem_msg->getRequester(), shmem_msg->getDataBuf(), msg_time);
 
          if (m_write_queue_perf_model)
          {
             const SubsecondTime delay = m_write_queue_perf_model->sendAndCalculateDelay(shmem_msg->getAddress(), msg_time);
+            printf("--- now: %lu | delay: %lu\n", msg_time.getNS(), delay.getNS());
             Sim()->getCoreManager()->getCoreFromID(shmem_msg->getRequester())->getPerformanceModel()->incrementElapsedTime(delay);
          }
 

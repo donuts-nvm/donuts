@@ -13,8 +13,7 @@ DramWriteQueuePerfModel::DramWriteQueuePerfModel(const core_id_t core_id) :
     m_enqueue_cost(loadEnqueueLatency()),
     m_num_entries(loadNumEntries()),
     m_merging(loadMerging()),
-    burst_size(loadBurstSize()),
-    burst_latency(loadBurstLatency()),
+    m_burst_size(loadBurstSize()),
     m_total_latency(SubsecondTime::Zero()),
     m_total_queueing_delay(SubsecondTime::Zero()),
     m_num_accesses(0),
@@ -55,10 +54,12 @@ DramWriteQueuePerfModel::sendAndCalculateDelay(const IntPtr address, const Subse
          m_queue.pop_front();
          m_num_overflows++;
       }
-      m_queue.emplace_back(address, t_start + m_write_cost);
+      // m_queue.emplace_back(address, t_start + m_write_cost);
+      const auto cost = m_num_insertions % m_burst_size == 0 ? m_write_cost : SubsecondTime::Zero();
+      m_queue.emplace_back(address, t_start + cost);
       m_num_insertions++;
 
-      // print();
+      print();
    }
    m_num_accesses++;
    m_time += delay;
@@ -119,15 +120,6 @@ UInt8 DramWriteQueuePerfModel::loadBurstSize()
    LOG_ASSERT_ERROR(value >= 1 && value <= UINT8_MAX, "Invalid value for ['%s']", key.c_str());
 
    return static_cast<UInt8>(value);
-}
-
-SubsecondTime DramWriteQueuePerfModel::loadBurstLatency()
-{
-   const String key = "perf_model/dram/write_queue/burst_latency";
-   const auto value = Sim()->getCfg()->hasKey(key) ? Sim()->getCfg()->getInt(key) : 0;
-   LOG_ASSERT_ERROR(value >= 0 && value <= UINT16_MAX, "Invalid value for ['%s']", key.c_str());
-
-   return SubsecondTime::NS(value);
 }
 
 std::unique_ptr<DramWriteQueuePerfModel>

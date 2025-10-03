@@ -23,15 +23,13 @@ private:
    static UInt32 loadNumEntries();
    static bool loadMerging();
    static UInt8 loadBurstSize();
-   static SubsecondTime loadBurstLatency();
 
    SubsecondTime m_time;
    SubsecondTime m_write_cost;
    SubsecondTime m_enqueue_cost;
    UInt32 m_num_entries;
    bool m_merging;
-   UInt8 burst_size;
-   SubsecondTime burst_latency;
+   UInt8 m_burst_size;
 
    std::deque<std::pair<IntPtr, SubsecondTime>> m_queue;
 
