@@ -22,10 +22,9 @@ CacheCntlr::CacheCntlr(const MemComponent::component_t mem_component,
     ParametricDramDirectoryMSI::CacheCntlr(mem_component, name, core_id, memory_manager, tag_directory_home_lookup,
                                            user_thread_sem, network_thread_sem, cache_block_size, cache_params,
                                            shmem_perf_model, is_last_level_cache),
-    m_epoch_cntlr(epoch_cntlr),
-    m_persistence_policy(getPersistencePolicy())
+    m_epoch_cntlr(epoch_cntlr)
 {
-   // printf("Cache %s (%p) | CacheCntlr (%p) | Core %u-%u\n", getCache()->getName().c_str(), getCache(), this, m_core_id_master, m_core_id);
+   printf("Cache %s (%p) | CacheCntlr (%p) | Core %u-%u\n", getCache()->getName().c_str(), getCache(), this, m_core_id_master, m_core_id);
 
    if (is_last_level_cache)
    {
@@ -102,7 +101,9 @@ void CacheCntlr::addDirtyBlocksFromSet(std::queue<CacheBlockInfo*>& dirty_blocks
 std::queue<CacheBlockInfo*>
 CacheCntlr::selectDirtyBlocks(const UInt32 evicted_set_index) const
 {
-   LOG_ASSERT_ERROR(m_persistence_policy != PersistencePolicy::BALANCED, "Persistence policy not yet implemented");
+   const auto persistence_policy = dynamic_cast<LastLevelCache*>(m_master->m_cache)->getPersistencePolicy();
+   printf("PERSISTENCE POLICY: %d\n", static_cast<int>(persistence_policy));
+   LOG_ASSERT_ERROR(persistence_policy != PersistencePolicy::BALANCED, "Persistence policy not yet implemented");
 
    std::queue<CacheBlockInfo*> dirty_blocks;
    std::vector<std::pair<UInt32, double>> other_sets;
@@ -112,14 +113,14 @@ CacheCntlr::selectDirtyBlocks(const UInt32 evicted_set_index) const
    for (UInt32 i = 0; i < m_master->m_cache->getNumSets(); i++)
    {
       if (i == evicted_set_index) continue;
-      if (const auto used = m_persistence_policy == PersistencePolicy::FULLEST_FIRST ? m_master->m_cache->getSetCapacityUsed(i) : 1;
+      if (const auto used = persistence_policy == PersistencePolicy::FULLEST_FIRST ? m_master->m_cache->getSetCapacityUsed(i) : 1;
           used > 0)
       {
          other_sets.emplace_back(i, used);
       }
    }
 
-   if (m_persistence_policy == PersistencePolicy::FULLEST_FIRST)
+   if (persistence_policy == PersistencePolicy::FULLEST_FIRST)
    {
       std::ranges::sort(other_sets.begin(), other_sets.end(), [](const auto& a, const auto& b) {
          return a.second > b.second;
@@ -158,19 +159,6 @@ void CacheCntlr::sendMsg(const PrL1PrL2DramDirectoryMSI::ShmemMsg::msg_t msg_typ
                                m_core_id_master, getHome(address), /* requester and receiver */
                                address, data_buf, data_buf != nullptr ? getCacheBlockSize() : 0,
                                HitWhere::UNKNOWN, &m_dummy_shmem_perf, ShmemPerfModel::_SIM_THREAD);
-}
-
-CacheCntlr::PersistencePolicy
-CacheCntlr::getPersistencePolicy()
-{
-   const auto param = "donuts/persistence_policy";
-   const auto value = Sim()->getCfg()->hasKey(param) ? Sim()->getCfg()->getString(param) : "sequential";
-
-   if (value == "sequential") return PersistencePolicy::SEQUENTIAL;
-   if (value == "fullest_first") return PersistencePolicy::FULLEST_FIRST;
-   if (value == "balanced") return PersistencePolicy::BALANCED;
-
-   LOG_ASSERT_ERROR(false, "Persistence policy not found: %", value.c_str());
 }
 
 /********************************************************************************

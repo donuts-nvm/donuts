@@ -5,9 +5,17 @@
 namespace donuts
 {
 
+enum class PersistencePolicy
+{
+   SEQUENTIAL,
+   FULLEST_FIRST,
+   BALANCED
+};
+
 class LastLevelCache final : public Cache
 {
 public:
+
    LastLevelCache(const String& name,
                   const String& cfgname,
                   core_id_t core_id,
@@ -27,16 +35,21 @@ public:
 
    [[nodiscard]] float getThreshold() const { return m_threshold; }
    [[nodiscard]] float getSetThreshold() const { return m_set_threshold; }
+   [[nodiscard]] PersistencePolicy getPersistencePolicy() const { return m_persistence_policy; }
 
    [[nodiscard]] static bool isDonutsLLC(const String& cfgname);
 
 private:
-   static constexpr float DEFAULT_CACHE_THRESHOLD = 0.75;
+   static constexpr auto DEFAULT_CACHE_THRESHOLD = 0.75f;
+   static constexpr auto DEFAULT_PERSISTENCE_POLICY = "sequential";
+
    float m_set_threshold;
    float m_threshold;
+   PersistencePolicy m_persistence_policy;
    UInt32 m_last_inserted_index;
 
    [[nodiscard]] static float loadThreshold(const String& cfgname, core_id_t core_id);
+   [[nodiscard]] static PersistencePolicy loadPersistencePolicy(const String& cfgname, core_id_t core_id);
 };
 
 }

@@ -9,13 +9,6 @@ namespace donuts
 class CacheCntlr final : public ParametricDramDirectoryMSI::CacheCntlr
 {
 public:
-   enum class PersistencePolicy
-   {
-      SEQUENTIAL,
-      FULLEST_FIRST,
-      BALANCED
-   };
-
    CacheCntlr(MemComponent::component_t mem_component,
               const String& name,
               core_id_t core_id,
@@ -35,7 +28,6 @@ public:
 
 private:
    EpochCntlr& m_epoch_cntlr;
-   PersistencePolicy m_persistence_policy;
 
    void addDirtyBlocksFromSet(std::queue<CacheBlockInfo*>& dirty_blocks, UInt32 set_index) const;
    std::queue<CacheBlockInfo*> selectDirtyBlocks(UInt32 evicted_set_index) const;
@@ -45,8 +37,6 @@ private:
    void sendMsg(PrL1PrL2DramDirectoryMSI::ShmemMsg::msg_t msg_type, IntPtr address, Byte* data_buf);
 
    void printCache(); // ONLY FOR DEBUG //
-
-   static PersistencePolicy getPersistencePolicy();
 };
 
 }

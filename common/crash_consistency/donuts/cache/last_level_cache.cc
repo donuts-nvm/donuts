@@ -39,6 +39,7 @@ LastLevelCache::LastLevelCache(const String& name,
           }),
     m_set_threshold(CacheSetDonuts::loadThreshold(cfgname, core_id)),
     m_threshold(loadThreshold(cfgname, core_id)),
+    m_persistence_policy(loadPersistencePolicy(cfgname, core_id)),
     m_last_inserted_index(0)
 {
    LOG_ASSERT_ERROR(cache_type == CacheBase::SHARED_CACHE, "Invalid cache type")
@@ -67,6 +68,19 @@ float LastLevelCache::loadThreshold(const String& cfgname, const core_id_t core_
                                                      DEFAULT_CACHE_THRESHOLD;
    LOG_ASSERT_ERROR(value > 0.0 && value <= 1.0, "The cache threshold must be a value greater than 0.0 and less than or equal to 1.0");
    return value;
+}
+
+PersistencePolicy LastLevelCache::loadPersistencePolicy(const String& cfgname, const core_id_t core_id)
+{
+   const auto key   = cfgname + "/persistence_policy";
+   const auto value = Sim()->getCfg()->hasKey(key) ? Sim()->getCfg()->getStringArray(key, core_id) :
+                                                     DEFAULT_PERSISTENCE_POLICY;
+
+   if (value == "sequential") return PersistencePolicy::SEQUENTIAL;
+   if (value == "fullest_first") return PersistencePolicy::FULLEST_FIRST;
+   if (value == "balanced") return PersistencePolicy::BALANCED;
+
+   LOG_ASSERT_ERROR(false, "Persistence policy not found: %", value.c_str());
 }
 
 bool LastLevelCache::isDonutsLLC(const String& cfgname)
