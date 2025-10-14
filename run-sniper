@@ -19,6 +19,7 @@ def usage():
         '  [-s <script>]' + \
         '  [--roi]' + \
         '  [--roi-script]' + \
+        '  [--pacsim]' + \
         '  [--viz]' + \
         '  [--viz-aso]' + \
         '  [--profile]' + \
@@ -62,6 +63,7 @@ outputdir = '.'
 configfiles = []
 sniperoptions = []
 roi_only = False
+enable_pacsim = False
 roi_script = False
 sim_end = 'first'
 sim_end_valid = ('first', 'last', 'last-restart')
@@ -198,7 +200,7 @@ def va2pa_valid():
   else:
     return True
 
-record_trace_passthrough = [ 'pid-continue', 'stop-address=', 'frontend-option=', 'maxthreads=' ]
+record_trace_passthrough = [ 'pid-continue', 'stop-address=', 'frontend-option=', 'maxthreads=', 'pacsim' ]
 
 try:
   opts, cmdline = getopt.getopt(
@@ -206,6 +208,7 @@ try:
     "hvn:m:d:c:g:s:",
     [
       "roi", "roi-script",
+      "pacsim",
       "viz", "viz-aso",
       "profile", "memory-profile", "cheetah",
       "perf", "valgrind", "wrap-sim=",
@@ -262,6 +265,17 @@ for o, a in opts:
     roi_only = True
   if o == '--roi-script':
     roi_script = True
+  if o == "--pacsim":
+    sniperoptions.append('-g --general/inst_mode_init=fast_forward')
+    print("[PacSim]: enable region of interest (roi) only.")
+    roi_only = True
+    use_sift = True
+    enable_pacsim = True
+    #verbose = True
+    #sniperoptions.append('--roi')
+    #sniperoptions.append('--sift')
+    #sniperoptions.append('--v')
+
   if o == '--sim-end':
     if a not in sim_end_valid:
       print('--sim-end value', a, 'invalid, need one of', sim_end_valid, file=sys.stderr)
@@ -651,7 +665,10 @@ if tracegen:
   if sde_arch:
     trace_extra_args += [ '--sde-arch=%(sde_arch)s' % locals() ]
   for app_id, (pre_cmd, app_cmd) in enumerate(applications):
-    tracecmd = pre_cmd + [ os.path.join(HOME, 'record-trace'), '-o', traceprefix ] + (['-v'] if verbose else []) + trace_extra_args + app_cmd
+    tracecmd = pre_cmd + [ os.path.join(HOME, 'record-trace'), '-o', traceprefix ]
+    if enable_pacsim:
+        tracecmd += ['--pacsim'] 
+    tracecmd += (['-v'] if verbose else []) + trace_extra_args + app_cmd
     tracecmds.append(tracecmd)
     if tracegen['redirect']: # redirect output
       threading.Thread(target = run_sniper.run_program_redirect, args = (app_id, run_sift_recorder, tracecmd, outputdir)).start()
@@ -897,7 +914,16 @@ stopping = True
 t_end = time.time()
 t_elapsed = t_end - t_start
 print('[SNIPER] End')
+#if enable_pacsim:
+    
+#    print('[SNIPER] Elapsed time:', '%.02f' % t_elapsed, 'seconds')
+#else:
 print('[SNIPER] Elapsed time:', '%.02f' % t_elapsed, 'seconds')
+import pacsim 
+
+if enable_pacsim:
+    info = pacsim.get_sim_time("./")
+    print(info)
 
 if tracegen:
   # If we get here, there might still be some front-end processes running (maybe a deadlocked sift recorder trace?). If so, kill those processes
