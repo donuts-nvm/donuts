@@ -126,7 +126,8 @@ std::unique_ptr<DramWriteQueuePerfModel>
 DramWriteQueuePerfModel::create(const core_id_t core_id)
 {
    if (Sim()->getCfg()->getBoolDefault("perf_model/dram/write_queue/enabled", false))
-      return std::unique_ptr<DramWriteQueuePerfModel>(new DramWriteQueuePerfModel(core_id));
+      // return std::unique_ptr<DramWriteQueuePerfModel>(new DramWriteQueuePerfModel(core_id));
+         return std::make_unique<DramWriteQueuePerfModel>(core_id);
 
    return nullptr;
 }

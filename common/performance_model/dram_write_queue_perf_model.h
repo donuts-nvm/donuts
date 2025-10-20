@@ -8,13 +8,14 @@
 class DramWriteQueuePerfModel
 {
 public:
+   explicit DramWriteQueuePerfModel(core_id_t core_id, UInt32 num_entries, bool merging, UInt8 burst_size,
+                                    const SubsecondTime& write_latency, SubsecondTime enqueue_latency);
+
    SubsecondTime sendAndCalculateDelay(IntPtr address, const SubsecondTime& write_msg_time);
 
    static std::unique_ptr<DramWriteQueuePerfModel> create(core_id_t core_id);
 
 private:
-   explicit DramWriteQueuePerfModel(core_id_t core_id);
-
    void consume(const SubsecondTime& now);
    void print() const;
 
